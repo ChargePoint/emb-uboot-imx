@@ -955,7 +955,7 @@ static int do_env_import(struct cmd_tbl *cmdtp, int flag,
 	ptr = map_sysmem(addr, 0);
 
 	if (argc >= 2 && strcmp(argv[1], "-")) {
-		size = hextoul(argv[1], NULL);
+		size = simple_strtoul(argv[1], NULL, 16);
 	} else if (chk) {
 		puts("## Error: external checksum format must pass size\n");
 		return CMD_RET_FAILURE;
@@ -1305,16 +1305,6 @@ static char env_help_text[] =
 #endif
 #if defined(CONFIG_CMD_IMPORTENV)
 	"env import [-d] [-t [-r] | -b | -c] addr [size] [var ...] - import environment\n"
-#endif
-#if defined(CONFIG_CMD_NVEDIT_INDIRECT)
-	"env indirect <to> <from> [default] - sets <to> to the value of <from>, using [default] when unset\n"
-#endif
-#if defined(CONFIG_CMD_NVEDIT_INFO)
-	"env info - display environment information\n"
-	"env info [-d] [-p] [-q] - evaluate environment information\n"
-	"      \"-d\": default environment is used\n"
-	"      \"-p\": environment can be persisted\n"
-	"      \"-q\": quiet output\n"
 #endif
 	"env print [-a | name ...] - print environment\n"
 #if defined(CONFIG_CMD_NVEDIT_EFI)
