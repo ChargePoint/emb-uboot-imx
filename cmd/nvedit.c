@@ -596,9 +596,99 @@ static int do_env_edit(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 #endif /* CONFIG_CMD_EDITENV */
 
-#if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
-static int do_env_save(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[])
+/*
+ * Look up variable from environment,
+ * return address of storage for that variable,
+ * or NULL if not found
+ */
+char *env_get(const char *name)
+{
+	if (gd->flags & GD_FLG_ENV_READY) { /* after import into hashtable */
+		ENTRY e, *ep;
+
+		WATCHDOG_RESET();
+
+		e.key	= name;
+		e.data	= NULL;
+		hsearch_r(e, FIND, &ep, &env_htab, 0);
+
+		return ep ? ep->data : NULL;
+	}
+
+	/* restricted capabilities before import */
+	if (env_get_f(name, (char *)(gd->env_buf), sizeof(gd->env_buf)) > 0)
+		return (char *)(gd->env_buf);
+
+	return NULL;
+}
+
+/*
+ * Look up variable from environment for restricted C runtime env.
+ */
+int env_get_f(const char *name, char *buf, unsigned len)
+{
+	int i, nxt, c;
+
+	for (i = 0; env_get_char(i) != '\0'; i = nxt + 1) {
+		int val, n;
+
+		for (nxt = i; (c = env_get_char(nxt)) != '\0'; ++nxt) {
+			if (c < 0)
+				return c;
+			if (nxt >= CONFIG_ENV_SIZE)
+				return -1;
+		}
+
+		val = envmatch((uchar *)name, i);
+		if (val < 0)
+			continue;
+
+		/* found; copy out */
+		for (n = 0; n < len; ++n, ++buf) {
+			c = env_get_char(val++);
+			if (c < 0)
+				return c;
+			*buf = c;
+			if (*buf == '\0')
+				return n;
+		}
+
+		if (n)
+			*--buf = '\0';
+
+		printf("env_buf [%u bytes] too small for value of \"%s\"\n",
+		       len, name);
+
+		return n;
+	}
+
+	return -1;
+}
+
+/**
+ * Decode the integer value of an environment variable and return it.
+ *
+ * @param name		Name of environemnt variable
+ * @param base		Number base to use (normally 10, or 16 for hex)
+ * @param default_val	Default value to return if the variable is not
+ *			found
+ * @return the decoded value, or default_val if not found
+ */
+ulong env_get_ulong(const char *name, int base, ulong default_val)
+{
+	/*
+	 * We can use env_get() here, even before relocation, since the
+	 * environment variable value is an integer and thus short.
+	 */
+	const char *str = env_get(name);
+
+	return str ? simple_strtoul(str, NULL, base) : default_val;
+}
+
+#ifndef CONFIG_SPL_BUILD
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
+static int do_env_save(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	return env_save() ? 1 : 0;
 }
