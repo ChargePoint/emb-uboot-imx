@@ -31,6 +31,8 @@
 
 # Build tree
 /build-*
+/build
+/build64
 
 #
 # Top-level generic files

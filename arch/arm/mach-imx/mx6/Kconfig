@@ -402,6 +402,11 @@ config TARGET_MX6DLSABRESD
     select TARGET_MX6SABRESD_COMMON
     select MX6DL
 
+config TARGET_MX6DLSABRESD_PBC
+    bool "mx6dlsabresd"
+    select TARGET_MX6SABRESD
+    select MX6D
+
 config TARGET_MX6SOLOSABRESD
 	bool "mx6solosabresd"
     select TARGET_MX6SABRESD_COMMON
@@ -719,6 +724,7 @@ source "board/engicam/imx6ul/Kconfig"
 source "board/freescale/mx6qarm2/Kconfig"
 source "board/freescale/mx6memcal/Kconfig"
 source "board/freescale/mx6sabreauto/Kconfig"
+source "board/freescale/mx6sabresd_pbc/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"
 source "board/freescale/mx6slevk/Kconfig"
 source "board/freescale/mx6sll_arm2/Kconfig"
