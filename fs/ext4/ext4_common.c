@@ -1611,6 +1611,7 @@ int ext4fs_read_inode(struct ext2_data *data, int ino, struct ext2_inode *inode)
 	blkgrp = zalloc(get_fs()->gdsize);
 	if (!blkgrp)
 		return 0;
+	}
 
 	/* It is easier to calculate if the first inode is 0. */
 	ino--;
