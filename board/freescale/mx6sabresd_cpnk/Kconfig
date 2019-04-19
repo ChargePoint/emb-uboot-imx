@@ -1,0 +1,18 @@
+if TARGET_MX6QPSABRESD_CPNK
+
+config SYS_BOARD
+	default "mx6sabresd_cpnk"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "mx6sabresd_cpnk"
+
+config SYS_TEXT_BASE
+    default 0x17800000
+
+endif

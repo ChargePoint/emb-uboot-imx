@@ -1531,7 +1531,7 @@ unsigned int fastboot_flash_get_ptn_count(void)
 }
 
 #ifdef CONFIG_FSL_FASTBOOT
-void board_fastboot_setup(void)
+__weak void board_fastboot_setup(void)
 {
 #if defined(CONFIG_FASTBOOT_STORAGE_MMC)
 	static char boot_dev_part[32];

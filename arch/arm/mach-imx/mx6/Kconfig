@@ -121,6 +121,15 @@ config TARGET_MX6SABREAUTO
     select BOARD_EARLY_INIT_F
     select NXP_BOARD_REVISION
 
+config TARGET_MX6QPSABRESD_CPNK
+    bool "mx6sabresd_cpnk"
+    select BOARD_LATE_INIT
+    select DM
+    select DM_THERMAL
+    select BOARD_EARLY_INIT_F
+    select NXP_BOARD_REVISION
+    select MX6QP
+
 config TARGET_MX6SABRESD
     bool
     select BOARD_LATE_INIT
@@ -635,6 +644,7 @@ source "board/freescale/mx6qarm2/Kconfig"
 source "board/freescale/mx6memcal/Kconfig"
 source "board/freescale/mx6sabreauto/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"
+source "board/freescale/mx6sabresd_cpnk/Kconfig"
 source "board/freescale/mx6slevk/Kconfig"
 source "board/freescale/mx6sll_arm2/Kconfig"
 source "board/freescale/mx6sllevk/Kconfig"
