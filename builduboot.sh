@@ -6,5 +6,5 @@ threads=`expr $cores + 2`
 mkdir -p build
 make ARCH=arm mrproper
 make ARCH=arm distclean
-make O=build ARCH=arm mx6qpsabresd_defconfig
+make O=build ARCH=arm mx6dlsabresd_pbc_defconfig
 make O=build ARCH=arm -j $threads
