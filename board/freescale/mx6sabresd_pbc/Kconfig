@@ -15,4 +15,16 @@ config SYS_CONFIG_NAME
 config SYS_TEXT_BASE
     default 0x17800000
 
+config CONSOLE_DEV
+    default "ttymxc0"
+
+config OTA_ENV_SETTINGS
+    default ""
+
+config SYS_HUSH_PARSER
+    default y
+
+config SYS_NOSMP
+    default n
+
 endif
