@@ -56,26 +56,55 @@ int dram_init(void)
 	return 0;
 }
 
-#define PM_INT_N            IMX_GPIO_NR(1, 0)
-#define ETH_PWR_EN          IMX_GPIO_NR(1, 2)
-#define USB_OTG_ID          IMX_GPIO_NR(1, 1)
-#define PHY_RSTn            IMX_GPIO_NR(1, 3)
-#define SOC_FLOAT_TRIP1     IMX_GPIO_NR(1, 4)
-#define SOC_FLOAT_TRIP2     IMX_GPIO_NR(1, 5)
-#define SER_PWR_EN          IMX_GPIO_NR(1, 6)
-#define SOC_LED             IMX_GPIO_NR(1, 9)
-#define SOC_REED1           IMX_GPIO_NR(1, 16)
-#define SOC_REED2           IMX_GPIO_NR(1, 17)
-#define SOC_REED3           IMX_GPIO_NR(1, 18)
-#define SOC_REED4           IMX_GPIO_NR(1, 19)
-#define GPIO_DBG_LED5       IMX_GPIO_NR(2, 0)
-#define GPIO_DBG_LED7       IMX_GPIO_NR(2, 1)
-#define GPIO_DBG_LED10      IMX_GPIO_NR(2, 2)
-#define GPIO_DBG_LED9       IMX_GPIO_NR(2, 3)
-#define RS485_DE            IMX_GPIO_NR(3, 25)
-#define RS485_REn           IMX_GPIO_NR(3, 28)
-#define PMIC_INT_B          IMX_GPIO_NR(3, 29)
-#define EN_PMIC_I2C         IMX_GPIO_NR(5, 12)
+
+// Input:
+#define PM_INT_N            IMX_GPIO_NR(1,0)
+#define SOC_FLOAT_TRIP1     IMX_GPIO_NR(1,4)
+#define SOC_FLOAT_TRIP2     IMX_GPIO_NR(1,5)
+#define SOC_REED1           IMX_GPIO_NR(7,11)
+#define SOC_REED2           IMX_GPIO_NR(7,12)
+#define SOC_REED3           IMX_GPIO_NR(7,13)
+#define SOC_REED4           IMX_GPIO_NR(4,5)
+#define ACCEL_INT_B         IMX_GPIO_NR(6,11)
+#define MAG_INT_B           IMX_GPIO_NR(6,14)
+#define MAG_DRDY            IMX_GPIO_NR(6,15)
+#define SOC_SURGE_DET2      IMX_GPIO_NR(6,7)
+#define SOC_SURGE_DET1      IMX_GPIO_NR(6,8)
+#define SOC_SURGE_DET3      IMX_GPIO_NR(6,9)
+#define SOC_SURGE_DET4      IMX_GPIO_NR(6,10)
+#define SOC_SURGE_DET5      IMX_GPIO_NR(2,4)
+#define PS2SOC_PG           IMX_GPIO_NR(2,6)
+#define FAN_TACH_DSP0       IMX_GPIO_NR(2,14)
+#define FAN_TACH_DSP1       IMX_GPIO_NR(2,15)
+#define RTD_DRDYn           IMX_GPIO_NR(3,16)
+#define SOC_THER_SW1        IMX_GPIO_NR(3,23)
+#define SOC_THER_SW2        IMX_GPIO_NR(3,24)
+#define SOC_THER_SW3        IMX_GPIO_NR(3,30)
+#define SOC_THER_SW4        IMX_GPIO_NR(3,31)
+#define PMIC_INT_B          IMX_GPIO_NR(3,29)
+#define USB_OTG_ID          IMX_GPIO_NR(1,1)
+
+// Output:
+#define ETH_PWR_EN          IMX_GPIO_NR(1,2)
+#define PHY_RSTn            IMX_GPIO_NR(1,3)
+#define SER_PWR_EN          IMX_GPIO_NR(1,6)
+#define GPIO2_0             IMX_GPIO_NR(2,0)
+#define GPIO2_1             IMX_GPIO_NR(2,1)
+#define GPIO2_2             IMX_GPIO_NR(2,2)
+#define GPIO2_3             IMX_GPIO_NR(2,3)
+#define FAN1_SP_CTRL        IMX_GPIO_NR(2,12)
+#define FAN2_SP_CTRL        IMX_GPIO_NR(2,13)
+#define RTD_START_SYNC      IMX_GPIO_NR(3,19)
+#define PM_RESET_N          IMX_GPIO_NR(3,20)
+#define EN_PMIC_I2C         IMX_GPIO_NR(5,12)
+#define RS485_DE            IMX_GPIO_NR(3,25)
+#define RS485_REn           IMX_GPIO_NR(3,28)
+
+
+#define GPIO_DBG_LED5       GPIO2_0
+#define GPIO_DBG_LED7       GPIO2_1
+#define GPIO_DBG_LED10      GPIO2_2
+#define GPIO_DBG_LED9       GPIO2_3
 
 
 static void setup_iomux_enet(void)
@@ -86,7 +115,6 @@ static void setup_iomux_enet(void)
 	gpio_set_value(PHY_RSTn, 1);
 }
 
-/* I2C1, I2C_UX_RTC  */
 static struct i2c_pads_info i2c_pad_info0 = {
         .scl = {
                 .i2c_mode = MX6_PAD_CSI0_DAT9__I2C1_SCL | I2C_PAD,
@@ -100,7 +128,6 @@ static struct i2c_pads_info i2c_pad_info0 = {
         }
 };
 
-/* I2C2, HDMI  */
 static struct i2c_pads_info i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = MX6_PAD_KEY_COL3__I2C2_SCL | I2C_PAD,
@@ -114,7 +141,6 @@ static struct i2c_pads_info i2c_pad_info1 = {
 	}
 };
 
-/* I2C3, Usonic, CSI Camera, I2S Audio */
 static struct i2c_pads_info i2c_pad_info2 = {
         .scl = {
                 .i2c_mode = MX6_PAD_EIM_D17__I2C3_SCL | I2C_PAD,
@@ -128,7 +154,6 @@ static struct i2c_pads_info i2c_pad_info2 = {
         }
 };
 
-#ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC3_BASE_ADDR},
 	{USDHC1_BASE_ADDR},
@@ -142,7 +167,10 @@ int mmc_get_env_devno(void)
 
 	bootsel = (soc_sbmr & 0x000000FF) >> 6 ;
 #ifdef CONFIG_TARGET_MX6DLSABRESD_PBC
+        printf("mmc_get_env_devno(): CONFIG_SYS_MMC_ENV_DEV...\n");
         return CONFIG_SYS_MMC_ENV_DEV;
+#else
+        printf("mmc_get_env_devno(): NOT CONFIG_SYS_MMC_ENV_DEV...\n");
 #endif
 	/* If not boot from sd/mmc, use default value */
 	if (bootsel != 1)
@@ -165,9 +193,6 @@ int mmc_map_to_kernel_blk(int dev_no)
 	return dev_no + 1;
 }
 
-#define USDHC2_CD_GPIO	IMX_GPIO_NR(2, 2)
-#define USDHC3_CD_GPIO	IMX_GPIO_NR(2, 0)
-
 int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
@@ -175,10 +200,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
     switch (cfg->esdhc_base) {
 	case USDHC3_BASE_ADDR:
-		ret = 1; /* eMMC/uSDHC3 is always present on pbc board*/
-		break;
-	case USDHC1_BASE_ADDR:
-		ret = 1; /* WLAN chip always present on pbc board */
+		ret = 1; /* eMMC/uSDHC3 is always present on PBC board*/
 		break;
 	}
 
@@ -189,6 +211,10 @@ int board_mmc_init(bd_t *bis)
 {
 	int ret;
 	int i;
+
+//board_eth_init(bis);
+//printf("setup_iomux_enet(): ...\n");
+//setup_iomux_enet();
 
     printf("board_mmc_init(): ...\n");
 	/*
@@ -221,7 +247,7 @@ int board_mmc_init(bd_t *bis)
 
 	return 0;
 }
-#endif
+
 
 int check_mmc_autodetect(void)
 {
@@ -334,39 +360,99 @@ int board_ehci_power(int port, int on)
 }
 #endif
 static unsigned gpios_output_low[] = {
+        GPIO2_0,
+        GPIO2_1,
+        GPIO2_2,
+        GPIO2_3,
+        FAN1_SP_CTRL,
+        FAN2_SP_CTRL,
+        RTD_START_SYNC,
+        PM_RESET_N,
         RS485_DE,
-        RS485_REn,
-        GPIO_DBG_LED7,
-        GPIO_DBG_LED10,
-        GPIO_DBG_LED9,
-        PHY_RSTn,
+        RS485_REn
 };
 
 static const char *gpios_output_low_names[] = {
+        "GPIO2_0",
+        "GPIO2_1",
+        "GPIO2_2",
+        "GPIO2_3",
+        "FAN1_SP_CTRL",
+        "FAN2_SP_CTRL",
+        "RTD_START_SYNC",
+        "PM_RESET_N",
         "RS485_DE",
-        "RS485_REn",
-        "GPIO_DBG_LED7",
-        "GPIO_DBG_LED10",
-        "GPIO_DBG_LED9",
-        "PHY_RSTn",
+        "RS485_REn"
 };
 
 static unsigned gpios_output_high[] = {
-        EN_PMIC_I2C,
+        ETH_PWR_EN,
+        PHY_RSTn,
         SER_PWR_EN,
-        GPIO_DBG_LED5,
+        EN_PMIC_I2C
 };
 
 static const char *gpios_output_high_names[] = {
-        "EN_PMIC_I2C",
+        "ETH_PWR_EN",
+        "PHY_RSTn",
         "SER_PWR_EN",
-        "GPIO_DBG_LED5",
+        "EN_PMIC_I2C"
 };
 
 static const unsigned gpios_input[] = {
+        PM_INT_N,
+        SOC_FLOAT_TRIP1,
+        SOC_FLOAT_TRIP2,
+        SOC_REED1,
+        SOC_REED2,
+        SOC_REED3,
+        SOC_REED4,
+        ACCEL_INT_B,
+        MAG_INT_B,
+        MAG_DRDY,
+        SOC_SURGE_DET2,
+        SOC_SURGE_DET1,
+        SOC_SURGE_DET3,
+        SOC_SURGE_DET4,
+        SOC_SURGE_DET5,
+        PS2SOC_PG,
+        FAN_TACH_DSP0,
+        FAN_TACH_DSP1,
+        RTD_DRDYn,
+        SOC_THER_SW1,
+        SOC_THER_SW2,
+        SOC_THER_SW3,
+        SOC_THER_SW4,
+        PMIC_INT_B,
+        USB_OTG_ID
 };
 
 static const char *gpios_input_names[] = {
+        "PM_INT_N",
+        "SOC_FLOAT_TRIP1",
+        "SOC_FLOAT_TRIP2",
+        "SOC_REED1",
+        "SOC_REED2",
+        "SOC_REED3",
+        "SOC_REED4",
+        "ACCEL_INT_B",
+        "MAG_INT_B",
+        "MAG_DRDY",
+        "SOC_SURGE_DET2",
+        "SOC_SURGE_DET1",
+        "SOC_SURGE_DET3",
+        "SOC_SURGE_DET4",
+        "SOC_SURGE_DET5",
+        "PS2SOC_PG",
+        "FAN_TACH_DSP0",
+        "FAN_TACH_DSP1",
+        "RTD_DRDYn",
+        "SOC_THER_SW1",
+        "SOC_THER_SW2",
+        "SOC_THER_SW3",
+        "SOC_THER_SW4",
+        "PMIC_INT_B",
+        "USB_OTG_ID"
 };
 
 static void gpios_request(const unsigned *p, const char **pname, int cnt)

@@ -88,14 +88,6 @@ void BOARD_InitBootPins(void);
 #define BOARD_INITPINS_SER_PWR_EN_NAME                              "SER_PWR_EN"   /*!< Identifier name */
 #define BOARD_INITPINS_SER_PWR_EN_DIRECTION             kPIN_MUX_DirectionOutput   /*!< Direction */
 
-/* GPIO_9 (coord T2), SOC_LED */
-#define BOARD_INITPINS_SOC_LED_GPIO                                        GPIO1   /*!< GPIO device name: GPIO1 */
-#define BOARD_INITPINS_SOC_LED_GPIO_PIN                                       9U   /*!< GPIO1 pin index: 9 */
-#define BOARD_INITPINS_SOC_LED_PIN_NAME                                   GPIO_9   /*!< Pin name */
-#define BOARD_INITPINS_SOC_LED_LABEL                                   "SOC_LED"   /*!< Label */
-#define BOARD_INITPINS_SOC_LED_NAME                                    "SOC_LED"   /*!< Identifier name */
-#define BOARD_INITPINS_SOC_LED_DIRECTION                kPIN_MUX_DirectionOutput   /*!< Direction */
-
 /* GPIO_16 (coord R2), SOC_REED1 */
 #define BOARD_INITPINS_SOC_REED1_GPIO                                      GPIO7   /*!< GPIO device name: GPIO7 */
 #define BOARD_INITPINS_SOC_REED1_GPIO_PIN                                    11U   /*!< GPIO7 pin index: 11 */
@@ -288,22 +280,6 @@ void BOARD_InitBootPins(void);
 #define BOARD_INITPINS_PM_RESET_N_NAME                              "PM_RESET_N"   /*!< Identifier name */
 #define BOARD_INITPINS_PM_RESET_N_DIRECTION             kPIN_MUX_DirectionOutput   /*!< Direction */
 
-/* EIM_D21 (coord H20), USB_OTG_OCn */
-#define BOARD_INITPINS_USB_OTG_OCn_GPIO                                    GPIO3   /*!< GPIO device name: GPIO3 */
-#define BOARD_INITPINS_USB_OTG_OCn_GPIO_PIN                                  21U   /*!< GPIO3 pin index: 21 */
-#define BOARD_INITPINS_USB_OTG_OCn_PIN_NAME                              EIM_D21   /*!< Pin name */
-#define BOARD_INITPINS_USB_OTG_OCn_LABEL                           "USB_OTG_OCn"   /*!< Label */
-#define BOARD_INITPINS_USB_OTG_OCn_NAME                            "USB_OTG_OCn"   /*!< Identifier name */
-#define BOARD_INITPINS_USB_OTG_OCn_DIRECTION             kPIN_MUX_DirectionInput   /*!< Direction */
-
-/* EIM_D22 (coord E23), USB_OTG_PWR */
-#define BOARD_INITPINS_USB_OTG_PWR_GPIO                                    GPIO3   /*!< GPIO device name: GPIO3 */
-#define BOARD_INITPINS_USB_OTG_PWR_GPIO_PIN                                  22U   /*!< GPIO3 pin index: 22 */
-#define BOARD_INITPINS_USB_OTG_PWR_PIN_NAME                              EIM_D22   /*!< Pin name */
-#define BOARD_INITPINS_USB_OTG_PWR_LABEL                           "USB_OTG_PWR"   /*!< Label */
-#define BOARD_INITPINS_USB_OTG_PWR_NAME                            "USB_OTG_PWR"   /*!< Identifier name */
-#define BOARD_INITPINS_USB_OTG_PWR_DIRECTION            kPIN_MUX_DirectionOutput   /*!< Direction */
-
 /* EIM_D23 (coord D25), SOC_THER_SW1 */
 #define BOARD_INITPINS_SOC_THER_SW1_GPIO                                   GPIO3   /*!< GPIO device name: GPIO3 */
 #define BOARD_INITPINS_SOC_THER_SW1_GPIO_PIN                                 23U   /*!< GPIO3 pin index: 23 */
@@ -344,13 +320,12 @@ void BOARD_InitBootPins(void);
 #define BOARD_INITPINS_PMIC_INT_B_NAME                              "PMIC_INT_B"   /*!< Identifier name */
 #define BOARD_INITPINS_PMIC_INT_B_DIRECTION              kPIN_MUX_DirectionInput   /*!< Direction */
 
-/* GPIO_1 (coord T4), USB_OTG_ID */
-#define BOARD_INITPINS_USB_OTG_ID_GPIO                                     GPIO1   /*!< GPIO device name: GPIO1 */
-#define BOARD_INITPINS_USB_OTG_ID_GPIO_PIN                                    1U   /*!< GPIO1 pin index: 1 */
-#define BOARD_INITPINS_USB_OTG_ID_PIN_NAME                                GPIO_1   /*!< Pin name */
-#define BOARD_INITPINS_USB_OTG_ID_LABEL                             "USB_OTG_ID"   /*!< Label */
-#define BOARD_INITPINS_USB_OTG_ID_NAME                              "USB_OTG_ID"   /*!< Identifier name */
-#define BOARD_INITPINS_USB_OTG_ID_DIRECTION              kPIN_MUX_DirectionInput   /*!< Direction */
+/* GPIO_9 (coord T2), SOC_LED */
+#define BOARD_INITPINS_SOC_LED_PERIPHERAL                                   PWM1   /*!< Device name: PWM1 */
+#define BOARD_INITPINS_SOC_LED_SIGNAL                                       pwmo   /*!< PWM1 signal: pwmo */
+#define BOARD_INITPINS_SOC_LED_PIN_NAME                                   GPIO_9   /*!< Pin name */
+#define BOARD_INITPINS_SOC_LED_LABEL                                   "SOC_LED"   /*!< Label */
+#define BOARD_INITPINS_SOC_LED_NAME                                    "SOC_LED"   /*!< Identifier name */
 
 /*!
  * @brief Configures pin routing and optionally pin electrical features.

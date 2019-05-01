@@ -25,6 +25,6 @@ config SYS_HUSH_PARSER
     default y
 
 config SYS_NOSMP
-    default n
+    default y
 
 endif
