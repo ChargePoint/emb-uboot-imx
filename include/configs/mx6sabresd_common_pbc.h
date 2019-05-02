@@ -75,8 +75,8 @@
 	"ota_recovery_device=/dev/mmcblk0p3\0" \
 	"ota_recovery_filename=recovery.tar.xz\0" \
 	"ota_engine_load=ext4load mmc ${mmcdev}:4 ${loadaddr} ${ota_engine}; if test $? -ne 0; then echo cannot load ${ota_engine} from ${mmcdev}:4...; ext4load mmc ${mmcdev}:3 ${loadaddr} ${ota_engine}; fi\0" \
-	"do_usb_ota=fatload usb 0:1 ${loadaddr} ${ota_engine}; setenv bootargs console=${console},${baudrate} video=mxcfb0:dev=ldb,1024x768M@60,bpp=32,if=RGB24 noinitrd mmcblk.perdev_minors=16 ota_device=/dev/sda1 ota_filename=${ota_filename}; bootm ${loadaddr}\0" \
-	"do_ota=run ota_engine_load; setenv bootargs console=${console},${baudrate} video=mxcfb0:dev=ldb,1024x768M@60,bpp=32,if=RGB24 noinitrd mmcblk.perdev_minors=16 ota_device=${ota_device} ota_filename=$(ota_filename); bootm ${loadaddr}\0" \
+	"do_usb_ota=fatload usb 0:1 ${loadaddr} ${ota_engine}; setenv bootargs console=${console},${baudrate}  noinitrd mmcblk.perdev_minors=16 ota_device=/dev/sda1 ota_filename=${ota_filename}; bootm ${loadaddr}\0" \
+	"do_ota=run ota_engine_load; setenv bootargs console=${console},${baudrate}  noinitrd mmcblk.perdev_minors=16 ota_device=${ota_device} ota_filename=$(ota_filename); bootm ${loadaddr}\0" \
 	"bootcmd_mfg=usb start; if fatsize usb 0:1 ${ota_engine}; then run do_usb_ota; fi;\0" \
 
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
@@ -152,8 +152,8 @@
 	"ota_recovery_device=/dev/mmcblk0p3\0" \
 	"ota_recovery_filename=recovery.tar.xz\0" \
 	"ota_engine_load=ext4load mmc ${mmcdev}:4 ${loadaddr} ${ota_engine}; if test $? -ne 0; then echo cannot load ${ota_engine} from ${mmcdev}:4...; ext4load mmc ${mmcdev}:3 ${loadaddr} ${ota_engine}; fi\0" \
-	"do_usb_ota=fatload usb 0:1 ${loadaddr} ${ota_engine}; setenv bootargs console=${console},${baudrate} video=mxcfb0:dev=ldb,1024x768M@60,bpp=32,if=RGB24 noinitrd mmcblk.perdev_minors=16 ota_device=/dev/sda1 ota_filename=${ota_filename}; bootm ${loadaddr}\0" \
-	"do_ota=run ota_engine_load; setenv bootargs console=${console},${baudrate} video=mxcfb0:dev=ldb,1024x768M@60,bpp=32,if=RGB24 noinitrd mmcblk.perdev_minors=16 ota_device=${ota_device} ota_filename=${ota_filename}; bootm ${loadaddr}\0" \
+	"do_usb_ota=fatload usb 0:1 ${loadaddr} ${ota_engine}; setenv bootargs console=${console},${baudrate}  noinitrd mmcblk.perdev_minors=16 ota_device=/dev/sda1 ota_filename=${ota_filename}; bootm ${loadaddr}\0" \
+	"do_ota=run ota_engine_load; setenv bootargs console=${console},${baudrate}  noinitrd mmcblk.perdev_minors=16 ota_device=${ota_device} ota_filename=${ota_filename}; bootm ${loadaddr}\0" \
 	"check_partitions=filesystems_ok=0 ; setenv stdout nulldev ; if ext4ls mmc 0:4 && ext4ls mmc 0:5 && ext4ls mmc 0:6 && ext4ls mmc 0:7 && ext4ls mmc 0:8 ; then echo file systems okay...; filesystems_ok=1; fi ; setenv stdout serial\0" \
 	"fix_partitions=run check_partitions; if test $filesystems_ok -ne 1; then echo file system corrupted !; setenv ota_device ${ota_recovery_device}; setenv ota_filename ${ota_recovery_filename}; run do_ota; fi\0" \
 
@@ -162,10 +162,9 @@
 	CONFIG_OTA_ENV_SETTINGS \
 	"version_uboot=" U_BOOT_VERSION "\0" \
 	"epdc_waveform=epdc_splash.bin\0" \
-	"video=video=mxcfb0:dev=ldb,1024x768M@60,bpp=32,if=RGB24\0" \
 	"script=boot.scr\0" \
 	"image=/boot/zImage\0" \
-	"fdt_file=/boot/imx6dl-sabresd-pbc.dtb\0" \
+	"fdt_file=/boot/imx6dp-chargepoint-pbc.dtb\0" \
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
@@ -191,7 +190,7 @@
 		"fi\0" \
 	EMMC_ENV	  \
 	"smp=" CONFIG_SYS_NOSMP "\0"\
-	"mmcargs=setenv bootargs console=${console},${baudrate} mmcblk.perdev_minors=16 reset_cause=${reset_cause} ${smp} ${video} " \
+	"mmcargs=setenv bootargs console=${console},${baudrate} mmcblk.perdev_minors=16 reset_cause=${reset_cause} ${smp}" \
 		"root=${mmcroot} init=/sbin/init.chargepoint ${mfg_mode} ${rootfs_rw_mode}\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
