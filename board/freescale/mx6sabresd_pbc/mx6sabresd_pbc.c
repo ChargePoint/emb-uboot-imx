@@ -99,6 +99,7 @@ int dram_init(void)
 #define EN_PMIC_I2C         IMX_GPIO_NR(5,12)
 #define RS485_DE            IMX_GPIO_NR(3,25)
 #define RS485_REn           IMX_GPIO_NR(3,28)
+#define USB_OTG_PWR         IMX_GPIO_NR(3,22)
 
 
 #define GPIO_DBG_LED5       GPIO2_0
@@ -347,9 +348,9 @@ int board_ehci_power(int port, int on)
 		break;
 	case 1:
 		if (on)
-			gpio_direction_output(IMX_GPIO_NR(1, 4), 1);
+			gpio_direction_output(USB_OTG_PWR, 1);
 		else
-			gpio_direction_output(IMX_GPIO_NR(1, 4), 0);
+			gpio_direction_output(USB_OTG_PWR, 0);
 		break;
 	default:
 		printf("MXC USB port %d not yet supported\n", port);
@@ -389,14 +390,16 @@ static unsigned gpios_output_high[] = {
         ETH_PWR_EN,
         PHY_RSTn,
         SER_PWR_EN,
-        EN_PMIC_I2C
+        EN_PMIC_I2C,
+        USB_OTG_PWR
 };
 
 static const char *gpios_output_high_names[] = {
         "ETH_PWR_EN",
         "PHY_RSTn",
         "SER_PWR_EN",
-        "EN_PMIC_I2C"
+        "EN_PMIC_I2C",
+        "USB_OTG_PWR"
 };
 
 static const unsigned gpios_input[] = {

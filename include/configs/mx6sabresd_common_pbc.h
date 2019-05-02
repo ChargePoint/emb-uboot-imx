@@ -42,7 +42,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV          0       /* MMC0 */
 #define CONFIG_SYS_MMC_ENV_PART         2       /* eMMB boot2 parition */
 
-#define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
@@ -54,7 +53,6 @@
 #define CONFIG_FEC_MXC_PHYADDR		1
 
 #define CONFIG_PHYLIB
-#define CONFIG_PHY_ATHEROS
 
 #ifdef CONFIG_MX6S
 #define SYS_NOSMP "nosmp"
