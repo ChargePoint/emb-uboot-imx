@@ -3,7 +3,7 @@ CONFIG_ARCH_MX6=y
 CONFIG_DM=y
 CONFIG_TARGET_MX6DLSABRESD_PBC=y
 # CONFIG_VIDEO is not set
-CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx6sabresd_pbc/mx6dl_pbc.cfg"
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx6sabresd_pbc/mx6dp_pbc.cfg"
 CONFIG_ENV_IS_IN_MMC=y
 CONFIG_BOOTDELAY=5
 # CONFIG_CONSOLE_MUX is not set
