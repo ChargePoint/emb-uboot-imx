@@ -336,7 +336,7 @@ config TARGET_MX6DLSABRESD
 config TARGET_MX6DLSABRESD_PBC
     bool "mx6dlsabresd"
     select TARGET_MX6SABRESD
-    select MX6DL
+    select MX6D
 
 config TARGET_MX6SOLOSABRESD
 	bool "mx6solosabresd"
