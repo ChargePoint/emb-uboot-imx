@@ -60,6 +60,8 @@
 #define SYS_NOSMP
 #endif
 
+#define CONFIG_SYS_MMC_IMG_LOAD_PART	5
+
 #ifdef CONFIG_NAND_BOOT
 #define MFG_NAND_PARTITION "mtdparts=8000000.nor:1m(boot),-(rootfs)\\;gpmi-nand:64m(nandboot),16m(nandkernel),16m(nanddtb),16m(nandtee),-(nandrootfs) "
 #else
