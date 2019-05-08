@@ -22,6 +22,8 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
+#define CONFIG_MMCROOT "/dev/mmcblk0p5"
+
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_IMX_THERMAL
 
