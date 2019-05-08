@@ -262,7 +262,7 @@ int check_mmc_autodetect(void)
 	return 0;
 }
 
-#if 0
+#if 1
 void board_late_mmc_env_init(void)
 {
 	char cmd[32];
