@@ -368,7 +368,6 @@ static unsigned gpios_output_low[] = {
         FAN1_SP_CTRL,
         FAN2_SP_CTRL,
         RTD_START_SYNC,
-        PM_RESET_N,
         RS485_DE,
         RS485_REn
 };
@@ -381,7 +380,6 @@ static const char *gpios_output_low_names[] = {
         "FAN1_SP_CTRL",
         "FAN2_SP_CTRL",
         "RTD_START_SYNC",
-        "PM_RESET_N",
         "RS485_DE",
         "RS485_REn"
 };
@@ -391,7 +389,8 @@ static unsigned gpios_output_high[] = {
         PHY_RSTn,
         SER_PWR_EN,
         EN_PMIC_I2C,
-        USB_OTG_PWR
+        USB_OTG_PWR,
+        PM_RESET_N
 };
 
 static const char *gpios_output_high_names[] = {
@@ -399,7 +398,8 @@ static const char *gpios_output_high_names[] = {
         "PHY_RSTn",
         "SER_PWR_EN",
         "EN_PMIC_I2C",
-        "USB_OTG_PWR"
+        "USB_OTG_PWR",
+        "PM_RESET_N"
 };
 
 static const unsigned gpios_input[] = {
