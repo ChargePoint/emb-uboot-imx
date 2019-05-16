@@ -485,6 +485,8 @@ static void set_gpios(unsigned *p, int cnt, int val)
 int board_early_init_f(void)
 {
     BOARD_InitPins();
+    // select 1P5V drive strength on RGMII i/o pins
+    __raw_writel(DDR_SEL_1P5V_IO, (void *)IOMUXC_SW_PAD_CTL_GRP_DDR_TYPE_RGMII);
 
 	return 0;
 }
