@@ -680,6 +680,7 @@ static const struct boot_mode board_boot_modes[] = {
 int board_late_init(void)
 {
         char *env = NULL;
+        char *btype = "unknown";
 
         printf("board_late_init(): ...\n");
 
@@ -692,10 +693,11 @@ int board_late_init(void)
 #endif
 	gpio_direction_output(GPIO_DBG_LED7, 1);
 
-        env = env_get("boardtype");
-        if(!env){
+        if (is_cpu_type(MXC_CPU_MX6DP)) { btype = "pbc"; }
+        env = env_get("board_type");
+        if(!env || strcmp(env, btype)){
                set_default_env(NULL);
-               env_set("boardtype","PBC");
+               env_set("board_type", btype);
                printf("Saving env in flash \n");
                env_save();
         }

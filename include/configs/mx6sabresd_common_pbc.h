@@ -197,7 +197,7 @@
 	EMMC_ENV	  \
 	"smp=" CONFIG_SYS_NOSMP "\0"\
 	"mmcargs=setenv bootargs console=${console},${baudrate} mmcblk.perdev_minors=16 reset_cause=${reset_cause} ${smp}" \
-		"root=${mmcroot} init=/sbin/init.chargepoint ${mfg_mode} ${rootfs_rw_mode}\0" \
+		"root=${mmcroot} init=/sbin/init.chargepoint\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
