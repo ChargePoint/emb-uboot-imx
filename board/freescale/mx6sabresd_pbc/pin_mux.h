@@ -320,13 +320,6 @@ void BOARD_InitBootPins(void);
 #define BOARD_INITPINS_PMIC_INT_B_NAME                              "PMIC_INT_B"   /*!< Identifier name */
 #define BOARD_INITPINS_PMIC_INT_B_DIRECTION              kPIN_MUX_DirectionInput   /*!< Direction */
 
-/* GPIO_9 (coord T2), SOC_LED */
-#define BOARD_INITPINS_SOC_LED_PERIPHERAL                                   PWM1   /*!< Device name: PWM1 */
-#define BOARD_INITPINS_SOC_LED_SIGNAL                                       pwmo   /*!< PWM1 signal: pwmo */
-#define BOARD_INITPINS_SOC_LED_PIN_NAME                                   GPIO_9   /*!< Pin name */
-#define BOARD_INITPINS_SOC_LED_LABEL                                   "SOC_LED"   /*!< Label */
-#define BOARD_INITPINS_SOC_LED_NAME                                    "SOC_LED"   /*!< Identifier name */
-
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *

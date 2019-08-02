@@ -270,10 +270,7 @@ BOARD_InitPins:
   - {pin_num: AA16, peripheral: PMU, signal: 'gnd, 93', pin_signal: GND93}
   - {pin_num: C1, peripheral: PMU, signal: 'gnd, 5', pin_signal: GND5}
   - {pin_num: AE1, peripheral: PMU, signal: 'gnd, 105', pin_signal: GND105}
-  - {pin_num: C2, peripheral: SJC, signal: trstb, pin_signal: JTAG_TRSTB}
-  - {pin_num: C3, peripheral: SJC, signal: tms, pin_signal: JTAG_TMS}
   - {pin_num: G5, peripheral: SJC, signal: tdi, pin_signal: JTAG_TDI}
-  - {pin_num: H5, peripheral: SJC, signal: tck, pin_signal: JTAG_TCK}
   - {pin_num: G6, peripheral: SJC, signal: tdo, pin_signal: JTAG_TDO}
   - {pin_num: H6, peripheral: SJC, signal: mod, pin_signal: JTAG_MOD}
   - {pin_num: J2, peripheral: PMU, signal: 'gnd, 26', pin_signal: GND26}
@@ -296,8 +293,6 @@ BOARD_InitPins:
   - {pin_num: D6, peripheral: PMU, signal: 'gnd, 10', pin_signal: GND10}
   - {pin_num: E6, peripheral: PMU, signal: 'gnd, 13', pin_signal: GND13}
   - {pin_num: F6, peripheral: PMU, signal: 'gnd, 16', pin_signal: GND16}
-  - {pin_num: A6, peripheral: USB, signal: usb_otg_dp, pin_signal: USB_OTG_DP}
-  - {pin_num: B6, peripheral: USB, signal: usb_otg_dn, pin_signal: USB_OTG_DN}
   - {pin_num: A7, peripheral: XTALOSC, signal: xtali, pin_signal: XTALI}
   - {pin_num: B7, peripheral: XTALOSC, signal: xtalo, pin_signal: XTALO}
   - {pin_num: E7, peripheral: PMU, signal: 'gnd, 14', pin_signal: GND14}
@@ -471,7 +466,6 @@ BOARD_InitPins:
   - {pin_num: K20, peripheral: EIM, signal: weim_rw, pin_signal: EIM_RW}
   - {pin_num: L20, peripheral: EIM, signal: 'weim_da_a, 0', pin_signal: EIM_DA0}
   - {pin_num: M20, peripheral: EIM, signal: 'weim_da_a, 11', pin_signal: EIM_DA11}
-  - {pin_num: D21, peripheral: ENET, signal: rgmii_txc, pin_signal: RGMII_TXC}
   - {pin_num: E21, peripheral: ENET, signal: rgmii_td2, pin_signal: RGMII_TD2}
   - {pin_num: J21, peripheral: EIM, signal: 'weim_a, 23', pin_signal: EIM_A23}
   - {pin_num: K21, peripheral: EIM, signal: 'weim_eb, 0', pin_signal: EIM_EB0}
@@ -526,7 +520,15 @@ BOARD_InitPins:
   - {pin_num: T4, peripheral: USB, signal: usbotg_id, pin_signal: GPIO_1, identifier: ''}
   - {pin_num: H20, peripheral: USB, signal: usbotg_oc, pin_signal: EIM_D21, identifier: ''}
   - {pin_num: E23, peripheral: USB, signal: usbotg_pwr, pin_signal: EIM_D22, identifier: ''}
-  - {pin_num: T2, peripheral: PWM1, signal: pwmo, pin_signal: GPIO_9}
+  - {pin_num: H5, peripheral: SJC, signal: tck, pin_signal: JTAG_TCK}
+  - {pin_num: C3, peripheral: SJC, signal: tms, pin_signal: JTAG_TMS}
+  - {pin_num: C2, peripheral: SJC, signal: trstb, pin_signal: JTAG_TRSTB}
+  - {pin_num: A6, peripheral: USB, signal: usb_otg_dp, pin_signal: USB_OTG_DP}
+  - {pin_num: B6, peripheral: USB, signal: usb_otg_dn, pin_signal: USB_OTG_DN}
+  - {pin_num: D21, peripheral: ENET, signal: rgmii_txc, pin_signal: RGMII_TXC}
+  - {pin_num: F18, peripheral: PWM1, signal: pwmo, pin_signal: SD1_DAT3}
+  - {pin_num: T2, peripheral: GPIO1, signal: 'gpio, 9', pin_signal: GPIO_9, identifier: ''}
+  - {pin_num: W4, peripheral: GPIO4, signal: 'gpio, 11', pin_signal: KEY_ROW2}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 
@@ -656,8 +658,8 @@ void BOARD_InitPins(void) {                                /*!< Function assigne
   // HW_IOMUXC_SW_MUX_CTL_PAD_GPIO07_CLR(IOMUXC_BASE, 0x00000004u);            /* IOMUXC_SW_MUX_CTL_PAD_GPIO07 register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_GPIO08_SET(IOMUXC_BASE, 0x00000003u);            /* IOMUXC_SW_MUX_CTL_PAD_GPIO08 register set mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_GPIO08_CLR(IOMUXC_BASE, 0x00000004u);            /* IOMUXC_SW_MUX_CTL_PAD_GPIO08 register clear mask value */
-  // HW_IOMUXC_SW_MUX_CTL_PAD_GPIO09_SET(IOMUXC_BASE, 0x00000004u);            /* IOMUXC_SW_MUX_CTL_PAD_GPIO09 register set mask value */
-  // HW_IOMUXC_SW_MUX_CTL_PAD_GPIO09_CLR(IOMUXC_BASE, 0x00000003u);            /* IOMUXC_SW_MUX_CTL_PAD_GPIO09 register clear mask value */
+  // HW_IOMUXC_SW_MUX_CTL_PAD_GPIO09_SET(IOMUXC_BASE, 0x00000005u);            /* IOMUXC_SW_MUX_CTL_PAD_GPIO09 register set mask value */
+  // HW_IOMUXC_SW_MUX_CTL_PAD_GPIO09_CLR(IOMUXC_BASE, 0x00000002u);            /* IOMUXC_SW_MUX_CTL_PAD_GPIO09 register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_GPIO16_SET(IOMUXC_BASE, 0x00000005u);            /* IOMUXC_SW_MUX_CTL_PAD_GPIO16 register set mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_GPIO16_CLR(IOMUXC_BASE, 0x00000002u);            /* IOMUXC_SW_MUX_CTL_PAD_GPIO16 register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_GPIO17_SET(IOMUXC_BASE, 0x00000005u);            /* IOMUXC_SW_MUX_CTL_PAD_GPIO17 register set mask value */
@@ -673,6 +675,8 @@ void BOARD_InitPins(void) {                                /*!< Function assigne
   // HW_IOMUXC_SW_MUX_CTL_PAD_KEY_COL4_CLR(IOMUXC_BASE, 0x00000007u);          /* IOMUXC_SW_MUX_CTL_PAD_KEY_COL4 register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW0_CLR(IOMUXC_BASE, 0x00000007u);          /* IOMUXC_SW_MUX_CTL_PAD_KEY_ROW0 register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW1_CLR(IOMUXC_BASE, 0x00000007u);          /* IOMUXC_SW_MUX_CTL_PAD_KEY_ROW1 register clear mask value */
+  // HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW2_SET(IOMUXC_BASE, 0x00000005u);          /* IOMUXC_SW_MUX_CTL_PAD_KEY_ROW2 register set mask value */
+  // HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW2_CLR(IOMUXC_BASE, 0x00000002u);          /* IOMUXC_SW_MUX_CTL_PAD_KEY_ROW2 register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW3_SET(IOMUXC_BASE, 0x00000004u);          /* IOMUXC_SW_MUX_CTL_PAD_KEY_ROW3 register set mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW3_CLR(IOMUXC_BASE, 0x00000003u);          /* IOMUXC_SW_MUX_CTL_PAD_KEY_ROW3 register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW4_CLR(IOMUXC_BASE, 0x00000007u);          /* IOMUXC_SW_MUX_CTL_PAD_KEY_ROW4 register clear mask value */
@@ -728,6 +732,8 @@ void BOARD_InitPins(void) {                                /*!< Function assigne
   // HW_IOMUXC_SW_MUX_CTL_PAD_RGMII_TX_CTL_CLR(IOMUXC_BASE, 0x00000006u);      /* IOMUXC_SW_MUX_CTL_PAD_RGMII_TX_CTL register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_SD1_DATA2_SET(IOMUXC_BASE, 0x00000003u);         /* IOMUXC_SW_MUX_CTL_PAD_SD1_DATA2 register set mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_SD1_DATA2_CLR(IOMUXC_BASE, 0x00000004u);         /* IOMUXC_SW_MUX_CTL_PAD_SD1_DATA2 register clear mask value */
+  // HW_IOMUXC_SW_MUX_CTL_PAD_SD1_DATA3_SET(IOMUXC_BASE, 0x00000003u);         /* IOMUXC_SW_MUX_CTL_PAD_SD1_DATA3 register set mask value */
+  // HW_IOMUXC_SW_MUX_CTL_PAD_SD1_DATA3_CLR(IOMUXC_BASE, 0x00000004u);         /* IOMUXC_SW_MUX_CTL_PAD_SD1_DATA3 register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_SD3_CLK_CLR(IOMUXC_BASE, 0x00000007u);           /* IOMUXC_SW_MUX_CTL_PAD_SD3_CLK register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_SD3_CMD_CLR(IOMUXC_BASE, 0x00000007u);           /* IOMUXC_SW_MUX_CTL_PAD_SD3_CMD register clear mask value */
   // HW_IOMUXC_SW_MUX_CTL_PAD_SD3_DATA0_CLR(IOMUXC_BASE, 0x00000007u);         /* IOMUXC_SW_MUX_CTL_PAD_SD3_DATA0 register clear mask value */
@@ -922,7 +928,7 @@ void BOARD_InitPins(void) {                                /*!< Function assigne
   HW_IOMUXC_SW_MUX_CTL_PAD_GPIO08_WR(IOMUXC_BASE,
       BF_IOMUXC_SW_MUX_CTL_PAD_GPIO08_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_GPIO08_MUX_MODE_ALT3));              /* MUX Mode Select Field: Select signal FLEXCAN1_RX.- Configure register IOMUXC_FLEXCAN1_RX_SELECT_INPUTSelect Input Register for mode ALT3. */
   HW_IOMUXC_SW_MUX_CTL_PAD_GPIO09_WR(IOMUXC_BASE,
-      BF_IOMUXC_SW_MUX_CTL_PAD_GPIO09_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_GPIO09_MUX_MODE_ALT4));              /* MUX Mode Select Field: Select signal PWM1_OUT. */
+      BF_IOMUXC_SW_MUX_CTL_PAD_GPIO09_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_GPIO09_MUX_MODE_ALT5));              /* MUX Mode Select Field: Select signal GPIO1_IO09. */
   HW_IOMUXC_SW_MUX_CTL_PAD_GPIO16_WR(IOMUXC_BASE,
       BF_IOMUXC_SW_MUX_CTL_PAD_GPIO16_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_GPIO16_MUX_MODE_ALT5));              /* MUX Mode Select Field: Select signal GPIO7_IO11. */
   HW_IOMUXC_SW_MUX_CTL_PAD_GPIO17_WR(IOMUXC_BASE,
@@ -943,6 +949,8 @@ void BOARD_InitPins(void) {                                /*!< Function assigne
       BF_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW0_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW0_MUX_MODE_ALT0));          /* MUX Mode Select Field: Select signal ECSPI1_MOSI.- Configure register IOMUXC_ECSPI1_MOSI_SELECT_INPUTSelect Input Register for mode ALT0. */
   HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW1_WR(IOMUXC_BASE,
       BF_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW1_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW1_MUX_MODE_ALT0));          /* MUX Mode Select Field: Select signal ECSPI1_SS0.- Configure register IOMUXC_ECSPI1_SS0_SELECT_INPUTSelect Input Register for mode ALT0. */
+  HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW2_WR(IOMUXC_BASE,
+      BF_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW2_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW2_MUX_MODE_ALT5));          /* MUX Mode Select Field: Select signal GPIO4_IO11. */
   HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW3_WR(IOMUXC_BASE,
       BF_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW3_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW3_MUX_MODE_ALT4));          /* MUX Mode Select Field: Select signal I2C2_SDA.- Configure register IOMUXC_I2C2_SDA_IN_SELECT_INPUTSelect Input Register for mode ALT4. */
   HW_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW4_WR(IOMUXC_BASE,
@@ -999,6 +1007,8 @@ void BOARD_InitPins(void) {                                /*!< Function assigne
       BF_IOMUXC_SW_MUX_CTL_PAD_RGMII_TX_CTL_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_RGMII_TX_CTL_MUX_MODE_ALT1));  /* MUX Mode Select Field: Select signal RGMII_TX_CTL. */
   HW_IOMUXC_SW_MUX_CTL_PAD_SD1_DATA2_WR(IOMUXC_BASE,
       BF_IOMUXC_SW_MUX_CTL_PAD_SD1_DATA2_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_SD1_DATA2_MUX_MODE_ALT3));        /* MUX Mode Select Field: Select signal PWM2_OUT. */
+  HW_IOMUXC_SW_MUX_CTL_PAD_SD1_DATA3_WR(IOMUXC_BASE,
+      BF_IOMUXC_SW_MUX_CTL_PAD_SD1_DATA3_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_SD1_DATA3_MUX_MODE_ALT3));        /* MUX Mode Select Field: Select signal PWM1_OUT. */
   HW_IOMUXC_SW_MUX_CTL_PAD_SD3_CLK_WR(IOMUXC_BASE,
       BF_IOMUXC_SW_MUX_CTL_PAD_SD3_CLK_MUX_MODE(BV_IOMUXC_SW_MUX_CTL_PAD_SD3_CLK_MUX_MODE_ALT0));            /* MUX Mode Select Field: Select signal SD3_CLK. */
   HW_IOMUXC_SW_MUX_CTL_PAD_SD3_CMD_WR(IOMUXC_BASE,
