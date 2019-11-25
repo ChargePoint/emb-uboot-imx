@@ -847,6 +847,17 @@ config TARGET_IMX6CPNK
 	help
 	  A "custom" board from ChargePoint using the freescale imx6
 
+config TARGET_IMX6PBC
+	bool "imx6pbc"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select BOARD_EARLY_INIT_F
+	select NXP_BOARD_REVISION
+	select MX6QP
+	help
+	  A "custom" board from ChargePoint using the freescale imx6
+
 endchoice
 
 config SYS_SOC
@@ -863,6 +874,7 @@ source "board/boundary/nitrogen6x/Kconfig"
 source "board/bticino/mamoj/Kconfig"
 source "board/ccv/xpress/Kconfig"
 source "board/chargepoint/imx6cpnk/Kconfig"
+source "board/chargepoint/imx6pbc/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/dhelectronics/dh_imx6/Kconfig"
