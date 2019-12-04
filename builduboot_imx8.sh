@@ -7,6 +7,6 @@ mkdir -p build
 make O=build mrproper
 make O=build distclean
 make O=build clean
-make O=build imx8qxp_mek_defconfig
-#make O=build ARCH=arm mx6dlsabresd_pbc_defconfig
+make O=build imx8qxp_ucb_defconfig
+#make O=build imx8qxp_mek_defconfig
 make O=build -j $threads
