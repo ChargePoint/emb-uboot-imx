@@ -352,7 +352,7 @@ static void board_gpio_init(void)
 
 int checkboard(void)
 {
-	puts("Board: iMX8QXP MEK UCB\n");
+	puts("Board: iMX8QXP UCB\n");
     puts("Called UCB BOARD_InitPins()\n");
 
 	print_bootinfo();
@@ -651,7 +651,7 @@ int board_late_init(void)
 	bool m4_boot;
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	env_set("board_name", "MEK UCB");
+	env_set("board_name", "UCB");
 	env_set("board_rev", "iMX8QXP");
 #endif
 
