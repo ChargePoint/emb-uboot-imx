@@ -388,23 +388,23 @@ config TARGET_MX6SOLOSABREAUTO
     select MX6S
 
 config TARGET_MX6QSABRESD
-	bool "mx6qsabresd"
+    bool "mx6qsabresd"
     select TARGET_MX6SABRESD_COMMON
     select MX6Q
 
 config TARGET_MX6QPSABRESD
-	bool "mx6qpsabresd"
+    bool "mx6qpsabresd"
     select TARGET_MX6SABRESD_COMMON
     select MX6QP
 
 config TARGET_MX6DLSABRESD
-	bool "mx6dlsabresd"
+    bool "mx6dlsabresd"
     select TARGET_MX6SABRESD_COMMON
     select MX6DL
 
 config TARGET_MX6DLSABRESD_PBC
-    bool "mx6dlsabresd"
-    select TARGET_MX6SABRESD
+    bool "mx6dlsabresd_pbc"
+    select TARGET_MX6SABRESD_COMMON
     select MX6D
 
 config TARGET_MX6SOLOSABRESD
