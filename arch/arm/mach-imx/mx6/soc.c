@@ -687,6 +687,10 @@ static int mmc_get_boot_dev(void)
 	u32 bootsel;
 	int devno;
 
+	#ifdef CONFIG_SYS_MMC_ENV_DEV
+	return CONFIG_SYS_MMC_ENV_DEV;
+	#endif
+
 	/*
 	 * Refer to
 	 * "i.MX 6Dual/6Quad Applications Processor Reference Manual"
