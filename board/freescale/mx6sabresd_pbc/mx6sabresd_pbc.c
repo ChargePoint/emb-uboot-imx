@@ -160,6 +160,11 @@ struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC1_BASE_ADDR},
 };
 
+int board_mmc_get_env_dev(int devno)
+{
+	return CONFIG_SYS_MMC_ENV_DEV;
+}
+
 int mmc_get_env_devno(void)
 {
 	u32 soc_sbmr = readl(SRC_BASE_ADDR + 0x4);
