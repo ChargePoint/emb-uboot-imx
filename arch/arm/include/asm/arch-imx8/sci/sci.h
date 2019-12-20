@@ -117,6 +117,14 @@ int sc_rm_get_resource_owner(sc_ipc_t ipc, sc_rsrc_t resource,
 /* PAD API */
 int sc_pad_set(sc_ipc_t ipc, sc_pad_t pad, u32 val);
 
+/* DWW adddition */
+typedef uint8_t sc_pad_config_t;
+typedef uint8_t sc_pad_iso_t;
+typedef uint8_t sc_pad_wakeup_t;
+sc_err_t sc_pad_set_all(sc_ipc_t ipc, sc_pad_t pad, uint8_t mux,
+    sc_pad_config_t config, sc_pad_iso_t iso, uint32_t ctrl,
+    sc_pad_wakeup_t wakeup);
+
 /* SMMU API */
 int sc_rm_set_master_sid(sc_ipc_t ipc, sc_rsrc_t resource,
     sc_rm_sid_t sid);

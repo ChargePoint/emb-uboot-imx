@@ -199,6 +199,38 @@ int sc_pad_set(sc_ipc_t ipc, sc_pad_t pad, u32 val)
 	return ret;
 }
 
+/* DWW adddition */
+sc_err_t sc_pad_set_all(sc_ipc_t ipc, sc_pad_t pad, uint8_t mux,
+    sc_pad_config_t config, sc_pad_iso_t iso, uint32_t ctrl,
+    sc_pad_wakeup_t wakeup)
+{
+	struct udevice *dev = gd->arch.scu_dev;
+	int size = sizeof(struct sc_rpc_msg_s);
+	struct sc_rpc_msg_s msg;
+	int ret;
+
+	if (!dev)
+		hang();
+
+	RPC_VER(&msg) = SC_RPC_VERSION;
+	RPC_SVC(&msg) = (u8)SC_RPC_SVC_PAD;
+	RPC_FUNC(&msg) = (u8)PAD_FUNC_SET_ALL;
+	RPC_U32(&msg, 0U) = (u32)ctrl;
+	RPC_U16(&msg, 4U) = (u16)pad;
+	RPC_U8(&msg, 6U) = (u8)mux;
+	RPC_U8(&msg, 7U) = (u8)config;
+	RPC_U8(&msg, 8U) = (u8)iso;
+	RPC_U8(&msg, 9U) = (u8)wakeup;
+	RPC_SIZE(&msg) = 4U;
+
+	ret = misc_call(dev, SC_FALSE, &msg, size, &msg, size);
+	if (ret)
+		printf("%s: val:%d config:%d: res:%d\n",
+		       __func__, config, pad, RPC_R8(&msg));
+
+	return ret;
+}
+
 /* MISC */
 int sc_misc_set_control(sc_ipc_t ipc, sc_rsrc_t resource,
 			sc_ctrl_t ctrl, u32 val)

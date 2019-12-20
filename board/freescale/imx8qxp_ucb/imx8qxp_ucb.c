@@ -53,14 +53,15 @@ static void setup_iomux_uart(void)
 	imx8_iomux_setup_multiple_pads(uart0_pads, ARRAY_SIZE(uart0_pads));
 }
 
-//#include "pin_mux.h"
-//BOARD_InitPins(ipcHndl);
+#include "pin_mux.h"
 
 int board_early_init_f(void)
 {
 	int ret;
 	/* Set UART0 clock root to 80 MHz */
 	sc_pm_clock_rate_t rate = 80000000;
+
+	BOARD_InitPins(-1);
 
 	/* Power up UART0 */
 	ret = sc_pm_set_resource_power_mode(-1, SC_R_UART_0, SC_PM_PW_MODE_ON);

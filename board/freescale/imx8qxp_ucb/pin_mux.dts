@@ -11,7 +11,58 @@ processor: MIMX8QX6xxxFZ
 package_id: MIMX8QX6AVLFZ
 mcu_data: ksdk2_0
 processor_version: 6.0.0
-power_domains: {VDD_USB_3P3: '3.3', VDD_USB_1P8: '1.8', VDD_GPU: '1.1'}
+pin_labels:
+- {pin_num: U35, pin_signal: ADC_IN0, label: BLU_DET_ADC}
+- {pin_num: G31, pin_signal: SPDIF0_RX, label: ENET1_RGMII_RXD0}
+- {pin_num: D34, pin_signal: SPDIF0_TX, label: ENET1_RGMII_RX_CTL}
+- {pin_num: H24, pin_signal: ENET0_RGMII_TXC, label: ENET0_RGMII_TXC}
+- {pin_num: G25, pin_signal: ENET0_RGMII_TXD0, label: ENET0_RGMII_TXD0}
+- {pin_num: B28, pin_signal: ENET0_RGMII_TXD1, label: ENET0_RGMII_TXD1}
+- {pin_num: E27, pin_signal: ENET0_RGMII_TXD2, label: ENET0_RGMII_TXD2}
+- {pin_num: F26, pin_signal: ENET0_RGMII_TXD3, label: ENET0_RGMII_TXD3}
+- {pin_num: A29, pin_signal: ENET0_RGMII_TX_CTL, label: ENET0_RGMII_TX_CTL}
+- {pin_num: B30, pin_signal: ENET0_RGMII_RX_CTL, label: ENET0_RGMII_RX_CTL}
+- {pin_num: H26, pin_signal: ENET0_RGMII_RXD3, label: ENET0_RGMII_RXD3}
+- {pin_num: A31, pin_signal: ENET0_RGMII_RXD0, label: ENET0_RGMII_RXD0}
+- {pin_num: C29, pin_signal: ENET0_RGMII_RXD1, label: ENET0_RGMII_RXD1}
+- {pin_num: G27, pin_signal: ENET0_RGMII_RXD2, label: ENET0_RGMII_RXD2}
+- {pin_num: D28, pin_signal: ENET0_RGMII_RXC, label: ENET0_RGMII_RXC}
+- {pin_num: B32, pin_signal: ENET0_MDIO, label: ENET0_MDIO}
+- {pin_num: D30, pin_signal: ENET0_MDC, label: ENET0_MDC}
+- {pin_num: AP28, pin_signal: CSI_EN, label: UX_5V_OC}
+- {pin_num: AM26, pin_signal: CSI_MCLK, label: UX_PWR_EN}
+- {pin_num: AK26, pin_signal: CSI_PCLK, label: UX_GSTIC_TS}
+- {pin_num: AR27, pin_signal: CSI_RESET, label: UX_GSTIC_RSTn}
+- {pin_num: U29, pin_signal: ADC_VREFH, label: 1V8}
+- {pin_num: U31, pin_signal: ADC_VREFL, label: 0V}
+- {pin_num: AK34, pin_signal: ANA_TEST_OUT_N, label: ANA_TESTN_TP50}
+- {pin_num: AL35, pin_signal: ANA_TEST_OUT_P, label: ANA_TESTP_TP49}
+- {pin_num: F30, pin_signal: ESAI0_FSR, label: ENET1_RGMII_TXC}
+- {pin_num: G29, pin_signal: ESAI0_FST, label: ENET1_RGMII_TXD2}
+- {pin_num: H28, pin_signal: ESAI0_SCKR, label: ENET1_RGMII_TX_CTL}
+- {pin_num: E31, pin_signal: ESAI0_SCKT, label: ENET1_RGMII_TXD3}
+- {pin_num: G35, pin_signal: MCLK_IN0, label: RFID_PWR_EN}
+- {pin_num: M28, pin_signal: MCLK_IN1, label: I2C3_SDA}
+- {pin_num: K30, pin_signal: SPI3_CS1, label: I2C3_SCL}
+- {pin_num: G19, pin_signal: EMMC0_CLK, label: EMMC_CLK}
+- {pin_num: F22, pin_signal: EMMC0_STROBE, label: EMMC_STROBE}
+- {pin_num: C21, pin_signal: EMMC0_DATA0, label: EMMC_DATA0}
+- {pin_num: A21, pin_signal: EMMC0_DATA1, label: EMMC_DATA1}
+- {pin_num: E21, pin_signal: EMMC0_DATA2, label: EMMC_DATA2}
+- {pin_num: H20, pin_signal: EMMC0_DATA3, label: EMMC_DATA3}
+- {pin_num: B22, pin_signal: EMMC0_DATA4, label: EMMC_DATA4}
+- {pin_num: G21, pin_signal: EMMC0_DATA5, label: EMMC_DATA5}
+- {pin_num: A23, pin_signal: EMMC0_DATA6, label: EMMC_DATA6}
+- {pin_num: D22, pin_signal: EMMC0_DATA7, label: EMMC_DATA7}
+- {pin_num: D20, pin_signal: EMMC0_CMD, label: EMMC_CMD}
+- {pin_num: AD30, pin_signal: MIPI_DSI1_GPIO0_00, label: I2C2_SCL}
+- {pin_num: AF34, pin_signal: MIPI_DSI1_GPIO0_01, label: I2C2_SDA}
+power_domains: {VDD_DDR_VDDQ: '1.1', VDD_PCIE_LDO_1P0_CAP: '1.0', VDD_PCIE_DIG_1P8_3P3: '3.3', VDD_USB_SS3_LDO_1P0_CAP: '1.0', VDD_EMMC0_1P8_3P3: '1.8', VDD_EMMC0_VSELECT_1P8_3P3: '1.8',
+  VDD_USDHC1_VSELECT_1P8_3P3: '1.8', VDD_USDHC1_1P8_3P3: '1.8', VDD_ENET0_VSELECT_1P8_2P5_3P3: '2.5', VDD_ENET0_1P8_2P5_3P3: '2.5', VDD_ENET_MDIO_1P8_3P3: '2.5',
+  VDD_ESAI_SPDIF_1P8_2P5_3P3: '2.5', VDD_USB_3P3: '3.3', VDD_PCIE_1P8: '1.8', VDD_USB_1P8: '1.8', VDD_SPI_MCLK_UART_1P8_3P3: '3.3', VDD_PCIE0_1P0: '1.8', VDD_SPI_SAI_1P8_3P3: '3.3',
+  VDD_USB_OTG_1P0: '1.0', VDD_ANA0_1P8: '1.8', VDD_GPU: '1.1', VDD_ADC_1P8: '1.8', VDD_ADC_DIG_1P8: '1.8', VDD_CAN_UART_1P8_3P3: '3.3', VDD_A53: '1.1', VDD_MIPI_DSI_DIG_1P8_3P3: '3.3',
+  VDD_ANA1_1P8: '1.8', VDD_DDR_PLL_1P8: '1.8', VDD_SNVS_4P2: '3.0', VDD_TMPR_CSI_1P8_3P3: '3.3', VDD_QSPI0B_1P8_3P3: '3.3', VDD_QSPI0A_1P8_3P3: '1.8', VDD_MIPI_CSI_DIG_1P8: '1.8',
+  VDD_CSI_1P8_3P3: '3.3', VDD_SNVS_LDO_1P8_CAP: '1.8', VDD_MIPI_DSI0_1P8: '1.8', VDD_SCU_ANA_1P8: '1.8', VDD_MIPI_DSI1_1P8: '1.8', VDD_MIPI_CSI0_1P8: '1.8'}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 
@@ -86,8 +137,6 @@ BOARD_InitPins:
   - {pin_num: H26, peripheral: CONN__ENET0, signal: 'enet_rgmii_rxd, 3', pin_signal: ENET0_RGMII_RXD3}
   - {pin_num: B32, peripheral: CONN__ENET0, signal: enet_mdio, pin_signal: ENET0_MDIO}
   - {pin_num: D30, peripheral: CONN__ENET0, signal: enet_mdc, pin_signal: ENET0_MDC}
-  - {pin_num: F28, peripheral: CONN__ENET0, signal: enet_refclk_125m_25m, pin_signal: ENET0_REFCLK_125M_25M}
-  - {pin_num: E35, peripheral: CONN__ENET1, signal: enet_refclk_125m_25m, pin_signal: SPDIF0_EXT_CLK}
   - {pin_num: D32, peripheral: CONN__ENET1, signal: enet_rgmii_rxc, pin_signal: ESAI0_TX0}
   - {pin_num: G31, peripheral: CONN__ENET1, signal: 'enet_rgmii_rxd, 0', pin_signal: SPDIF0_RX}
   - {pin_num: C33, peripheral: CONN__ENET1, signal: 'enet_rgmii_rxd, 1', pin_signal: ESAI0_TX3_RX2}
@@ -121,7 +170,6 @@ BOARD_InitPins:
   - {pin_num: G21, peripheral: CONN__EMMC0, signal: 'emmc_data, 5', pin_signal: EMMC0_DATA5}
   - {pin_num: A23, peripheral: CONN__EMMC0, signal: 'emmc_data, 6', pin_signal: EMMC0_DATA6}
   - {pin_num: D22, peripheral: CONN__EMMC0, signal: 'emmc_data, 7', pin_signal: EMMC0_DATA7}
-  - {pin_num: H22, peripheral: CONN__EMMC0, signal: emmc_reset_b, pin_signal: EMMC0_RESET_B}
   - {pin_num: F22, peripheral: CONN__EMMC0, signal: emmc_strobe, pin_signal: EMMC0_STROBE}
   - {pin_num: AB8, peripheral: DRC, signal: drc_ato, pin_signal: DDR_ATO}
   - {pin_num: Y6, peripheral: DRC, signal: drc_ck0_n, pin_signal: DDR_CK0_N}
@@ -194,16 +242,6 @@ BOARD_InitPins:
   - {pin_num: G1, peripheral: DRC, signal: 'drc_dq, 27', pin_signal: DDR_DQ27}
   - {pin_num: A7, peripheral: DRC, signal: 'drc_dq, 28', pin_signal: DDR_DQ28}
   - {pin_num: B4, peripheral: DRC, signal: 'drc_dq, 29', pin_signal: DDR_DQ29}
-  - {pin_num: B2, peripheral: DRC, signal: 'drc_dq, 30', pin_signal: DDR_DQ30}
-  - {pin_num: A5, peripheral: DRC, signal: 'drc_dq, 31', pin_signal: DDR_DQ31}
-  - {pin_num: AL1, peripheral: DRC, signal: 'drc_dq, 32', pin_signal: DDR_DQ32}
-  - {pin_num: AM2, peripheral: DRC, signal: 'drc_dq, 33', pin_signal: DDR_DQ33}
-  - {pin_num: AL3, peripheral: DRC, signal: 'drc_dq, 34', pin_signal: DDR_DQ34}
-  - {pin_num: AP2, peripheral: DRC, signal: 'drc_dq, 35', pin_signal: DDR_DQ35}
-  - {pin_num: AP8, peripheral: DRC, signal: 'drc_dq, 36', pin_signal: DDR_DQ36}
-  - {pin_num: AP10, peripheral: DRC, signal: 'drc_dq, 37', pin_signal: DDR_DQ37}
-  - {pin_num: AR9, peripheral: DRC, signal: 'drc_dq, 38', pin_signal: DDR_DQ38}
-  - {pin_num: AR7, peripheral: DRC, signal: 'drc_dq, 39', pin_signal: DDR_DQ39}
   - {pin_num: AH6, peripheral: DRC, signal: drc_dqs0_n, pin_signal: DDR_DQS0_N}
   - {pin_num: AJ5, peripheral: DRC, signal: drc_dqs0_p, pin_signal: DDR_DQS0_P}
   - {pin_num: AE1, peripheral: DRC, signal: drc_dqs1_n, pin_signal: DDR_DQS1_N}
@@ -259,7 +297,6 @@ BOARD_InitPins:
   - {pin_num: AM24, peripheral: MIPI_CSI0__I2C0, signal: i2c_sda, pin_signal: MIPI_CSI0_I2C0_SDA}
   - {pin_num: AN25, peripheral: MIPI_CSI0__ACM, signal: mclk_out, pin_signal: MIPI_CSI0_MCLK_OUT}
   - {pin_num: F12, peripheral: HSIO__PCIE_IOB, signal: pcie_iob_ref_qr, pin_signal: PCIE_REF_QR}
-  - {pin_num: AH28, peripheral: SNVS, signal: snvs_on_off_button, pin_signal: ON_OFF_BUTTON}
   - {pin_num: AL35, peripheral: SCU__DSC, signal: dsc_test_out_p, pin_signal: ANA_TEST_OUT_P}
   - {pin_num: AK34, peripheral: SCU__DSC, signal: dsc_test_out_n, pin_signal: ANA_TEST_OUT_N}
   - {pin_num: U31, peripheral: ADC, signal: adc_vrefl, pin_signal: ADC_VREFL}
@@ -284,10 +321,6 @@ BOARD_InitPins:
   - {pin_num: B24, peripheral: CONN__USDHC1, signal: usdhc_reset_b, pin_signal: USDHC1_RESET_B}
   - {pin_num: A25, peripheral: CONN__USDHC1, signal: usdhc_vselect, pin_signal: USDHC1_VSELECT}
   - {pin_num: D24, peripheral: CONN__USDHC1, signal: usdhc_wp, pin_signal: USDHC1_WP}
-  - {pin_num: V34, peripheral: ADMA__ADC, signal: 'adc_in, 5', pin_signal: ADC_IN5}
-  - {pin_num: W29, peripheral: ADMA__ADC, signal: 'adc_in, 4', pin_signal: ADC_IN4}
-  - {pin_num: V30, peripheral: ADMA__ADC, signal: 'adc_in, 3', pin_signal: ADC_IN3}
-  - {pin_num: V32, peripheral: ADMA__ADC, signal: 'adc_in, 2', pin_signal: ADC_IN2}
   - {pin_num: B26, peripheral: CONN__USDHC1, signal: 'usdhc_data, 1', pin_signal: USDHC1_DATA1}
   - {pin_num: AB34, peripheral: ADMA__UART3, signal: uart_rx, pin_signal: FLEXCAN2_RX}
   - {pin_num: AC35, peripheral: ADMA__UART2, signal: uart_tx, pin_signal: UART2_TX}
@@ -352,16 +385,14 @@ BOARD_InitPins:
   - {pin_num: AC29, peripheral: LSIO__GPIO1, signal: 'gpio_io, 30', pin_signal: MIPI_DSI1_I2C0_SDA}
   - {pin_num: G35, peripheral: LSIO__GPIO0, signal: 'gpio_io, 19', pin_signal: MCLK_IN0}
   - {pin_num: AF28, peripheral: LSIO__GPIO2, signal: 'gpio_io, 03', pin_signal: SCU_GPIO0_00}
-  - {pin_num: U35, peripheral: LSIO__GPIO1, signal: 'gpio_io, 10', pin_signal: ADC_IN0}
   - {pin_num: L35, peripheral: LSIO__GPIO0, signal: 'gpio_io, 30', pin_signal: SAI1_RXC}
+  - {pin_num: U35, peripheral: LSIO__GPIO1, signal: 'gpio_io, 10', pin_signal: ADC_IN0}
+  - {pin_num: B2, peripheral: DRC, signal: 'drc_dq, 30', pin_signal: DDR_DQ30}
+  - {pin_num: A5, peripheral: DRC, signal: 'drc_dq, 31', pin_signal: DDR_DQ31}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
             fsl,pins = <
                 SC_P_ADC_IN0_LSIO_GPIO1_IO10                0x00000040
-                SC_P_ADC_IN2_ADMA_ADC_IN2                   0x00000040
-                SC_P_ADC_IN3_ADMA_ADC_IN3                   0x00000040
-                SC_P_ADC_IN4_ADMA_ADC_IN4                   0x00000040
-                SC_P_ADC_IN5_ADMA_ADC_IN5                   0x00000040
                 SC_P_CSI_EN_LSIO_GPIO3_IO02                 0x00000040
                 SC_P_CSI_MCLK_LSIO_GPIO3_IO01               0x00000040
                 SC_P_CSI_PCLK_LSIO_GPIO3_IO00               0x00000040
@@ -376,11 +407,9 @@ BOARD_InitPins:
                 SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5           0x00000040
                 SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6           0x00000040
                 SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7           0x00000040
-                SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B       0x00000020
                 SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE         0x00000040
                 SC_P_ENET0_MDC_CONN_ENET0_MDC               0x00000040
                 SC_P_ENET0_MDIO_CONN_ENET0_MDIO             0x00000020
-                SC_P_ENET0_REFCLK_125M_25M_CONN_ENET0_REFCLK_125M_25M 0x00000040
                 SC_P_ENET0_RGMII_RXC_CONN_ENET0_RGMII_RXC   0x00000040
                 SC_P_ENET0_RGMII_RXD0_CONN_ENET0_RGMII_RXD0 0x00000040
                 SC_P_ENET0_RGMII_RXD1_CONN_ENET0_RGMII_RXD1 0x00000040
@@ -461,7 +490,6 @@ BOARD_InitPins:
                 SC_P_SCU_BOOT_MODE3_SCU_DSC_BOOT_MODE3      0x00000040
                 SC_P_SCU_GPIO0_00_LSIO_GPIO2_IO03           0x00000040
                 SC_P_SCU_PMIC_STANDBY_SCU_DSC_PMIC_STANDBY  0x00000063
-                SC_P_SPDIF0_EXT_CLK_CONN_ENET1_REFCLK_125M_25M 0x00000040
                 SC_P_SPDIF0_RX_CONN_ENET1_RGMII_RXD0        0x00000040
                 SC_P_SPDIF0_TX_CONN_ENET1_RGMII_RX_CTL      0x00000040
                 SC_P_SPI0_CS0_LSIO_GPIO1_IO08               0x00000040
