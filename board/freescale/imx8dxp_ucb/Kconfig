@@ -1,13 +1,13 @@
-if TARGET_IMX8QXP_UCB
+if TARGET_IMX8DXP_UCB
 
 config SYS_BOARD
-	default "imx8qxp_ucb"
+	default "imx8dxp_ucb"
 
 config SYS_VENDOR
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	default "imx8qxp_ucb"
+	default "imx8dxp_ucb"
 
 source "board/freescale/common/Kconfig"
 

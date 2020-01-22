@@ -24,6 +24,7 @@
 #include <cdns3-uboot.h>
 #include <asm/arch/lpcg.h>
 #include <bootm.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -161,29 +162,25 @@ static void setup_iomux_fec(void)
 		imx8_iomux_setup_multiple_pads(pad_enet1, ARRAY_SIZE(pad_enet1));
 }
 
-static void enet_device_phy_reset(void)
+static void enet_device_phy_reset(int phy_num)
 {
 	struct gpio_desc desc;
-	int ret;
+	int ret = 1;
 
-	/* The BB_PER_RST_B will reset the ENET1 PHY */
-	if (0 == CONFIG_FEC_ENET_DEV) {
-		ret = dm_gpio_lookup_name("gpio@1a_4", &desc);
-		if (ret)
-			return;
+    if(phy_num == 0) ret = dm_gpio_lookup_name("gpio@2_2", &desc);
+    else if(phy_num == 1) ret = dm_gpio_lookup_name("gpio@2_3", &desc);
+    if (ret) {
+        printf("[%s] %d dm_gpio_lookup_name() for phy_num %d FAILED !\n", __func__, __LINE__, phy_num);
+        return;
+    }
 
-		ret = dm_gpio_request(&desc, "enet0_reset");
-		if (ret)
-			return;
-
-		dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
-		dm_gpio_set_value(&desc, 0);
-		udelay(50);
-		dm_gpio_set_value(&desc, 1);
-	}
-
+    dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
+    dm_gpio_set_value(&desc, 0);
+    udelay(50);
+    dm_gpio_set_value(&desc, 1);
 	/* The board has a long delay for this reset to become stable */
 	mdelay(200);
+    printf("[%s] %d dm_gpio_lookup_name() for phy_num %d SUCCESS\n", __func__, __LINE__, phy_num);
 }
 
 int board_eth_init(bd_t *bis)
@@ -194,7 +191,8 @@ int board_eth_init(bd_t *bis)
 	printf("[%s] %d\n", __func__, __LINE__);
 
 	/* Reset ENET PHY */
-	enet_device_phy_reset();
+	enet_device_phy_reset(0);
+    enet_device_phy_reset(1);
 
 	if (CONFIG_FEC_ENET_DEV) {
 		if (!power_domain_lookup_name("conn_enet1", &pd))
@@ -445,9 +443,9 @@ int board_late_init(void)
 
 	if (fdt_file && !strcmp(fdt_file, "undefined")) {
 		if (m4_boot)
-			env_set("fdt_file", "fsl-imx8qxp-ucb-rpmsg.dtb");
+			env_set("fdt_file", "fsl-imx8dxp-ucb-rpmsg.dtb");
 		else
-			env_set("fdt_file", "fsl-imx8qxp-ucb.dtb");
+			env_set("fdt_file", "fsl-imx8dxp-ucb.dtb");
 	}
 
 #ifdef CONFIG_ENV_IS_IN_MMC
@@ -492,14 +490,14 @@ static void enable_lvds(struct display_info_t const *dev)
 struct display_info_t const displays[] = {{
 	.bus	= 0, /* LVDS0 */
 	.addr	= 0, /* LVDS0 */
-	.pixfmt	= IMXDPUV1_PIX_FMT_BGRA32,
+	.pixfmt	= IMXDPUV1_PIX_FMT_RGB666,
 	.detect	= NULL,
 	.enable	= enable_lvds,
 	.mode	= {
 		.name           = "IT6263", /* 720P60 */
 		.refresh        = 60,
-		.xres           = 1280,
-		.yres           = 720,
+		.xres           = 800,
+		.yres           = 600,
 		.pixclock       = 13468, /* 74250000 */
 		.left_margin    = 110,
 		.right_margin   = 220,

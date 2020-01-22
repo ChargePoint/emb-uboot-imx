@@ -3,8 +3,8 @@
  * Copyright 2018-2019 NXP
  */
 
-#ifndef __IMX8QXP_UCB_H
-#define __IMX8QXP_UCB_H
+#ifndef __IMX8DXP_UCB_H
+#define __IMX8DXP_UCB_H
 
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
@@ -93,7 +93,7 @@
 #define CONFIG_CONSOLE_DEV  "ttyLP0"
 
 #define CONFIG_OTA_ENV_SETTINGS \
-	"bank_curr=3\0" \
+	"bank_curr=2\0" \
 	"do_usb_ota=fatload usb 0:1 ${loadaddr} OTA_uImage.imx6q; setenv bootargs console=${console},${baudrate}  noinitrd mmcblk.perdev_minors=16 ota_device=/dev/sda1 ota_filename=ota.tar.xz; bootm ${loadaddr}\0" \
     "fix_partitions=echo fake fix_partitions...\0" \
 
@@ -130,26 +130,13 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR         0x80200000
 
-/* Default environment is in SD */
+/* Default environment is in mmcblk0boot1 */
 #define CONFIG_ENV_SIZE			0x2000
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_ENV_OFFSET       (4 * 1024 * 1024)
-#define CONFIG_ENV_SECT_SIZE	(128 * 1024)
-#define CONFIG_ENV_SPI_BUS	CONFIG_SF_DEFAULT_BUS
-#define CONFIG_ENV_SPI_CS	CONFIG_SF_DEFAULT_CS
-#define CONFIG_ENV_SPI_MODE	CONFIG_SF_DEFAULT_MODE
-#define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
-#else
-#define CONFIG_ENV_OFFSET       (64 * SZ_64K)
-#define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
-#endif
+#define CONFIG_SYS_MMC_ENV_DEV	0   /* mmcblk0 */
+#define CONFIG_ENV_OFFSET       0	/* start of mmcblk0boot1 */
+#define CONFIG_SYS_MMC_ENV_PART	2	/* start of mmcblk0boot1 */
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
-/* On LPDDR4 board, USDHC1 is for eMMC, USDHC2 is for SD on CPU board */
-#define CONFIG_SYS_MMC_ENV_DEV		1   /* USDHC2 */
-#define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
-#define CONFIG_SYS_FSL_USDHC_NUM	2
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		((CONFIG_ENV_SIZE + (32 * 1024)) * 1024)
@@ -177,21 +164,6 @@
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		8000000	/* 8MHz */
-
-#ifndef CONFIG_DM_PCA953X
-#define CONFIG_PCA953X
-#define CONFIG_CMD_PCA953X
-#define CONFIG_CMD_PCA953X_INFO
-#endif
-
-/* MT35XU512ABA1G12 has only one Die, so QSPI0 B won't work */
-#ifdef CONFIG_FSL_FSPI
-#define FSL_FSPI_FLASH_SIZE		SZ_64M
-#define FSL_FSPI_FLASH_NUM		1
-#define FSPI0_BASE_ADDR			0x5d120000
-#define FSPI0_AMBA_BASE			0
-#define CONFIG_SYS_FSL_FSPI_AHB
-#endif
 
 #define CONFIG_SERIAL_TAG
 
@@ -251,4 +223,4 @@
 
 #define CONFIG_OF_SYSTEM_SETUP
 
-#endif /* __IMX8QXP_UCB_H */
+#endif /* __IMX8DXP_UCB_H */
