@@ -338,6 +338,7 @@ static void setup_typec(void)
 int board_usb_init(int index, enum usb_init_type init)
 {
 	int ret = 0;
+    struct gpio_desc desc;
 
 	if (index == 1) {
 		if (init == USB_INIT_HOST) {
@@ -353,6 +354,17 @@ int board_usb_init(int index, enum usb_init_type init)
 #endif
 		}
 	}
+    // make ucb usb act as a host.
+    ret = dm_gpio_lookup_name("gpio@4_5", &desc);
+    if (ret) {
+        printf("[%s] %d dm_gpio_lookup_name() for ucb USB host mode FAILED !\n", __func__, __LINE__);
+        return;
+    }
+    dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
+    dm_gpio_set_value(&desc, 0);
+    udelay(50);
+    dm_gpio_set_value(&desc, 1);
+    printf("[%s] %d dm_gpio_lookup_name() for ucb USB host mode SUCCESS.\n", __func__, __LINE__);
 
 	return ret;
 
