@@ -88,7 +88,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_MFG_ENV_SETTINGS \
 	"bank_curr=2\0" \
-	"do_usb_ota=fatload usb 0:1 ${loadaddr} Image; fatload usb 0:1 ${fdt_addr} fsl-imx8dxp_ucb.dtb; booti ${loadaddr} - ${fdt_addr}\0" \
+	"do_usb_ota=fatload usb 0:1 ${loadaddr} Image.ota.ucb; fatload usb 0:1 ${fdt_addr} fsl-imx8dxp-ucb.dtb; booti ${loadaddr} - ${fdt_addr}\0" \
     "fix_partitions=echo fake fix_partitions...\0" \
 	"board_type=ucb\0" \
 	"version_uboot=" U_BOOT_VERSION "\0" \
