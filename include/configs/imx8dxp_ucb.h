@@ -108,7 +108,7 @@
 		"env default -a -f; saveenv; " \
 	"fi; " \
 	"mmc dev ${emmc_dev};" \
-	"usb start; if fatsize usb 0:1 Image; then run do_usb_ota; fi; " \
+	"usb start; sleep 2; if fatsize usb 0:1 Image.ota.ucb; then run do_usb_ota; fi; " \
 	"if mmc rescan; then " \
 		"run mmcboot; fi; " \
 	"fi; "
