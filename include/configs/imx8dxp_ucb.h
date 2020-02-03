@@ -86,7 +86,18 @@
 
 #define CONFIG_ENV_OVERWRITE
 
+#define CONFIG_FSL_HSIO
+#ifdef CONFIG_FSL_HSIO
+#define CONFIG_PCIE_IMX8X
+#define CONFIG_CMD_PCI
+#define CONFIG_PCI
+#define CONFIG_PCI_PNP
+#define CONFIG_PCI_SCAN_SHOW
+#endif
+
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
+
 
 #define CONFIG_MFG_ENV_SETTINGS \
 	CONFIG_MFG_ENV_SETTINGS_DEFAULT \
@@ -118,7 +129,7 @@
 		"env default -a -f; saveenv; " \
 	"fi; " \
 	"mmc dev ${emmc_dev};" \
-	"usb start; sleep 2; if fatsize usb 0:1 Image.ota.ucb; then run do_usb_ota; fi; " \
+	"gpio set 133; sleep 1; usb start; sleep 2; if fatsize usb 0:1 Image.ota.ucb; then run do_usb_ota; fi; " \
 	"if mmc rescan; then " \
 		"run mmcboot; fi; " \
 	"fi; "
@@ -202,6 +213,18 @@
 #define IMX_FEC_BASE			0x5B050000
 #define CONFIG_FEC_MXC_PHYADDR          0x1
 #define CONFIG_ETHPRIME                 "eth1"
+#endif
+
+/* ENET0 MDIO are shared */
+#define CONFIG_FEC_MXC_MDIO_BASE	0x5B040000
+
+#define CONFIG_LIB_RAND
+#define CONFIG_NET_RANDOM_ETHADDR
+
+#ifdef CONFIG_AHAB_BOOT
+#define AHAB_ENV "sec_boot=yes\0"
+#else
+#define AHAB_ENV "sec_boot=no\0"
 #endif
 
 #define CONFIG_FEC_XCV_TYPE		RGMII
