@@ -204,6 +204,11 @@ int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		}
 		break;
 #endif
+#if defined(CONFIG_FIT_SIGNATURE)
+	case IMAGE_FORMAT_FIT:
+		/* Allow the signature verification to be used */
+		break;
+#endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		/* Do this authentication in boota command */
