@@ -701,7 +701,7 @@ int board_late_init(void)
         if (is_cpu_type(MXC_CPU_MX6DP)) { btype = "pbc"; }
         env = env_get("board_type");
         if(!env || strcmp(env, btype)){
-               set_default_env(NULL, 0);
+               set_default_env(NULL);
                env_set("board_type", btype);
                printf("Saving env in flash \n");
                env_save();
