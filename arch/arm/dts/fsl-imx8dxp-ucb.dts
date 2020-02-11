@@ -395,6 +395,10 @@
 	status = "okay";
 };
 
+&usb2 {
+	status = "okay";
+};
+
 &dpu1 {
 	status = "okay";
 };
