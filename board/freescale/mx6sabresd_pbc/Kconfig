@@ -1,0 +1,30 @@
+if TARGET_MX6DLSABRESD_PBC
+
+config SYS_BOARD
+	default "mx6sabresd_pbc"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "mx6sabresd_pbc"
+
+config SYS_TEXT_BASE
+    default 0x17800000
+
+config CONSOLE_DEV
+    default "ttymxc0"
+
+config OTA_ENV_SETTINGS
+    default ""
+
+config SYS_HUSH_PARSER
+    bool y
+
+config SYS_NOSMP
+    bool y
+
+endif
