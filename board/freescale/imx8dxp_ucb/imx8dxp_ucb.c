@@ -176,14 +176,15 @@ static void enet_device_phy_reset(int phy_num)
 {
 	struct gpio_desc desc;
 	int ret = 1;
-
-    if(phy_num == 0) ret = dm_gpio_lookup_name("gpio@2_2", &desc);
-    else if(phy_num == 1) ret = dm_gpio_lookup_name("gpio@2_3", &desc);
+    // from fsl-imx8dxp-ucb.dts:
+    // SC_P_SPI0_SCK_LSIO_GPIO1_IO04   /* GPIO2_2 / ETH0_RST_B */
+    // SC_P_SPI0_SDI_LSIO_GPIO1_IO05   /* GPIO2_3 / ETH1_RST_B */
+    if(phy_num == 0) ret = dm_gpio_lookup_name("gpio@1_4", &desc);
+    else if(phy_num == 1) ret = dm_gpio_lookup_name("gpio@1_5", &desc);
     if (ret) {
         printf("[%s] %d dm_gpio_lookup_name() for phy_num %d FAILED !\n", __func__, __LINE__, phy_num);
         return;
     }
-
     dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
     dm_gpio_set_value(&desc, 0);
     udelay(50);
