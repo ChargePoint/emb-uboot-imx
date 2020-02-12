@@ -1,6 +1,7 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2018-2019 NXP
+ * Copyright 2017-2019 NXP
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IMX8DXP_UCB_H
@@ -13,10 +14,15 @@
 #include "imx_env.h"
 
 #ifdef CONFIG_SPL_BUILD
+
+#ifdef CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_LOAD
+#endif
+
 #define CONFIG_PARSE_CONTAINER
-#define CONFIG_SPL_TEXT_BASE				0x100000
-#define CONFIG_SPL_MAX_SIZE				(192 * 1024)
-#define CONFIG_SYS_MONITOR_LEN				(1024 * 1024)
+#define CONFIG_SPL_TEXT_BASE		0x0
+#define CONFIG_SPL_MAX_SIZE		(124 * 1024)
+#define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0x1040 /* (32K + 2Mb)/sector_size */
 #define CONFIG_SYS_SPI_U_BOOT_OFFS 0x200000
@@ -28,27 +34,35 @@
 #define CONFIG_SYS_UBOOT_BASE 0x08181000
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION		0
 
+
+#define CONFIG_SPL_WATCHDOG_SUPPORT
+#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
-/*
- * The memory layout on stack:  DATA section save + gd + early malloc
- * the idea is re-use the early malloc (CONFIG_SYS_MALLOC_F_LEN) with
- * CONFIG_SYS_SPL_MALLOC_START
- */
-#define CONFIG_SPL_STACK		0x013fff0
-#define CONFIG_SPL_BSS_START_ADDR      0x00130000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x1000	/* 4 KB */
-#define CONFIG_SYS_SPL_MALLOC_START	0x82200000
-#define CONFIG_SYS_SPL_MALLOC_SIZE     0x80000	/* 512 KB */
-#define CONFIG_SERIAL_LPUART_BASE	0x5a060000
+#define CONFIG_SPL_STACK		0x013E000
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_BSS_START_ADDR      0x00138000
+#define CONFIG_SPL_BSS_MAX_SIZE        0x1000	/* 4 KB */
+#define CONFIG_SYS_SPL_MALLOC_START    0x00120000
+#define CONFIG_SYS_SPL_MALLOC_SIZE     0x18000	/* 12 KB */
+#define CONFIG_SERIAL_LPUART_BASE      0x5a060000
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_MALLOC_F_ADDR		0x00138000
+#define CONFIG_MALLOC_F_ADDR		0x00120000 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
 
 #define CONFIG_SPL_RAW_IMAGE_ARM_TRUSTED_FIRMWARE
 
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
+#define CONFIG_SPL_ABORT_ON_RAW_IMAGE /* For RAW image gives a error info not panic */
 
 #define CONFIG_OF_EMBED
+#define CONFIG_ATF_TEXT_BASE 0x80000000
+#define CONFIG_SYS_ATF_START 0x80000000
+/* #define CONFIG_FIT */
+
+/* Since the SPL runs before ATF, MU1 will not be started yet, so use MU0 */
+#define SC_IPC_CH			SC_IPC_AP_CH0
+
 #endif
 
 #define CONFIG_REMAKE_ELF
@@ -75,15 +89,6 @@
 #define USDHC2_BASE_ADDR                0x5B020000
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
-/* FUSE command */
-#define CONFIG_CMD_FUSE
-
-/* GPIO configs */
-#define CONFIG_MXC_GPIO
-
-/* ENET Config */
-#define CONFIG_MII
-
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_FSL_HSIO
@@ -97,7 +102,47 @@
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
+/* FUSE command */
+#define CONFIG_CMD_FUSE
 
+/* GPIO configs */
+#define CONFIG_MXC_GPIO
+
+/* ENET Config */
+#define CONFIG_MII
+
+#define CONFIG_FEC_MXC
+#define CONFIG_FEC_XCV_TYPE             RGMII
+#define FEC_QUIRK_ENET_MAC
+
+#define CONFIG_PHY_GIGE /* Support for 1000BASE-X */
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_ATHEROS
+
+/* ENET0 connects AR8031 on CPU board, ENET1 connects to base board and MUX with ESAI, default is ESAI */
+#define CONFIG_FEC_ENET_DEV 0
+
+#if (CONFIG_FEC_ENET_DEV == 0)
+#define IMX_FEC_BASE			0x5B040000
+#define CONFIG_FEC_MXC_PHYADDR          0x0
+#define CONFIG_ETHPRIME                 "eth0"
+#elif (CONFIG_FEC_ENET_DEV == 1)
+#define IMX_FEC_BASE			0x5B050000
+#define CONFIG_FEC_MXC_PHYADDR          0x1
+#define CONFIG_ETHPRIME                 "eth1"
+#endif
+
+/* ENET0 MDIO are shared */
+#define CONFIG_FEC_MXC_MDIO_BASE	0x5B040000
+
+#define CONFIG_LIB_RAND
+#define CONFIG_NET_RANDOM_ETHADDR
+
+#ifdef CONFIG_AHAB_BOOT
+#define AHAB_ENV "sec_boot=yes\0"
+#else
+#define AHAB_ENV "sec_boot=no\0"
+#endif
 
 #define CONFIG_MFG_ENV_SETTINGS \
 	CONFIG_MFG_ENV_SETTINGS_DEFAULT \
@@ -105,9 +150,9 @@
 	"initrd_high=0xffffffffffffffff\0" \
 	"emmc_dev=0\0" \
 
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_MFG_ENV_SETTINGS \
+	AHAB_ENV \
 	"bank_curr=2\0" \
 	"do_usb_ota=fatload usb 0:1 ${loadaddr} Image.ota.ucb; fatload usb 0:1 ${fdt_addr} fsl-imx8dxp-ucb.dtb; booti ${loadaddr} - ${fdt_addr}\0" \
     "fix_partitions=echo fake fix_partitions...\0" \
@@ -143,7 +188,7 @@
 
 /* Default environment is in mmcblk0boot1 */
 #define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_SYS_MMC_ENV_DEV	0   /* mmcblk0 */
+#define CONFIG_SYS_MMC_ENV_DEV	1   /* mmcblkboot1 */
 #define CONFIG_ENV_OFFSET       0	/* start of mmcblk0boot1 */
 #define CONFIG_SYS_MMC_ENV_PART	2	/* start of mmcblk0boot1 */
 
@@ -167,6 +212,7 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Monitor Command Prompt */
+#define CONFIG_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2     "UCB> "
 #define CONFIG_SYS_CBSIZE              2048
 #define CONFIG_SYS_MAXARGS             64
