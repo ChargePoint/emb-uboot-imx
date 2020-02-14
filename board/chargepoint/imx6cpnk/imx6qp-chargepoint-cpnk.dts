@@ -28,7 +28,7 @@
 
 / {
 	model = "ChargePoint i.MX6QP CPNK Board";
-	compatible = "fsl,imx6q-chargepoint-cpnk", "fsl,imx6q";
+	compatible = "fsl,imx6qp-chargepoint-cpnk", "fsl,imx6q";
 
 	aliases {
 		fb_hdmi = &fb_hdmi;
@@ -450,8 +450,7 @@
 	};
 	pinctrl_usbotg: usbotggrp {
 		fsl,pins = <
-			MX6QDL_PAD_GPIO_1__USB_OTG_ID	   0x17059
-			MX6QDL_PAD_EIM_D22__GPIO3_IO22	0x130b0
+			MX6QDL_PAD_GPIO_1__USB_OTG_ID		0x17059
 		>;
 	};
 
