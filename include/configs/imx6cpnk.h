@@ -197,16 +197,37 @@
 	"bootpart=0:2\0" \
 	"ext4bootenv=ext4load mmc ${bootenvpart} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc${mmcdev} ...; " \
-		"env import -t ${loadaddr} ${filesize}\0" \
-	"mmcbootenv=run ext4bootenv && run importbootenv; " \
-		"part uuid mmc ${bootpart} bootuuid; " \
+		"env import -c ${loadaddr} ${filesize} " \
+			"trybootpart bootpart bootlabel\0" \
+	"mmcbootenv=setenv -f _bootpart ${bootpart}; " \
+		"run ext4bootenv && run importbootenv; " \
+		"if test -n $trybootpart; then " \
+			"setenv -f _trybootpart ${trybootpart}; " \
+			"setenv -f trybootpart; " \
+			"env export -c ${loadaddr} " \
+				"trybootpart bootpart bootlabel; " \
+			"ext4write mmc ${bootenvpart} ${loadaddr} " \
+				"/${bootenv} ${filesize}; " \
+			"part uuid mmc ${_trybootpart} bootuuid; " \
+			"setenv bootargs console=${console} " \
+				"root=PARTUUID=${bootuuid} rootwait rw; " \
+			"echo Try-booting ${bootfile} from mmc " \
+				"${_trybootpart} ...; " \
+			"ext4load mmc ${_trybootpart} ${loadaddr} " \
+				"${bootfile} && " \
+					"bootm ${loadaddr}; " \
+		"fi; " \
+		"if test -n $bootpart; then " \
+			"setenv -f _bootpart ${bootpart}; " \
+		"fi; " \
+		"part uuid mmc ${_bootpart} bootuuid; " \
 		"setenv bootargs console=${console} " \
 			"root=PARTUUID=${bootuuid} rootwait rw; " \
 	"\0" \
 	"mmcboot=run mmcbootenv; " \
-		"echo Booting ${bootfile} from mmc ${bootpart} ...; " \
-		"ext4load mmc ${bootpart} ${loadaddr} ${bootfile}; " \
-		"bootm ${loadaddr}; " \
+		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
+		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
+			"bootm ${loadaddr}; " \
 	"\0"
 
 #define CONFIG_BOOTCOMMAND \
