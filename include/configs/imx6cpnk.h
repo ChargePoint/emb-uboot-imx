@@ -26,6 +26,9 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
 
+/* Size of image extraction should match bootm */
+#define CONFIG_SYS_XIMG_LEN		CONFIG_SYS_BOOTM_LEN
+
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
