@@ -232,6 +232,7 @@ static void set_gpios(const struct gpio_ni *nip, unsigned int cnt, int val)
 }
 
 #if defined(CONFIG_FSL_ESDHC)
+#if !defined(CONFIG_DM_MMC)
 struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC3_BASE_ADDR},
 	{USDHC1_BASE_ADDR},
@@ -297,6 +298,7 @@ int board_mmc_init(bd_t *bis)
 
 	return 0;
 }
+#endif /* !CONFIG_DM_MMC */
 #endif /* CONFIG_FSL_ESDHC */
 
 #if defined(CONFIG_VIDEO_IPUV3)

@@ -16,3 +16,5 @@ extra-y += ../../../arch/$(ARCH)/dts/imx6dp-chargepoint-pbc.dts
 $(obj)/../../../arch/$(ARCH)/dts/imx6dp-chargepoint-pbc.dts: \
 		$(src)/imx6dp-chargepoint-pbc.dts
 	ln -fsn $(abspath $<) $@
+
+extra-y += ../../../arch/$(ARCH)/dts/imx6dp-chargepoint-pbc.dtb

@@ -19,7 +19,6 @@
 #include "version.h"
 #include "imx_env.h"
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_IMX_THERMAL
 
 /* Size of malloc() pool */
@@ -29,7 +28,6 @@
 #define CONFIG_SYS_XIMG_LEN		CONFIG_SYS_BOOTM_LEN
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 #define PHYS_SDRAM_SIZE			(4UL * SZ_1G) /* 4GB DDR3L */
 
@@ -74,10 +72,6 @@
 /* Re-using the machine type for a sabresd since it is close enough */
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX6Q_SABRESD
 
-#ifdef CONFIG_SYS_USE_SPINOR
-#define CONFIG_SF_DEFAULT_CS   0
-#endif
-
 /*
  * imx6 q/dl/solo pcie would be failed to work properly in kernel, if
  * the pcie module is iniialized/enumerated both in uboot and linux
@@ -96,15 +90,6 @@
 #define CONFIG_PCIE_IMX
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)
 #define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(3, 19)
-#endif
-
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_MXC_SPI
-#define CONFIG_SF_DEFAULT_BUS  0
-#define CONFIG_SF_DEFAULT_SPEED 20000000
-#define CONFIG_SF_DEFAULT_MODE (SPI_MODE_0)
 #endif
 
 /* I2C Configs */
