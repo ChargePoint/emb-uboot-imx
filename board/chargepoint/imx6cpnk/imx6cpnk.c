@@ -49,6 +49,7 @@ int dram_init(void)
 
 #define I2C_PMIC	2  /* CPNK PMIC is on I2C3 */
 
+#ifdef CONFIG_SYS_I2C
 #define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP |				\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |		\
 	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
@@ -96,6 +97,8 @@ static struct i2c_pads_info i2c_pad_info2 = {
 		.gp = IMX_GPIO_NR(3, 18)
 	}
 };
+#endif  /* CONFIG_SYS_I2C */
+
 
 #define GPIO_PMIC_INT		IMX_GPIO_NR(3, 29)
 #define GPIO_PMIC_EN		IMX_GPIO_NR(5, 12)
