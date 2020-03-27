@@ -538,7 +538,6 @@ int board_mmc_get_env_dev(int devno)
 int board_late_init(void)
 {
 	char *fdt_file;
-	bool m4_boot;
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	env_set("board_name", "UCB");
@@ -550,19 +549,18 @@ int board_late_init(void)
 	env_set("sec_boot", "yes");
 #endif
 
-	fdt_file = env_get("fdt_file");
-	m4_boot = check_m4_parts_boot();
-
-	if (fdt_file && !strcmp(fdt_file, "undefined")) {
-		if (m4_boot)
-			env_set("fdt_file", "fsl-imx8dxp-ucb-rpmsg.dtb");
-		else
-			env_set("fdt_file", "fsl-imx8dxp-ucb.dtb");
-	}
-
 #ifdef CONFIG_ENV_IS_IN_MMC
 	board_late_mmc_env_init();
 #endif
+
+	// if we don't get board_type then assume flash has no persistent env.
+	// Fix: if uboot has better way of quering state of env in flash.
+	const char *btype = env_get("board_type");
+	if (!btype || strcmp(btype, "ucb")) {
+		env_set("board_type", "ucb");
+		printf("Saving default env to flash...\n");
+		env_save();
+	}
 
 	return 0;
 }
