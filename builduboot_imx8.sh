@@ -1,5 +1,5 @@
-#! /bin/sh
-source ../toolchain/environment-setup-aarch64-poky-linux
+#!/bin/bash
+source ../toolchain64/environment-setup-aarch64-poky-linux
 cores=`cat /proc/cpuinfo | grep processor | wc -l`
 threads=`expr $cores + 2`
 export ARCH=arm64
