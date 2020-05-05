@@ -26,6 +26,10 @@
 #include "imx6q.dtsi"
 #include "imx6qp.dtsi"
 
+#if defined(CONFIG_SECURE_BOOT)
+#include "chargepoint-pubkey.dtsi"
+#endif
+
 / {
 	model = "ChargePoint i.MX6QP CPNK Board";
 	compatible = "fsl,imx6qp-chargepoint-cpnk", "fsl,imx6q";
