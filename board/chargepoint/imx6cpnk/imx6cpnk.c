@@ -17,6 +17,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/video.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <power/pmic.h>
@@ -469,7 +470,60 @@ int board_early_init_f(void)
 	setup_display();
 #endif
 
+#if defined(CONFIG_SECURE_BOOT)
+	if (imx_hab_is_enabled()) {
+		gd->flags |= (GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE);
+	}
+#endif
+
 	return 0;
+}
+
+static void setup_fitimage_keys(void)
+{
+#if defined(CONFIG_SECURE_BOOT)
+	int noffset;
+	int sig_node;
+	void *sig_blob;
+	const char *sig_prefix;
+
+	/*
+	 * This will change the "u-boot" fdt required keys that
+	 * have been compiled in.
+	 *
+	 * The code must match the key checks in the common image-fit
+	 * verification using the string match. By stripping, the
+	 * prefix of a key it then turns that into a required match
+	 * for the fit verification
+	 */
+	sig_prefix = imx_hab_is_enabled() ? "prod:" : "dev:";
+	sig_blob = (void *)(uintptr_t)gd->fdt_blob;
+
+	/* process the signature nodes */
+	sig_node = fdt_subnode_offset(sig_blob, 0, FIT_SIG_NODENAME);
+	if (sig_node < 0) {
+		debug("%s: No signature node found: %s\n",
+		      __func__, fdt_strerror(sig_node));
+		return;
+	}
+	fdt_for_each_subnode(noffset, sig_blob, sig_node) {
+		const char *required;
+		int ret;
+
+		required = fdt_getprop(sig_blob, noffset, "required", NULL);
+		if ((required == NULL) ||
+		    (strncmp(required, sig_prefix, strlen(sig_prefix)) != 0))
+			continue;
+		ret = fdt_setprop_string(sig_blob, noffset, "required",
+					 &required[strlen(sig_prefix)]);
+		if (ret) {
+			printf("Failed to update required signature '%s'\n",
+			       fit_get_name(sig_blob, noffset, NULL));
+		}
+	}
+#endif
+
+	return;
 }
 
 int board_init(void)
@@ -501,6 +555,8 @@ int board_init(void)
 	 */
 	imx_iomux_set_gpr_register(1, 13, 1, 1);
 #endif
+
+	setup_fitimage_keys();
 
 	return 0;
 }
