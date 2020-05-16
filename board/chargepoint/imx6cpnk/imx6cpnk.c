@@ -26,6 +26,7 @@
 #include <usb.h>
 #include <usb/ehci-ci.h>
 #include <mmc.h>
+#include <net.h>
 #include <fsl_esdhc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -897,3 +898,86 @@ int board_ehci_hcd_init(int port)
 }
 #endif
 #endif
+
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	uint32_t uid_high, uid_low;
+
+	/*
+	 * i.MX6 Configuration and Manufacturing Info
+	 *   OCOTP_CFG0: OTP Bank 0, word 1
+	 *   OCOTP_CFG1: OTP Bank 0, word 2
+	 */
+	do {
+		struct ocotp_regs *ocotp =
+			(struct ocotp_regs *)OCOTP_BASE_ADDR;
+		struct fuse_bank *bank = &ocotp->bank[0];
+		struct fuse_bank0_regs *fuse =
+			(struct fuse_bank0_regs *)bank->fuse_regs;
+
+		/* Make this a valid MAC address and set it */
+		uid_high = readl(&fuse->uid_high);
+		uid_low = readl(&fuse->uid_low);
+	} while(0);
+
+	if (!env_get("serial#")) {
+		char serial_str[17];
+
+		snprintf(serial_str, sizeof(serial_str),
+			 "%08x%08x", uid_high, uid_low);
+		env_set("serial#", serial_str);
+
+		fdt_root(blob);
+	}
+
+	if (!env_get("ethaddr")) {
+		u8 mac_addr[6];
+		char mac_str[ARP_HLEN_ASCII + 1];
+		uint32_t mac_val1, mac_val0;
+		struct ocotp_regs *ocotp =
+			(struct ocotp_regs *)OCOTP_BASE_ADDR;
+		struct fuse_bank *bank = &ocotp->bank[4];
+		struct fuse_bank4_regs *fuse =
+			(struct fuse_bank4_regs *)bank->fuse_regs;
+
+		mac_val1 = readl(&fuse->mac_addr1);
+		mac_val0 = readl(&fuse->mac_addr0);
+		mac_addr[0] = mac_val1 >> 8;
+		mac_addr[1] = mac_val1 >> 0;
+		mac_addr[2] = mac_val0 >> 24;
+		mac_addr[3] = mac_val0 >> 16;
+		mac_addr[4] = mac_val0 >> 8;
+		mac_addr[5] = mac_val0 >> 0;
+
+		debug("imx fuse mac addr %x:%x:%x:%x:%x:%x\n",
+			mac_addr[0], mac_addr[1], mac_addr[2],
+			mac_addr[3], mac_addr[4], mac_addr[5]);
+		if (!is_valid_ethaddr(mac_addr)) {
+			mac_addr[0] =
+				((uid_high >> 24) ^ (uid_high >> 16)) & 0xff;
+			mac_addr[1] =
+				((uid_high >> 8) ^ (uid_high >> 0)) & 0xff;
+			mac_addr[2] = uid_low >> 24;
+			mac_addr[3] = uid_low >> 16;
+			mac_addr[4] = uid_low >> 8;
+			mac_addr[5] = uid_low >> 0;
+
+			mac_addr[0] &= 0xfe; /* clear multicast bit */
+			mac_addr[0] |= 0x02; /* set local assignment bit */
+			debug("ocotp uid %x:%x -> macaddr %x:%x:%x:%x:%x:%x\n",
+				uid_high, uid_low,
+				mac_addr[0], mac_addr[1], mac_addr[2],
+				mac_addr[3], mac_addr[4], mac_addr[5]);
+		}
+
+		snprintf(mac_str, sizeof(mac_str), "%x:%x:%x:%x:%x:%x",
+			 mac_addr[0], mac_addr[1], mac_addr[2],
+			 mac_addr[3], mac_addr[4], mac_addr[5]);
+		debug("ethaddr - %s\n", mac_str);
+		env_set("ethaddr", mac_str);
+
+		fdt_fixup_ethernet(blob);
+	}
+
+	return 0;
+}

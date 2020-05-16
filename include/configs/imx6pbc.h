@@ -20,6 +20,7 @@
 #include "imx_env.h"
 
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_SERIAL_TAG
 #define CONFIG_IMX_THERMAL
 
 /* Size of malloc() pool */
@@ -117,6 +118,11 @@
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_SPEED		100000
 #endif
+#endif
+
+/* OCOTP Configs */
+#ifdef CONFIG_CMD_FUSE
+#define CONFIG_MXC_OCOTP
 #endif
 
 /* PMIC */
