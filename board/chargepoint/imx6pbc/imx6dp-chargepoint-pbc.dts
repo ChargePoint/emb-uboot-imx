@@ -31,12 +31,8 @@
 	compatible = "fsl,imx6dp-chargepoint-pbc", "fsl,imx6q";
 
 	aliases {
-		fb_hdmi = &fb_hdmi;
-		fb_lvds = &fb_lvds;
-		ldb = &ldb;
 		mmc0 = &usdhc3;
-		mxcfb0 = &fb_lvds;
-		mxcfb1 = &fb_hdmi;
+		gpio7 = &pca9539_gpio_ioexp;
 	};
 
 	chosen {
@@ -44,32 +40,7 @@
 	};
 
 	memory: memory {
-		reg = <0x10000000 0x40000000>;
-	};
-
-	backlight_lvds0 {
-		status = "disabled";
-	};
-
-	sound {
-		compatible = "fsl,imx-audio-wm8974";
-		status = "disabled";
-	};
-
-	sound-hdmi {
-		compatible = "fsl,imx6q-audio-hdmi",
-			     "fsl,imx-audio-hdmi";
-		status = "disabled";
-	};
-
-	fb_lvds: fb@0 {
-		compatible = "fsl,mxc_sdc_fb";
-		status = "disabled";
-	};
-
-	fb_hdmi: fb@1 {
-		compatible = "fsl,mxc_sdc_fb";
-		status = "disabled";
+		reg = <0x10000000 0x80000000>;
 	};
 
 	regulators {
@@ -90,6 +61,14 @@
 			regulator-name = "P5V0";
 			regulator-min-microvolt = <5000000>;
 			regulator-max-microvolt = <5000000>;
+			regulator-always-on;
+		};
+
+		reg_p4v5: regulator-p4v5 {
+			compatible = "regulator-fixed";
+			regulator-name = "P4V5";
+			regulator-min-microvolt = <4500000>;
+			regulator-max-microvolt = <4500000>;
 			regulator-always-on;
 		};
 
@@ -123,22 +102,6 @@
 			vin-supply = <&reg_p5v0>;
 		};
 	};
-
-	reserved-memory {
-		linux,cma {
-			size = <0x1A000000>;
-		};
-	};
-};
-
-&fb_hdmi {
-	prefetch;
-	status = "disabled";
-};
-
-&fb_lvds {
-	prefetch;
-	status = "disabled";
 };
 
 &iomuxc {
@@ -152,8 +115,7 @@
 &iomuxc_imx6q_pbc {
 	pinctrl_hog: hoggrp {
 		fsl,pins = <
-		    MX6QDL_PAD_NANDF_CS0__GPIO6_IO11	0x1b0b0 /* ACCEL_INT_B *
-/
+		    MX6QDL_PAD_NANDF_CS0__GPIO6_IO11	0x1b0b0 /* ACCEL_INT_B */
 		    MX6QDL_PAD_NANDF_CS1__GPIO6_IO14	0x1b0b0 /* MAG_INT_B */
 		    MX6QDL_PAD_NANDF_CS2__GPIO6_IO15	0x1b0b0 /* MAG_DRDY */
 		    MX6QDL_PAD_NANDF_D0__GPIO2_IO00	0x1b0b0 /* GPIO2_0 */
@@ -202,7 +164,6 @@
 		    MX6QDL_PAD_ENET_MDC__ENET_MDC	0x1b0b0
 		    MX6QDL_PAD_ENET_TX_EN__ENET_TX_EN	0x1b0b0
 		    MX6QDL_PAD_ENET_RX_ER__ENET_RX_ER	0x1b0b0
-		    MX6QDL_PAD_GPIO_3__GPIO1_IO03	0x1b0b0 /* PHY_RSTn */
 
 		    MX6QDL_PAD_RGMII_TXC__RGMII_TXC		0x1b030
 		    MX6QDL_PAD_RGMII_TD0__RGMII_TD0		0x1b030
@@ -216,6 +177,11 @@
 		    MX6QDL_PAD_RGMII_RD2__RGMII_RD2		0x1b030
 		    MX6QDL_PAD_RGMII_RD3__RGMII_RD3		0x1b030
 		    MX6QDL_PAD_RGMII_RX_CTL__RGMII_RX_CTL	0x1b030
+		>;
+	};
+	pinctrl_enet_switch: enetswitchgrp {
+		fsl,pins = <
+		    MX6QDL_PAD_GPIO_3__GPIO1_IO03	0x1b0b0 /* PHY_RSTn */
 		>;
 	};
 
@@ -281,13 +247,10 @@
 		>;
 	};
 
-	pinctrl_usbh1: usbh1grp {
-		fsl,pins = <
-			/* no host */
-		>;
-	};
 	pinctrl_usbotg: usbotggrp {
 		fsl,pins = <
+		    MX6QDL_PAD_EIM_D21__GPIO3_IO21		0x1b0b0
+		    MX6QDL_PAD_EIM_D22__GPIO3_IO22		0x1b0b0
 		    MX6QDL_PAD_GPIO_1__USB_OTG_ID		0x17059
 		>;
 	};
@@ -323,10 +286,6 @@
 	status = "disabled";
 };
 
-&audmux {
-	status = "disabled";
-};
-
 &can1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_flexcan1>;
@@ -343,43 +302,89 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
 	phy-mode = "rgmii";
-	phy-reset-gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
-	phy-reset-duration = <2>;
-	fsl,magic-packet;
 	status = "okay";
+
+	fixed-link {
+		speed = <1000>;
+		full-duplex;
+		pause;
+		asym-pause;
+	};
+
+	mdio1: mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "okay";
+
+		switch0: switch0@0 {
+			compatible = "marvell,mv88e6085";
+			reg = <0>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_enet_switch>;
+			reset-gpios = <&gpio1 3 GPIO_ACTIVE_LOW>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+					label = "cpu";
+					ethernet = <&fec>;
+					phy-mode = "rgmii-id";
+
+					fixed-link {
+						speed = <1000>;
+						full-duplex;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+					label = "sw0p1";
+					phy-handle = <&switch0phy1>;
+				};
+				port@2 {
+					reg = <2>;
+					label = "sw0p2";
+					phy-handle = <&switch0phy2>;
+				};
+				port@3 {
+					reg = <3>;
+					label = "sw0p3";
+					phy-handle = <&switch0phy3>;
+				};
+				port@4 {
+					reg = <4>;
+					label = "sw0p4";
+					phy-handle = <&switch0phy4>;
+				};
+			};
+
+			mdio {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				switch0phy1: switch0phy1@11 {
+					reg = <0x11>;
+				};
+				switch0phy2: switch0phy2@12 {
+					reg = <0x12>;
+				};
+				switch0phy3: switch0phy3@13 {
+					reg = <0x13>;
+				};
+				switch0phy4: switch0phy4@14 {
+					reg = <0x14>;
+				};
+			};
+		};
+	};
 };
 
 &gpc {
 	/* use ldo-enable, u-boot will check it and configure */
 	fsl,ldo-bypass = <1>;
-};
-
-&dcic1 {
-	dcic_id = <0>;
-	dcic_mux = "dcic-hdmi";
-	status = "disabled";
-};
-
-&dcic2 {
-	dcic_id = <1>;
-	dcic_mux = "dcic-lvds1";
-	status = "disabled";
-};
-
-&hdmi_audio {
-	status = "disabled";
-};
-
-&hdmi_cec {
-	status = "disabled";
-};
-
-&hdmi_core {
-	status = "disabled";
-};
-
-&hdmi_video {
-	status = "disabled";
 };
 
 &i2c1 {
@@ -400,13 +405,14 @@
 	};
 
 	/* tilt sensor */
-	lsm303c_acc { /* Accelerometer */
-		compatible = "st,lsm303c_acc";
-		reg = <0x1d>;
+	lsm303agr_acc@19 { /* Accelerometer */
+		compatible = "st,lsm303agr-accel";
+		reg = <0x19>;
 	};
-	lsm303c_mag { /* Magnetometer */
-		compatible = "st,lsm303c_mag";
+	lsm303agr_mag@1e { /* Magnetometer */
+		compatible = "st,lsm303agr-magn";
 		reg = <0x1e>;
+		st,drdy-int-pin = <1>;
 	};
 };
 
@@ -417,7 +423,7 @@
 	status = "okay";
 
 	/* power module interface */
-	gpio-controller@74 {
+	pca9539_gpio_ioexp: gpio-controller@74 {
 		compatible = "nxp,pca9539";
 		reg = <0x74>;
 		gpio-controller;
@@ -450,7 +456,17 @@
 				regulator-max-microvolt = <1875000>;
 				regulator-boot-on;
 				regulator-always-on;
-				regulator-ramp-delay = <6250>;
+				vin-supply = <&reg_p4v5>;
+
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
+				regulator-state-disk {
+					regulator-on-in-suspend;
+				};
 			};
 
 			sw1c_reg: sw1c {
@@ -458,7 +474,17 @@
 				regulator-max-microvolt = <1875000>;
 				regulator-boot-on;
 				regulator-always-on;
-				regulator-ramp-delay = <6250>;
+				vin-supply = <&reg_p4v5>;
+
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
+				regulator-state-disk {
+					regulator-on-in-suspend;
+				};
 			};
 
 			sw2_reg: sw2 {
@@ -466,7 +492,17 @@
 				regulator-max-microvolt = <3300000>;
 				regulator-boot-on;
 				regulator-always-on;
-				regulator-ramp-delay = <6250>;
+				vin-supply = <&reg_p4v5>;
+
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
+				regulator-state-disk {
+					regulator-on-in-suspend;
+				};
 			};
 
 			sw3a_reg: sw3a {
@@ -474,6 +510,17 @@
 				regulator-max-microvolt = <1975000>;
 				regulator-boot-on;
 				regulator-always-on;
+				vin-supply = <&reg_p4v5>;
+
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
+				regulator-state-disk {
+					regulator-on-in-suspend;
+				};
 			};
 
 			sw3b_reg: sw3b {
@@ -481,21 +528,50 @@
 				regulator-max-microvolt = <1975000>;
 				regulator-boot-on;
 				regulator-always-on;
+				vin-supply = <&reg_p4v5>;
+
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
+				regulator-state-disk {
+					regulator-on-in-suspend;
+				};
 			};
 
 			sw4_reg: sw4 {
 				regulator-min-microvolt = <800000>;
 				regulator-max-microvolt = <3300000>;
+				regulator-boot-on;
+				regulator-always-on;
+				vin-supply = <&reg_p4v5>;
+
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
+				regulator-state-disk {
+					regulator-on-in-suspend;
+				};
 			};
 
 			swbst_reg: swbst {
 				regulator-min-microvolt = <5000000>;
 				regulator-max-microvolt = <5150000>;
+				regulator-boot-on;
+				regulator-always-on;
+				vin-supply = <&reg_p4v5>;
 			};
 
 			snvs_reg: vsnvs {
 				regulator-min-microvolt = <1000000>;
 				regulator-max-microvolt = <3000000>;
+				regulator-boot-on;
+				regulator-always-on;
 			};
 
 			vref_reg: vrefddr {
@@ -506,46 +582,46 @@
 			vgen1_reg: vgen1 {
 				regulator-min-microvolt = <800000>;
 				regulator-max-microvolt = <1550000>;
+				regulator-boot-on;
+				regulator-always-on;
 			};
 
 			vgen2_reg: vgen2 {
 				regulator-min-microvolt = <800000>;
 				regulator-max-microvolt = <1550000>;
+				regulator-boot-on;
+				regulator-always-on;
 			};
 
 			vgen3_reg: vgen3 {
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
+				regulator-boot-on;
+				regulator-always-on;
 			};
 
 			vgen4_reg: vgen4 {
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
+				regulator-boot-on;
 				regulator-always-on;
 			};
 
 			vgen5_reg: vgen5 {
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
+				regulator-boot-on;
 				regulator-always-on;
 			};
 
 			vgen6_reg: vgen6 {
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
+				regulator-boot-on;
 				regulator-always-on;
 			};
 		};
 	};
-};
-
-&mipi_csi {
-	status = "disabled";
-};
-
-
-&ldb {
-	status = "disabled";
 };
 
 &pwm1 {
@@ -575,16 +651,6 @@
 	regulator-allow-bypass;
 };
 
-/* XXX - unclear if this is doable or not */
-&snvs_poweroff {
-	status = "disabled";
-};
-
-&ssi1 {
-	fsl,mode = "i2s-master";
-	status = "disabled";
-};
-
 &uart1 { /* console */
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1>;
@@ -601,16 +667,14 @@
 	status = "okay";
 };
 
-&usbh1 {
-	/* there is no host device */
-	status = "disabled";
-};
-
 &usbotg {
 	vbus-supply = <&reg_usbotg_vbus>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usbotg>;
 	disable-over-current;
+	srp-disable;
+	hnp-disable;
+	adp-disable;
 	dr_mode = "otg";
 	status = "okay";
 };
