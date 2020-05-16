@@ -21,6 +21,7 @@
 #include "imx_env.h"
 
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_SERIAL_TAG
 #define CONFIG_IMX_THERMAL
 
 /* Size of malloc() pool */
@@ -131,6 +132,11 @@
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+#endif
+
+/* OCOTP Configs */
+#ifdef CONFIG_CMD_FUSE
+#define CONFIG_MXC_OCOTP
 #endif
 
 /* PMIC */
