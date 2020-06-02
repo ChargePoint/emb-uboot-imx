@@ -1,0 +1,14 @@
+if TARGET_IMX8DXP_UCB
+
+config SYS_BOARD
+	default "imx8dxp_ucb"
+
+config SYS_VENDOR
+	default "chargepoint"
+
+config SYS_CONFIG_NAME
+	default "imx8dxp_ucb"
+
+source "board/freescale/common/Kconfig"
+
+endif
