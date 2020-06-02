@@ -65,6 +65,13 @@ config TARGET_IMX8QM_MEK
 	select SUPPORT_SPL
 	select IMX8QM
 
+# NOTE: select correct SoC variant when DXP is supported
+config TARGET_IMX8DXP_UCB
+	bool "Support i.MX8DXP UCB board"
+	select BOARD_LATE_INIT
+	select SUPPORT_SPL
+	select IMX8QXP
+
 config TARGET_IMX8QXP_LPDDR4_ARM2
 	bool "Support i.MX8QXP lpddr4 validation board"
 	select BOARD_LATE_INIT
@@ -93,6 +100,8 @@ source "board/freescale/imx8qm_arm2/Kconfig"
 source "board/freescale/imx8qm_mek/Kconfig"
 source "board/freescale/imx8qxp_arm2/Kconfig"
 source "board/freescale/imx8qxp_mek/Kconfig"
+
+source "board/chargepoint/imx8dxp_ucb/Kconfig"
 
 config SNVS_SEC_SC
 	bool "Support SNVS configuration"
