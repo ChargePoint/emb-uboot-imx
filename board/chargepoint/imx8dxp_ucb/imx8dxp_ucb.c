@@ -36,29 +36,41 @@
 #include <cdns3-uboot.h>
 #endif
 
+#include "../common/fitimage_keys.h"
+
 DECLARE_GLOBAL_DATA_PTR;
+
 
 int board_early_init_f(void)
 {
-	sc_ipc_t ipcHndl = 0;
-	sc_err_t sciErr = 0;
+	sc_err_t err;
+	uint16_t lc;
+	sc_ipc_t ipcHndl;
 
 	ipcHndl = gd->arch.ipc_channel_handle;
 
+	/* Determine the security state of the chip (OEM closed) */
+	err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
+	if ((err == SC_ERR_NONE) && (lc == 0x80)) {
+		/* HAB is in OEM closed, so disable the serial console */
+		gd->flags |= (GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE);
+	}
+
 	/* Power up UART0 */
-	sciErr = sc_pm_set_resource_power_mode(ipcHndl, SC_R_UART_0, SC_PM_PW_MODE_ON);
-	if (sciErr != SC_ERR_NONE)
+	err = sc_pm_set_resource_power_mode(ipcHndl, SC_R_UART_0,
+					    SC_PM_PW_MODE_ON);
+	if (err != SC_ERR_NONE)
 		return 0;
 
 	/* Set UART0 clock root to 80 MHz */
 	sc_pm_clock_rate_t rate = 80000000;
-	sciErr = sc_pm_set_clock_rate(ipcHndl, SC_R_UART_0, 2, &rate);
-	if (sciErr != SC_ERR_NONE)
+	err = sc_pm_set_clock_rate(ipcHndl, SC_R_UART_0, 2, &rate);
+	if (err != SC_ERR_NONE)
 		return 0;
 
 	/* Enable UART0 clock root */
-	sciErr = sc_pm_clock_enable(ipcHndl, SC_R_UART_0, 2, true, false);
-	if (sciErr != SC_ERR_NONE)
+	err = sc_pm_clock_enable(ipcHndl, SC_R_UART_0, 2, true, false);
+	if (err != SC_ERR_NONE)
 		return 0;
 
 	LPCG_AllClockOn(LPUART_0_LPCG);
@@ -74,14 +86,16 @@ static void imx8qxp_hsio_initialize(void)
 
 	if (!power_domain_lookup_name("hsio_pcie1", &pd)) {
 		ret = power_domain_on(&pd);
-		if (ret)
-			printf("hsio_pcie1 Power up failed! (error = %d)\n", ret);
+		if (ret) {
+			printf("Power up hsio_pcie1 (error = %d)\n", ret);
+		}
 	}
 
 	if (!power_domain_lookup_name("hsio_gpio", &pd)) {
 		ret = power_domain_on(&pd);
-		if (ret)
-			printf("hsio_gpio Power up failed! (error = %d)\n", ret);
+		if (ret) {
+			printf("Power up hsio_gpio (error = %d)\n", ret);
+		}
 	}
 
 	LPCG_AllClockOn(HSIO_PCIE_X1_LPCG);
@@ -135,7 +149,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	if (!power_domain_lookup_name("conn_usb2", &pd)) {
 		ret = power_domain_on(&pd);
 		if (ret) {
-			printf("conn_usb2 Power up failed! (error = %d)\n", ret);
+			printf("Power up conn_usb2 (error = %d)\n", ret);
 			return ret;
 		}
 	}
@@ -143,7 +157,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	if (!power_domain_lookup_name("conn_usb2_phy", &pd)) {
 		ret = power_domain_on(&pd);
 		if (ret) {
-			printf("conn_usb2_phy Power up failed! (error = %d)\n", ret);
+			printf("Power up conn_usb2_phy (error = %d)\n", ret);
 			return ret;
 		}
 	}
@@ -168,14 +182,16 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 	/* Power off usb */
 	if (!power_domain_lookup_name("conn_usb2", &pd)) {
 		ret = power_domain_off(&pd);
-		if (ret)
-			printf("conn_usb2 Power down failed! (error = %d)\n", ret);
+		if (ret) {
+			printf("Power down conn_usb2 (error = %d)\n", ret);
+		}
 	}
 
 	if (!power_domain_lookup_name("conn_usb2_phy", &pd)) {
 		ret = power_domain_off(&pd);
-		if (ret)
-			printf("conn_usb2_phy Power down failed! (error = %d)\n", ret);
+		if (ret) {
+			printf("Power down conn_usb2_phy (error = %d)\n", ret);
+		}
 	}
 #endif
 
@@ -185,6 +201,9 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 
 int board_init(void)
 {
+
+	setup_fitimage_keys();
+
 	return 0;
 }
 
@@ -208,8 +227,9 @@ void reset_cpu(ulong addr)
 {
 	puts("SCI reboot request");
 	sc_pm_reboot(SC_IPC_CH, SC_PM_RESET_TYPE_COLD);
-	while (1)
+	for (;;) {
 		putc('.');
+	}
 }
 
 int board_mmc_get_env_dev(int devno)
@@ -219,9 +239,36 @@ int board_mmc_get_env_dev(int devno)
 
 int board_late_init(void)
 {
+	sc_err_t err;
+	uint16_t lc;
+	sc_ipc_t ipcHndl;
+
+	ipcHndl = gd->arch.ipc_channel_handle;
+
 #ifdef CONFIG_ENV_IS_IN_MMC
 	board_late_mmc_env_init();
 #endif
+
+	/* Determine the security state of the chip (OEM closed) */
+	err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
+	if (err == SC_ERR_NONE) {
+		switch (lc) {
+		default:
+		case 0x1: /* Pristine */
+		case 0x2: /* Fab */
+		case 0x8: /* Open */
+		case 0x20: /* NXP closed */
+		case 0x100: /* Partial field return */
+		case 0x200: /* Full field return */
+			break;
+
+		case 0x80: /* OEM closed */
+#if defined(CONIG_NOT_UUU_BUILD)
+			env_set("bootargs_secureboot", "uboot-secureboot");
+#endif
+			break;
+		}
+	}
 
 	return 0;
 }
@@ -232,7 +279,10 @@ static void enable_lvds(struct display_info_t const *dev)
 	struct gpio_desc desc;
 	int ret;
 
-	/* MIPI_DSI0_EN on IOEXP 0x1a port 6, MIPI_DSI1_EN on IOEXP 0x1d port 7 */
+	/*
+	 * MIPI_DSI0_EN on IOEXP 0x1a port 6
+	 * MIPI_DSI1_EN on IOEXP 0x1d port 7
+	 */
 	ret = dm_gpio_lookup_name("gpio@1a_6", &desc);
 	if (ret)
 		return;
@@ -277,8 +327,125 @@ size_t display_count = ARRAY_SIZE(displays);
 #endif /* CONFIG_VIDEO_IMXDPUV1 */
 
 #ifdef CONFIG_OF_BOARD_SETUP
+/* define the get mac function here to avoid including fec_mxc.h */
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
+	uint32_t uid_high, uid_low;
+
+	/*
+	 * i.MX8 Configuration and Manufacturing Info in OTP fuse array
+	 *   UNIQUE_ID LOW: 16
+	 *   UNIQUE_ID HI: 17
+	 */
+	do {
+		sc_err_t err;
+		uint32_t word;
+		sc_ipc_t ipcHndl;
+
+		ipcHndl = gd->arch.ipc_channel_handle;
+
+#define FUSE_UNIQUE_ID_LOW	16
+#define FUSE_UNIQUE_ID_HIGH	17
+
+		word = FUSE_UNIQUE_ID_LOW;
+		err = sc_misc_otp_fuse_read(ipcHndl, word, &uid_low);
+		if (err != SC_ERR_NONE) {
+			printf("%s fuse %d read error: %d\n",
+				__func__, word, err);
+			goto out;
+		}
+		word = FUSE_UNIQUE_ID_HIGH;
+		err = sc_misc_otp_fuse_read(ipcHndl, word, &uid_high);
+		if (err != SC_ERR_NONE) {
+			printf("%s fuse %d read error: %d\n",
+				__func__, word, err);
+			goto out;
+		}
+
+#undef FUSE_UNIQUE_ID_LOW
+#undef FUSE_UNIQUE_ID_HIGH
+	} while(0);
+
+	if (!env_get("serial#")) {
+		char serial_str[17];
+
+		snprintf(serial_str, sizeof(serial_str),
+			 "%08x%08x", uid_high, uid_low);
+		env_set("serial#", serial_str);
+
+		fdt_root(blob);
+	}
+
+	if (!env_get("ethaddr") && !env_get("eth1addr")) {
+		u8 mac_addr[6];
+		char mac_str[ARP_HLEN_ASCII + 1];
+
+		/* MAC0 */
+		imx_get_mac_from_fuse(0, mac_addr);
+
+		debug("imx fuse 0 mac addr %x:%x:%x:%x:%x:%x\n",
+			mac_addr[0], mac_addr[1], mac_addr[2],
+			mac_addr[3], mac_addr[4], mac_addr[5]);
+		if (!is_valid_ethaddr(mac_addr)) {
+			mac_addr[0] =
+				((uid_low >> 24) ^ (uid_low >> 16)) & 0xff;
+			mac_addr[1] =
+				((uid_low >> 8) ^ (uid_low >> 0)) & 0xff;
+			mac_addr[2] = uid_low >> 24;
+			mac_addr[3] = uid_low >> 16;
+			mac_addr[4] = uid_low >> 8;
+			mac_addr[5] = uid_low >> 0;
+
+			mac_addr[0] &= 0xfe; /* clear multicast bit */
+			mac_addr[0] |= 0x02; /* set local assignment bit */
+			debug("ocotp uid %x:%x -> macaddr %x:%x:%x:%x:%x:%x\n",
+				uid_high, uid_low,
+				mac_addr[0], mac_addr[1], mac_addr[2],
+				mac_addr[3], mac_addr[4], mac_addr[5]);
+		}
+
+		snprintf(mac_str, sizeof(mac_str), "%x:%x:%x:%x:%x:%x",
+			 mac_addr[0], mac_addr[1], mac_addr[2],
+			 mac_addr[3], mac_addr[4], mac_addr[5]);
+		debug("ethaddr - %s\n", mac_str);
+		env_set("ethaddr", mac_str);
+
+		/* MAC1 */
+		imx_get_mac_from_fuse(1, mac_addr);
+
+		debug("imx fuse 1 mac addr %x:%x:%x:%x:%x:%x\n",
+			mac_addr[0], mac_addr[1], mac_addr[2],
+			mac_addr[3], mac_addr[4], mac_addr[5]);
+		if (!is_valid_ethaddr(mac_addr)) {
+			mac_addr[0] =
+				((uid_high >> 24) ^ (uid_high >> 16)) & 0xff;
+			mac_addr[1] =
+				((uid_high >> 8) ^ (uid_high >> 0)) & 0xff;
+			mac_addr[2] = uid_high >> 24;
+			mac_addr[3] = uid_high >> 16;
+			mac_addr[4] = uid_high >> 8;
+			mac_addr[5] = uid_high >> 0;
+
+			mac_addr[0] &= 0xfe; /* clear multicast bit */
+			mac_addr[0] |= 0x02; /* set local assignment bit */
+			debug("ocotp uid %x:%x -> macaddr %x:%x:%x:%x:%x:%x\n",
+				uid_high, uid_low,
+				mac_addr[0], mac_addr[1], mac_addr[2],
+				mac_addr[3], mac_addr[4], mac_addr[5]);
+		}
+
+		snprintf(mac_str, sizeof(mac_str), "%x:%x:%x:%x:%x:%x",
+			 mac_addr[0], mac_addr[1], mac_addr[2],
+			 mac_addr[3], mac_addr[4], mac_addr[5]);
+		debug("eth1addr - %s\n", mac_str);
+		env_set("eth1addr", mac_str);
+
+		fdt_fixup_ethernet(blob);
+	}
+
+out:
 	return 0;
 }
 #endif

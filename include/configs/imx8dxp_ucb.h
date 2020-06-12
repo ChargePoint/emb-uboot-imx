@@ -12,137 +12,23 @@
 #include "version.h"
 #include "imx_env.h"
 
+#define CONFIG_SERIAL_TAG
 #define CONFIG_REMAKE_ELF
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_ARCH_MISC_INIT
 
-#define CONFIG_CMD_READ
-
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_BOARD_SETUP
-
-#undef CONFIG_CMD_IMLS
-
-#undef CONFIG_CMD_CRC32
-#undef CONFIG_BOOTM_NETBSD
-
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
-#define CONFIG_SYS_FSL_ESDHC_ADDR       0
-#define USDHC1_BASE_ADDR                0x5B010000
-#define USDHC2_BASE_ADDR                0x5B020000
-#define CONFIG_SUPPORT_EMMC_BOOT
-
-#define CONFIG_CMD_FUSE
-#define CONFIG_MXC_GPIO
-#define CONFIG_MII
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
-#define CONFIG_MFG_ENV_SETTINGS \
-	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
-		"earlyprintk=serial ignore_loglevel debug " \
-		"clk_ignore_unused root=/dev/ram " \
-		"\0" \
-	"bootcmd_mfg=run mfgtool_args; " \
-		"echo \"Run fastboot ...\"; fastboot 0; "  \
-		"\0" \
-
-
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	CONFIG_MFG_ENV_SETTINGS \
-	"console=ttyLP0\0" \
-	"board_type=ucb\0" \
-	"bootenvpart=0:1\0" \
-	"bootenv=uboot.env\0" \
-	"bootfile=fitImage\0" \
-	"bootparta=0:2\0" \
-	"bootpartb=0:3\0" \
-	"version_uboot=" U_BOOT_VERSION "\0" \
-	"boot8=bootm start ${loadaddr}; bootm loados; " \
-		"bootm ramdisk; bootm fdt; bootm prep; " \
-		"booti 80200000 - ${fdtaddr}\0"\
-	"importbootenv=echo Importing env from mmc ${bootenvpart} ...; " \
-		"if ext4load mmc ${bootenvpart} " \
-			"${loadaddr} ${bootenv}; then " \
-				"env import -c ${loadaddr} ${filesize} " \
-					"trybootpart bootpart bootlabel; " \
-		"elif ext4load mmc ${bootenvpart} " \
-			"${loadaddr} ${bootenv}-backup; then " \
-				"env import -c ${loadaddr} ${filesize} " \
-					"bootpart bootlabel; " \
-				"env export -c ${loadaddr} " \
-					"trybootpart bootpart bootlabel; " \
-				"ext4write mmc ${bootenvpart} ${loadaddr} " \
-					"/${bootenv} ${filesize}; " \
-		"fi; " \
-	"\0" \
-	"mmctryboot=" \
-		"if test -n $trybootpart; then " \
-			"echo Try-boot ${bootfile} from " \
-				"mmc ${trybootpart} ...; " \
-			"setenv -f _trybootpart ${trybootpart}; " \
-			"setenv -f trybootpart; " \
-			"env export -c ${loadaddr} " \
-				"trybootpart bootpart bootlabel; " \
-			"ext4write mmc ${bootenvpart} ${loadaddr} " \
-				"/${bootenv} ${filesize}; " \
-			"part uuid mmc ${_trybootpart} bootuuid; " \
-			"setenv bootargs console=${console} " \
-				"root=PARTUUID=${bootuuid} rootwait rw; " \
-			"echo Try-booting ${bootfile} from mmc " \
-				"${_trybootpart} ...; " \
-			"ext4load mmc ${_trybootpart} ${loadaddr} " \
-				"${bootfile} && " \
-					"run boot8 ${loadaddr}; " \
-		"fi; " \
-	"\0" \
-	"mmcboot=setenv -f _bootpart ${bootparta}; " \
-		"run importbootenv; " \
-		"gpio set 133; " \
-		"run mmctryboot; " \
-		"if test -n $bootpart && test $bootpart != none; then " \
-			"setenv -f _bootpart ${bootpart}; " \
-		"fi; " \
-		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
-		"part uuid mmc ${_bootpart} bootuuid; " \
-		"setenv bootargs console=${console} " \
-			"root=PARTUUID=${bootuuid} rootwait rw; " \
-		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
-			"run boot8 ${loadaddr}; " \
-		"if test $_bootpart = $bootparta; then " \
-			"setenv -f _bootpart ${bootpartb}; " \
-		"else " \
-			"setenv -f _bootpart ${bootparta}; " \
-		"fi; " \
-		"echo Failover boot ${bootfile} from mmc ${_bootpart} ...; " \
-		"part uuid mmc ${_bootpart} bootuuid; " \
-		"setenv bootargs console=${console} " \
-			"root=PARTUUID=${bootuuid} rootwait rw; " \
-		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
-			"run boot8 ${loadaddr}; " \
-	"\0"
-
-
-#define CONFIG_BOOTCOMMAND \
-	"run mmcboot"
-
-/* Link Definitions */
-#define CONFIG_LOADADDR                 0xE0000000
-#define CONFIG_SYS_LOAD_ADDR            CONFIG_LOADADDR
-#define CONFIG_SYS_INIT_SP_ADDR         0x80200000
-
-/* Default environment is in mmcblk0boot1 */
-#define CONFIG_ENV_SIZE                 0x2000
-#define CONFIG_SYS_MMC_ENV_DEV          0   /* mmcblk0 */
-#define CONFIG_ENV_OFFSET               0   /* start of mmcblk0boot1 */
-#define CONFIG_SYS_MMC_ENV_PART         2   /* start of mmcblk0boot1 */
-#define CONFIG_SYS_MMC_IMG_LOAD_PART    1
+#define CONFIG_OF_SYSTEM_SETUP
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN           ((CONFIG_ENV_SIZE + (32 * 1024)) * 1024)
+#define CONFIG_SYS_MALLOC_LEN           (40 * SZ_1M)
 
+#define CONFIG_SYS_BOOTM_LEN            (64 << 20)
+#define CONFIG_SYS_XIMG_LEN CONFIG_SYS_BOOTM_LEN
+
+/* Physical Memory Map */
 #define CONFIG_SYS_SDRAM_BASE           0x80000000
 #define CONFIG_NR_DRAM_BANKS            4
 #define PHYS_SDRAM_1                    0x080000000
@@ -154,7 +40,37 @@
 #define CONFIG_SYS_MEMTEST_END \
 	(CONFIG_SYS_MEMTEST_START + (PHYS_SDRAM_1_SIZE >> 2))
 
-#define CONFIG_BAUDRATE                 115200
+#define CONFIG_FSL_ESDHC
+#define CONFIG_FSL_USDHC
+#define CONFIG_SYS_FSL_ESDHC_ADDR       0
+#define USDHC1_BASE_ADDR                0x5B010000
+#define USDHC2_BASE_ADDR                0x5B020000
+#define CONFIG_SUPPORT_EMMC_BOOT
+
+#define CONFIG_MXC_GPIO
+
+/* Link Definitions */
+#define CONFIG_LOADADDR                 0x98000000
+#define CONFIG_SYS_LOAD_ADDR            CONFIG_LOADADDR
+#define CONFIG_SYS_INIT_SP_ADDR         0x80200000
+
+/* Environment organization */
+#define CONFIG_ENV_SIZE                 (8 * SZ_1K)
+#define CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
+/* Default environment is in mmcblk0boot1 */
+#define CONFIG_SYS_MMC_ENV_DEV          0   /* mmcblk0 */
+#if defined(CONFIG_ENV_IS_IN_MMC)
+#define CONFIG_ENV_OFFSET               0   /* start of mmcblk0boot1 */
+#ifndef CONFIG_SYS_MMC_ENV_PART
+#define CONFIG_SYS_MMC_ENV_PART         2   /* start of mmcblk0boot1 */
+#endif
+#endif
+#define CONFIG_SYS_MMC_IMG_LOAD_PART    1
+
+/* Serial */
+#define CONSOLE_DEV	"ttyLP0"
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_PROMPT_HUSH_PS2      "UCB> "
@@ -166,7 +82,6 @@
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY               8000000	/* 8MHz */
-#define CONFIG_SERIAL_TAG
 
 /* USB Config */
 #define CONFIG_USB_STORAGE
@@ -183,6 +98,7 @@
 #endif
 
 /* Networking */
+#define CONFIG_MII
 #define CONFIG_FEC_ENET_DEV 0
 
 #if (CONFIG_FEC_ENET_DEV == 0)
@@ -217,14 +133,97 @@
 #define CONFIG_IMX_VIDEO_SKIP
 #endif
 
-#define CONFIG_OF_SYSTEM_SETUP
-
-#define CONFIG_SYS_BOOTM_LEN            (64 << 20)
-#define CONFIG_SYS_XIMG_LEN CONFIG_SYS_BOOTM_LEN
-
 /*
  * Resource checking produces unwanted device tree warnings.
  * Happened after UCB switched to 5.4 kernel dt bindings.
-*/
+ */
 #define CONFIG_SKIP_RESOURCE_CHECING
+
+#define CONFIG_MFG_ENV_SETTINGS \
+	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
+		"earlyprintk=serial ignore_loglevel debug " \
+		"clk_ignore_unused root=/dev/ram " \
+		"\0" \
+	"bootcmd_mfg=run mfgtool_args; " \
+		"echo \"Run fastboot ...\"; fastboot 0; "  \
+		"\0" \
+
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	CONFIG_MFG_ENV_SETTINGS \
+	"console=" CONSOLE_DEV "\0" \
+	"bootenvpart=0:1\0" \
+	"bootenv=uboot.env\0" \
+	"bootfile=fitImage\0" \
+	"bootparta=0:2\0" \
+	"bootpartb=0:3\0" \
+	"importbootenv=echo Importing env from mmc ${bootenvpart} ...; " \
+		"if ext4load mmc ${bootenvpart} " \
+			"${loadaddr} ${bootenv}; then " \
+				"env import -c ${loadaddr} ${filesize} " \
+					"trybootpart bootpart bootlabel; " \
+		"elif ext4load mmc ${bootenvpart} " \
+			"${loadaddr} ${bootenv}-backup; then " \
+				"env import -c ${loadaddr} ${filesize} " \
+					"bootpart bootlabel; " \
+				"env export -c ${loadaddr} " \
+					"trybootpart bootpart bootlabel; " \
+				"ext4write mmc ${bootenvpart} ${loadaddr} " \
+					"/${bootenv} ${filesize}; " \
+		"fi; " \
+	"\0" \
+	"mmctryboot=" \
+		"if test -n $trybootpart; then " \
+			"echo Try-boot ${bootfile} from " \
+				"mmc ${trybootpart} ...; " \
+			"setenv -f _trybootpart ${trybootpart}; " \
+			"setenv -f trybootpart; " \
+			"env export -c ${loadaddr} " \
+				"trybootpart bootpart bootlabel; " \
+			"ext4write mmc ${bootenvpart} ${loadaddr} " \
+				"/${bootenv} ${filesize}; " \
+			"part uuid mmc ${_trybootpart} bootuuid; " \
+			"setenv bootargs ${bootargs_secureboot} " \
+				"console=${console} " \
+				"root=PARTUUID=${bootuuid} rootwait rw; " \
+			"echo Try-booting ${bootfile} from mmc " \
+				"${_trybootpart} ...; " \
+			"ext4load mmc ${_trybootpart} ${loadaddr} " \
+				"${bootfile} && " \
+					"bootm ${loadaddr}; " \
+		"fi; " \
+	"\0" \
+	"mmcboot=setenv -f _bootpart ${bootparta}; " \
+		"run importbootenv; " \
+		"gpio set 133; " \
+		"run mmctryboot; " \
+		"if test -n $bootpart && test $bootpart != none; then " \
+			"setenv -f _bootpart ${bootpart}; " \
+		"fi; " \
+		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
+		"part uuid mmc ${_bootpart} bootuuid; " \
+		"setenv bootargs ${bootargs_secureboot} console=${console} " \
+			"root=PARTUUID=${bootuuid} rootwait rw; " \
+		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
+			"bootm ${loadaddr}; " \
+		"if test $_bootpart = $bootparta; then " \
+			"setenv -f _bootpart ${bootpartb}; " \
+		"else " \
+			"setenv -f _bootpart ${bootparta}; " \
+		"fi; " \
+		"echo Failover boot ${bootfile} from mmc ${_bootpart} ...; " \
+		"part uuid mmc ${_bootpart} bootuuid; " \
+		"setenv bootargs ${bootargs_secureboot} console=${console} " \
+			"root=PARTUUID=${bootuuid} rootwait rw; " \
+		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
+			"bootm ${loadaddr}; " \
+	"\0"
+
+
+#define CONFIG_BOOTCOMMAND \
+	"run mmcboot"
+
+#define CONFIG_BOOTARGS \
+	"console=" CONSOLE_DEV ",115200 earlyprintk=serial ignore_loglevel"
+
 #endif /* __IMX8DXP_UCB_H */

@@ -50,6 +50,7 @@
 
 /* Environment organization */
 #define CONFIG_ENV_SIZE			(8 * SZ_1K)
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* Serial */
 #define CONFIG_MXC_UART
@@ -231,7 +232,8 @@
 			"ext4write mmc ${bootenvpart} ${loadaddr} " \
 				"/${bootenv} ${filesize}; " \
 			"part uuid mmc ${_trybootpart} bootuuid; " \
-			"setenv bootargs console=${console} " \
+			"setenv bootargs ${bootargs_secureboot} " \
+				"console=${console} " \
 				"root=PARTUUID=${bootuuid} rootwait rw; " \
 			"echo Try-booting ${bootfile} from mmc " \
 				"${_trybootpart} ...; " \
@@ -248,7 +250,7 @@
 		"fi; " \
 		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
-		"setenv bootargs console=${console} " \
+		"setenv bootargs ${bootargs_secureboot} console=${console} " \
 			"root=PARTUUID=${bootuuid} rootwait rw; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
 			"bootm ${loadaddr}; " \
@@ -259,7 +261,7 @@
 		"fi; " \
 		"echo Failover boot ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
-		"setenv bootargs console=${console} " \
+		"setenv bootargs ${bootargs_secureboot} console=${console} " \
 			"root=PARTUUID=${bootuuid} rootwait rw; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
 			"bootm ${loadaddr}; " \
