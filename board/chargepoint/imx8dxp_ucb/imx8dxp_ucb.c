@@ -41,6 +41,20 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 
+/*
+ * Rely on the device-tree to setup the peripherals, but setup the
+ * uart0 pads to get the initial prints before the DM code kicks in
+ */
+#define UART_PAD_CTRL	((SC_PAD_CONFIG_OUT_IN << PADRING_CONFIG_SHIFT) | \
+			 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+			 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
+			 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
+
+static iomux_cfg_t uart0_pads[] = {
+	SC_P_UART0_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
+	SC_P_UART0_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
+};
+
 int board_early_init_f(void)
 {
 	sc_err_t err;
@@ -74,6 +88,8 @@ int board_early_init_f(void)
 		return 0;
 
 	LPCG_AllClockOn(LPUART_0_LPCG);
+
+	imx8_iomux_setup_multiple_pads(uart0_pads, ARRAY_SIZE(uart0_pads));
 
 	return 0;
 }
