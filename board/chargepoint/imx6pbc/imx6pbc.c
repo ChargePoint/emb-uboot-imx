@@ -234,6 +234,14 @@ static void set_gpios(const struct gpio_ni *nip, unsigned int cnt, int val)
 	}
 }
 
+static void set_gpio(int gpio, const char *gpioname, int val)
+{
+	debug("%s >>>>>>>>\n", __func__);
+	gpio_request(gpio, gpioname);
+	gpio_direction_output(gpio, val);
+	debug("\t%s[%u] -> %#x\n", gpioname, gpio, val);
+}
+
 #if defined(CONFIG_FSL_ESDHC)
 struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC3_BASE_ADDR},
@@ -750,6 +758,9 @@ int board_late_init(void)
 		env_set("bootargs_secureboot", "uboot-secureboot");
 	}
 #endif
+
+	/* activate debug LED 5 to indicate we're about to jump to kernel */
+	set_gpio(GPIO_DBG_LED5, "dbg_led_5", 1);
 
 	return 0;
 }
