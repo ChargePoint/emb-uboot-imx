@@ -47,14 +47,6 @@
 		reg = <0x10000000 0x80000000>;
 	};
 
-	leds {
-		compatible = "gpio-leds";
-		DBG_LED_9 {
-			label = "DBG LED9";
-			gpios = <&gpio2 3 1>;
-		};
-	};
-
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
