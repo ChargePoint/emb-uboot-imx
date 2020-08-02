@@ -51,14 +51,6 @@
 		reg = <0x10000000 0x40000000>;
 	};
 
-	leds {
-		compatible = "gpio-leds";
-		DBG_LED_93 {
-			label = "DGG LED93";
-			gpios = <&gpio2 3 1>;
-		};
-	};
-
 	backlight_lvds0 {
 		compatible = "pwm-backlight";
 		pinctrl-names = "default";
