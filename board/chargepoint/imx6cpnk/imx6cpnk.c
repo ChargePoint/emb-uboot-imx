@@ -154,6 +154,7 @@ static struct gpio_ni gpios_output_low[] = {
 	NI(GPIO_MODEM_IGT),     /* Modem off - IGNn low and reset high */
 	NI(GPIO_RS485_TX_EN),
 	NI(GPIO_RS485_RX_EN),
+	NI(GPIO_DBG_LED90),
 	NI(GPIO_DBG_LED91),
 	NI(GPIO_DBG_LED92),
 	NI(GPIO_DBG_LED93),
@@ -174,7 +175,6 @@ static struct gpio_ni gpios_output_high[] = {
 	NI(GPIO_USB_PWREN),
 	NI(GPIO_USBOTG_PWREN),
 	NI(GPIO_RS485_CAN_EN),
-	NI(GPIO_DBG_LED90),
 	NI(GPIO_SPEAKER_PWREN),
 	NI(GPIO_LCD_SEL_6o8),
 	NI(GPIO_LCD_PWREN),
@@ -219,6 +219,14 @@ static void set_gpios(const struct gpio_ni *nip, unsigned int cnt, int val)
 		gpio_direction_output(nip[i].id, val);
 		debug("\t%d: %s[%u] -> %#x\n", i, nip[i].name, nip[i].id, val);
 	}
+}
+
+static void set_gpio(int gpio, const char *gpioname, int val)
+{
+	debug("%s >>>>>>>>\n", __func__);
+	gpio_request(gpio, gpioname);
+	gpio_direction_output(gpio, val);
+	debug("\t%s[%u] -> %#x\n", gpioname, gpio, val);
 }
 
 #if defined(CONFIG_FSL_ESDHC)
@@ -894,6 +902,12 @@ int board_late_init(void)
 		env_set("bootargs_secureboot", "uboot-secureboot");
 	}
 #endif
+
+	/*
+	 * Refer to the documentation on the CPNK in the platform repo
+	 * to get the debug led usage since it covers multiple stages.
+	 */
+	set_gpio(GPIO_DBG_LED90, "dbg_led_90", 1);
 
 	return 0;
 }
