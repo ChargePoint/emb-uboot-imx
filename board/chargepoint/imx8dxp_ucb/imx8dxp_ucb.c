@@ -42,6 +42,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 
 /*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
+}
+
+/*
  * Rely on the device-tree to setup the peripherals, but setup the
  * uart0 pads to get the initial prints before the DM code kicks in
  */
@@ -93,6 +102,27 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_MXC_GPIO
+#define GPIO_DBG_LED4	IMX_GPIO_NR(1, 8)
+#define GPIO_DBG_LED5	IMX_GPIO_NR(1, 7)
+#define GPIO_DBG_LED11	IMX_GPIO_NR(3, 14)
+
+static void set_gpio(int gpio, const char *gpioname, int val)
+{
+	debug("%s >>>>>>>>\n", __func__);
+	gpio_request(gpio, gpioname);
+	gpio_direction_output(gpio, val);
+	debug("\t%s[%u] -> %#x\n", gpioname, gpio, val);
+}
+
+static void board_gpio_init(void)
+{
+	set_gpio(GPIO_DBG_LED4, "debug_led4", 0);
+	set_gpio(GPIO_DBG_LED5, "debug_led5", 0);
+	set_gpio(GPIO_DBG_LED11, "debug_led11", 0);
+}
+#endif
 
 #ifdef CONFIG_FSL_HSIO
 static void imx8qxp_hsio_initialize(void)
@@ -220,6 +250,10 @@ int board_init(void)
 
 	setup_fitimage_keys();
 
+#ifdef CONFIG_MXC_GPIO
+	board_gpio_init();
+#endif
+
 	return 0;
 }
 
@@ -286,58 +320,21 @@ int board_late_init(void)
 		}
 	}
 
+#ifdef CONFIG_MXC_GPIO
+	/* activate debug LED 4 to indicate we're about to jump to kernel */
+	set_gpio(GPIO_DBG_LED4, "debug_led4", 1);
+#endif
+
 	return 0;
 }
 
 #if defined(CONFIG_VIDEO_IMXDPUV1)
-static void enable_lvds(struct display_info_t const *dev)
-{
-	struct gpio_desc desc;
-	int ret;
+/*
+ * XXX - unclear if ucb will use a display in u-boot, the goal is to fixup
+ *       the device tree for linux and avoid changing the bootloader
+ */
 
-	/*
-	 * MIPI_DSI0_EN on IOEXP 0x1a port 6
-	 * MIPI_DSI1_EN on IOEXP 0x1d port 7
-	 */
-	ret = dm_gpio_lookup_name("gpio@1a_6", &desc);
-	if (ret)
-		return;
-
-	ret = dm_gpio_request(&desc, "lvds0_en");
-	if (ret)
-		return;
-
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-
-	display_controller_setup((PS2KHZ(dev->mode.pixclock) * 1000));
-	lvds_soc_setup(dev->bus, (PS2KHZ(dev->mode.pixclock) * 1000));
-	lvds_configure(dev->bus);
-	lvds2hdmi_setup(13);
-}
-
-struct display_info_t const displays[] = {{
-	.bus	= 0, /* LVDS0 */
-	.addr	= 0, /* LVDS0 */
-	.pixfmt	= IMXDPUV1_PIX_FMT_RGB666,
-	.detect	= NULL,
-	.enable	= enable_lvds,
-	.mode	= {
-		.name           = "IT6263", /* 720P60 */
-		.refresh        = 60,
-		.xres           = 800,
-		.yres           = 600,
-		.pixclock       = 13468, /* 74250000 */
-		.left_margin    = 110,
-		.right_margin   = 220,
-		.upper_margin   = 5,
-		.lower_margin   = 20,
-		.hsync_len      = 40,
-		.vsync_len      = 5,
-		.sync           = FB_SYNC_EXT,
-		.vmode          = FB_VMODE_NONINTERLACED
-	}
-} };
-
+struct display_info_t const displays[] = {};
 size_t display_count = ARRAY_SIZE(displays);
 
 #endif /* CONFIG_VIDEO_IMXDPUV1 */
@@ -460,6 +457,31 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 		fdt_fixup_ethernet(blob);
 	}
+
+	/*
+	 * Update display reference in the device tree, this just
+	 * sets the native-mode reference.
+	 */
+	do {
+		int r;
+		const char *display;
+
+		display = env_get("lvds0-display");
+		if (display) {
+			r = fdt_fixup_display(blob,
+					      fdt_get_alias(blob, "lvds0"),
+					      display);
+			if (r >= 0) {
+				fdt_set_status_by_alias(blob, "lvds0",
+							FDT_STATUS_OKAY, 0);
+				debug("Enable lvds0 with %s...\n", display);
+				break;
+			}
+		}
+
+		fdt_set_status_by_alias(blob, "lvds0", FDT_STATUS_DISABLED, 0);
+		debug("Disable lvds0 display\n");
+	} while(0);
 
 out:
 	return 0;
