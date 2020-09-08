@@ -161,12 +161,15 @@
 		"if ext4load mmc ${bootenvpart} " \
 			"${loadaddr} ${bootenv}; then " \
 				"env import -c ${loadaddr} ${filesize} " \
+					"lvds0-display lvds1-display " \
 					"trybootpart bootpart bootlabel; " \
 		"elif ext4load mmc ${bootenvpart} " \
 			"${loadaddr} ${bootenv}-backup; then " \
 				"env import -c ${loadaddr} ${filesize} " \
+					"lvds0-display lvds1-display " \
 					"bootpart bootlabel; " \
 				"env export -c ${loadaddr} " \
+					"lvds0-display lvds1-display " \
 					"trybootpart bootpart bootlabel; " \
 				"ext4write mmc ${bootenvpart} ${loadaddr} " \
 					"/${bootenv} ${filesize}; " \
@@ -179,6 +182,7 @@
 			"setenv -f _trybootpart ${trybootpart}; " \
 			"setenv -f trybootpart; " \
 			"env export -c ${loadaddr} " \
+				"lvds0-display lvds1-display " \
 				"trybootpart bootpart bootlabel; " \
 			"ext4write mmc ${bootenvpart} ${loadaddr} " \
 				"/${bootenv} ${filesize}; " \
