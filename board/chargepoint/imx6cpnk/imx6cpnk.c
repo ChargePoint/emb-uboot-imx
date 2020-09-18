@@ -1010,5 +1010,27 @@ int ft_board_setup(void *blob, bd_t *bd)
 		fdt_fixup_ethernet(blob);
 	}
 
+	/*
+	 * Update display reference in the device tree, this just
+	 * sets the native-mode reference.
+	 */
+	do {
+		int r;
+		const char *display;
+
+		display = env_get("display");
+		if (display) {
+			r = fdt_fixup_display(blob,
+					      fdt_get_alias(blob, "lvds0"),
+					      display);
+			if (r >= 0) {
+				fdt_set_status_by_alias(blob, "lvds0",
+							FDT_STATUS_OKAY, 0);
+				debug("Enable lvds0 with %s...\n", display);
+				break;
+			}
+		}
+	} while(0);
+
 	return 0;
 }
