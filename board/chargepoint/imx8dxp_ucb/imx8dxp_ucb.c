@@ -320,6 +320,58 @@ int board_late_init(void)
 		}
 	}
 
+	/*
+	 * Set the digipot for the backlight from the schematic
+	 *  POT = 0x80, I_BLU = 600mA (MAX do NOT use)
+	 *  POT = 0x40, I_BLU = 300mA (mid-init)
+	 *  POT = 0x15, I_BLU = 100mA (test)
+	 */
+	do {
+		int ret;
+		const int i2cbus = 3; /* MCP4531 I2C BUS 3 */
+		const int i2caddr = 0x2e;
+		struct udevice *udev;
+		uint offset;
+		uint val;
+
+		ret = i2c_get_chip_for_busnum(i2cbus, i2caddr, 1, &udev);
+		if (ret) {
+			printf("Cannot find MCP4531 - error=%x\n", ret);
+			break;
+		}
+
+		/*
+		 * MCP4531 - Address/Command Byte
+		 *
+		 *          4-bits       2-bits    2-bits
+		 *  MSB | Memory Map | Operation | D9/D8 Data | LSB
+		 *
+		 *  Memory Map:
+		 *    Wiper 0 - 0x00
+		 *    Wiper 1 - 0x01
+		 *    TCON - 0x04
+		 *
+		 *  Operation:
+		 *    Write - 0x0
+		 *    Increment - 0x1
+		 *    Decrement - 0x2
+		 *    Read - 0x3
+		 */
+
+		offset = ((0 << 4) | (0 << 2)); /* write wiper0 */
+		val = 0x15;
+		ret = dm_i2c_reg_write(udev, offset | val >> 8, val & 0xff);
+		if (ret) {
+			printf("Cannot write %x:%x MCP4531@%x:%x - error=%x\n",
+			       offset | val >> 8, val & 0xff,
+			       i2cbus, i2caddr, ret);
+			break;
+		}
+
+		printf("Wrote %x:%x to MCP4531@%x:%x\n",
+		       offset | val >> 8, val & 0xff, i2cbus, i2caddr);
+	} while(0);
+
 #ifdef CONFIG_MXC_GPIO
 	/* activate debug LED 4 to indicate we're about to jump to kernel */
 	set_gpio(GPIO_DBG_LED4, "debug_led4", 1);
@@ -466,7 +518,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 		int r;
 		const char *display;
 
-		display = env_get("lvds0-display");
+		display = env_get("display");
 		if (display) {
 			r = fdt_fixup_display(blob,
 					      fdt_get_alias(blob, "lvds0"),
@@ -478,9 +530,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 				break;
 			}
 		}
-
-		fdt_set_status_by_alias(blob, "lvds0", FDT_STATUS_DISABLED, 0);
-		debug("Disable lvds0 display\n");
 	} while(0);
 
 out:
