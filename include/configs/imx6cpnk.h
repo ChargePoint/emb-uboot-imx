@@ -210,12 +210,15 @@
 		"if ext4load mmc ${bootenvpart} " \
 			"${loadaddr} ${bootenv}; then " \
 				"env import -c ${loadaddr} ${filesize} " \
+					"display fitconfig " \
 					"trybootpart bootpart bootlabel; " \
 		"elif ext4load mmc ${bootenvpart} " \
 			"${loadaddr} ${bootenv}-backup; then " \
 				"env import -c ${loadaddr} ${filesize} " \
+					"display fitconfig " \
 					"bootpart bootlabel; " \
 				"env export -c ${loadaddr} " \
+					"display fitconfig " \
 					"trybootpart bootpart bootlabel; " \
 				"ext4write mmc ${bootenvpart} ${loadaddr} " \
 					"/${bootenv} ${filesize}; " \
@@ -228,6 +231,7 @@
 			"setenv -f _trybootpart ${trybootpart}; " \
 			"setenv -f trybootpart; " \
 			"env export -c ${loadaddr} " \
+				"display fitconfig " \
 				"trybootpart bootpart bootlabel; " \
 			"ext4write mmc ${bootenvpart} ${loadaddr} " \
 				"/${bootenv} ${filesize}; " \
@@ -239,11 +243,15 @@
 				"${_trybootpart} ...; " \
 			"ext4load mmc ${_trybootpart} ${loadaddr} " \
 				"${bootfile} && " \
-					"bootm ${loadaddr}; " \
+					"bootm ${bootmarg}; " \
 		"fi; " \
 	"\0" \
 	"mmcboot=setenv -f _bootpart ${bootparta}; " \
 		"run importbootenv; " \
+		"setenv -f bootmarg ${loadaddr}; " \
+		"if test -n $fitconfig; then " \
+			"setenv -f bootmarg ${loadaddr}#${fitconfig}; " \
+		"fi; " \
 		"run mmctryboot; " \
 		"if test -n $bootpart && test $bootpart != none; then " \
 			"setenv -f _bootpart ${bootpart}; " \
@@ -253,7 +261,7 @@
 		"setenv bootargs ${bootargs_secureboot} console=${console} " \
 			"root=PARTUUID=${bootuuid} rootwait rw; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
-			"bootm ${loadaddr}; " \
+			"bootm ${bootmarg}; " \
 		"if test $_bootpart = $bootparta; then " \
 			"setenv -f _bootpart ${bootpartb}; " \
 		"else " \
@@ -264,7 +272,7 @@
 		"setenv bootargs ${bootargs_secureboot} console=${console} " \
 			"root=PARTUUID=${bootuuid} rootwait rw; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
-			"bootm ${loadaddr}; " \
+			"bootm ${bootmarg}; " \
 	"\0"
 
 #define CONFIG_BOOTCOMMAND \
