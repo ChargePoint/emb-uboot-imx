@@ -108,6 +108,8 @@ int board_early_init_f(void)
 #define GPIO_DBG_LED5	IMX_GPIO_NR(1, 7)
 #define GPIO_DBG_LED11	IMX_GPIO_NR(3, 14)
 
+#define GPIO_USBH_RESET	IMX_GPIO_NR(1, 6)
+
 static void set_gpio(int gpio, const char *gpioname, int val)
 {
 	debug("%s >>>>>>>>\n", __func__);
@@ -121,6 +123,8 @@ static void board_gpio_init(void)
 	set_gpio(GPIO_DBG_LED4, "debug_led4", 0);
 	set_gpio(GPIO_DBG_LED5, "debug_led5", 0);
 	set_gpio(GPIO_DBG_LED11, "debug_led11", 0);
+
+	set_gpio(GPIO_USBH_RESET, "usb5734_reset", 0);
 }
 #endif
 
