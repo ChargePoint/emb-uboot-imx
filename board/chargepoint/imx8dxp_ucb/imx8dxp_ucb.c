@@ -376,6 +376,61 @@ int board_late_init(void)
 		       offset | val >> 8, val & 0xff, i2cbus, i2caddr);
 	} while(0);
 
+	/*
+	 * Set PTN5150A Control Register
+	 *
+	 * Control 0x2
+	 *  [7:5] Reserved
+	 *  [4:3] Rp Section (DFP mode)
+	 *        00: 80 microA Default
+	 *        01: 180 microA Medium
+	 *        10: 330 microA High
+	 *        11: Reserved
+	 *  [2:1] Port Mode Selection
+	 *        00: Device (UFP)
+	 *        01: Host (DFP)
+	 *        10: Dual Role (DRP)
+	 *  [0]   Interrupt Mask for detached/attached
+	 *        0: Does not Mask Interrupts
+	 *        1: Mask Interrupts for register offset 03H bit[1:0].
+	 */
+#define PTN5150A_BUS	1
+#define PTN5150A_ADDR	0x1d
+#define PTN5150A_CTRL	0x2
+#define PTN5150A_CTRL_RP_MASK   (0x3 << 3)
+#define PTN5150A_CTRL_PORT_MASK (0x3 << 1)
+	do {
+		int ret;
+		const int i2cbus = PTN5150A_BUS;
+		const int i2caddr = PTN5150A_ADDR;
+		uint8_t value;
+		struct udevice *udev;
+
+		ret = i2c_get_chip_for_busnum(i2cbus, i2caddr, 1, &udev);
+		if (ret) {
+			printf("Cannot find PTN5150A - error=%x\n", ret);
+			break;
+		}
+
+		if (dm_i2c_read(udev, PTN5150A_CTRL, &value, 1)) {
+			printf("Cannot read %x:%x PTN5150A@%x:%x - error=%x\n",
+			       PTN5150A_CTRL, value,
+			       i2cbus, i2caddr, ret);
+			break;
+		}
+		value &= ~(PTN5150A_CTRL_RP_MASK|PTN5150A_CTRL_PORT_MASK);
+		value |= (0x1 << 3); /* set to 180 microA */
+		value |= (0x2 << 1); /* set to dual role */
+		if (dm_i2c_write(udev, PTN5150A_CTRL, &value, 1)) {
+			printf("Cannot write %x:%x PTN5150A@%x:%x - error=%x\n",
+			       PTN5150A_CTRL, value,
+			       i2cbus, i2caddr, ret);
+			break;
+		}
+		printf("Wrote %x:%x to PTN5150A@%x:%x\n",
+		       PTN5150A_CTRL, value, PTN5150A_BUS, PTN5150A_ADDR);
+	} while(0);
+
 #ifdef CONFIG_MXC_GPIO
 	/* activate debug LED 4 to indicate we're about to jump to kernel */
 	set_gpio(GPIO_DBG_LED4, "debug_led4", 1);
