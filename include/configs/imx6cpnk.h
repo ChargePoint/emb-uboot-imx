@@ -225,7 +225,7 @@
 		"fi; " \
 	"\0" \
 	"mmctryboot=" \
-		"if test -n $trybootpart; then " \
+		"if test -n ${trybootpart}; then " \
 			"echo Try-boot ${bootfile} from " \
 				"mmc ${trybootpart} ...; " \
 			"setenv -f _trybootpart ${trybootpart}; " \
@@ -249,11 +249,11 @@
 	"mmcboot=setenv -f _bootpart ${bootparta}; " \
 		"run importbootenv; " \
 		"setenv -f bootmarg ${loadaddr}; " \
-		"if test -n $fitconfig; then " \
+		"if test -n ${fitconfig}; then " \
 			"setenv -f bootmarg ${loadaddr}#${fitconfig}; " \
 		"fi; " \
 		"run mmctryboot; " \
-		"if test -n $bootpart && test $bootpart != none; then " \
+		"if test -n ${bootpart} && test ${bootpart} != none; then " \
 			"setenv -f _bootpart ${bootpart}; " \
 		"fi; " \
 		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
@@ -262,7 +262,7 @@
 			"root=PARTUUID=${bootuuid} rootwait rw; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
 			"bootm ${bootmarg}; " \
-		"if test $_bootpart = $bootparta; then " \
+		"if test ${_bootpart} = ${bootparta}; then " \
 			"setenv -f _bootpart ${bootpartb}; " \
 		"else " \
 			"setenv -f _bootpart ${bootparta}; " \
