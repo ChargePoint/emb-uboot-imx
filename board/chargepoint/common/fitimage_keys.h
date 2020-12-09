@@ -56,14 +56,22 @@ static inline void setup_fitimage_keys(void)
 	}
 	fdt_for_each_subnode(noffset, sig_blob, sig_node) {
 		const char *required;
+		char buf[16];
 		int ret;
 
 		required = fdt_getprop(sig_blob, noffset, "required", NULL);
 		if ((required == NULL) ||
 		    (strncmp(required, sig_prefix, strlen(sig_prefix)) != 0))
 			continue;
-		ret = fdt_setprop_string(sig_blob, noffset, "required",
-					 &required[strlen(sig_prefix)]);
+
+		/*
+		 * Copy string suffix to stack buffer before calling
+		 * ftd_setprop_string().  Otherwise the string may be truncated while
+		 * being set.
+		 */
+		memset(buf, 0, sizeof(buf));
+		strncpy(buf, &required[strlen(sig_prefix)], sizeof(buf));
+		ret = fdt_setprop_string(sig_blob, noffset, "required", buf);
 		if (ret) {
 			printf("Failed to update required signature '%s'\n",
 			       fit_get_name(sig_blob, noffset, NULL));
