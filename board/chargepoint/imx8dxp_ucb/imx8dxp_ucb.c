@@ -317,7 +317,7 @@ int board_late_init(void)
 			break;
 
 		case 0x80: /* OEM closed */
-#if defined(CONFIG_AHAB_BOOT)
+#if defined(CONIG_NOT_UUU_BUILD)
 			/* set an environment that this is a secure boot */
 			env_set("bootargs_secureboot", "uboot-secureboot");
 #endif
