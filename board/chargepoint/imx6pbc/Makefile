@@ -21,3 +21,8 @@ extra-y += ../../../arch/$(ARCH)/dts/chargepoint-pubkey.dtsi
 $(obj)/../../../arch/$(ARCH)/dts/chargepoint-pubkey.dtsi: \
 		$(src)/../common/chargepoint-pubkey.dtsi
 	ln -fsn $(abspath $<) $@
+
+extra-y += ../../../arch/$(ARCH)/dts/prod-pubkey-pbc.dtsi
+$(obj)/../../../arch/$(ARCH)/dts/prod-pubkey-pbc.dtsi: \
+		$(src)/prod-pubkey-pbc.dtsi
+	ln -fsn $(abspath $<) $@
