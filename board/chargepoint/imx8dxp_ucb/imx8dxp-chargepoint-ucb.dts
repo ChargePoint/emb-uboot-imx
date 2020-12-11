@@ -19,6 +19,7 @@
 
 #if defined(CONFIG_NOT_UUU_BUILD)
 #include "chargepoint-pubkey.dtsi"
+#include "prod-pubkey-ucb.dtsi"
 #endif
 
 / {
