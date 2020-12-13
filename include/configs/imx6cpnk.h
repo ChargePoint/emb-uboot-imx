@@ -201,6 +201,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"console=" CONSOLE_DEV "\0" \
+	"video=mxcfb0:dev=ldb,1024x768M@60,bpp=32,if=RGB24\0" \
 	"bootenvpart=0:1\0" \
 	"bootenv=uboot.env\0" \
 	"bootfile=fitImage\0" \
@@ -238,6 +239,7 @@
 			"part uuid mmc ${_trybootpart} bootuuid; " \
 			"setenv bootargs ${bootargs_secureboot} " \
 				"console=${console} " \
+				"video=${video} " \
 				"root=PARTUUID=${bootuuid} rootwait rw; " \
 			"echo Try-booting ${bootfile} from mmc " \
 				"${_trybootpart} ...; " \
@@ -258,7 +260,7 @@
 		"fi; " \
 		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
-		"setenv bootargs ${bootargs_secureboot} console=${console} " \
+		"setenv bootargs ${bootargs_secureboot} console=${console} video=${video} " \
 			"root=PARTUUID=${bootuuid} rootwait rw; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
 			"bootm ${bootmarg}; " \
@@ -269,7 +271,7 @@
 		"fi; " \
 		"echo Failover boot ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
-		"setenv bootargs ${bootargs_secureboot} console=${console} " \
+		"setenv bootargs ${bootargs_secureboot} console=${console} video=${video} " \
 			"root=PARTUUID=${bootuuid} rootwait rw; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
 			"bootm ${bootmarg}; " \
