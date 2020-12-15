@@ -9,7 +9,7 @@
 
 / {
 	signature {
-		key-fit-cpnk {
+		key-fit-prod-cpnk {
 			/* TODO: Generate Production Key.
 			 *     This is a throwaway key for verification of the secure boot
 			 *     logic prior to generating production keys.
@@ -21,7 +21,7 @@
 			rsa,exponent = < 0x00 0x10001 >;
 			rsa,n0-inverse = < 0x13a24343 >;
 			rsa,num-bits = < 0x1000 >;
-			key-name-hint = "fit-cpnk";
+			key-name-hint = "fit-prod-cpnk";
 		};
 	};
 };
