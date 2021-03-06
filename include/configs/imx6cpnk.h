@@ -189,7 +189,7 @@
  */
 #define CONFIG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
-		"earlyprintk=serial ignore_loglevel debug " \
+		"reboot=h earlyprintk=serial ignore_loglevel debug " \
 		"clk_ignore_unused root=/dev/ram " \
 		"\0" \
 	"bootcmd_mfg=run mfgtool_args; " \
