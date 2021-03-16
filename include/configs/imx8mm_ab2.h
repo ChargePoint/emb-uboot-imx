@@ -20,7 +20,23 @@
 
 #endif
 
-#define PHY_ANEG_TIMEOUT 20000
+#define CONFIG_CMD_READ
+#define CONFIG_SERIAL_TAG
+#define CONFIG_FASTBOOT_USB_DEV 0
+
+#define CONFIG_REMAKE_ELF
+/* ENET Config */
+/* ENET1 */
+#if defined(CONFIG_FEC_MXC)
+#define CONFIG_ETHPRIME                 "eth0"
+
+#define CONFIG_FEC_XCV_TYPE             RGMII
+#define CONFIG_FEC_MXC_PHYADDR          0
+#define FEC_QUIRK_ENET_MAC
+#define PHY_ANEG_TIMEOUT                20000
+
+#define IMX_FEC_BASE			0x30BE0000
+#endif
 
 #ifdef CONFIG_NAND_BOOT
 #define MFG_NAND_PARTITION "mtdparts=gpmi-nand:64m(nandboot),16m(nandfit),32m(nandkernel),16m(nanddtb),8m(nandtee),-(nandrootfs)"
@@ -215,5 +231,19 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CFG_SYS_NAND_BASE           0x20000000
+
+/* USB configs */
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_USBD_HS
+#define CONFIG_CMD_USB_MASS_STORAGE
+#define CONFIG_USB_GADGET_MASS_STORAGE
+#define CONFIG_USB_FUNCTION_MASS_STORAGE
+#endif
+
+#define CONFIG_USB_GADGET_VBUS_DRAW 2
+#define CONFIG_MXC_USB_PORTSC (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 
 #endif
