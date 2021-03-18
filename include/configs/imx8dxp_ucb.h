@@ -58,6 +58,7 @@
 #define CONFIG_ENV_SIZE                 (8 * SZ_1K)
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+#define FDT_SEQ_MACADDR_FROM_ENV
 
 /* Default environment is in mmcblk0boot1 */
 #define CONFIG_SYS_MMC_ENV_DEV          0   /* mmcblk0 */
