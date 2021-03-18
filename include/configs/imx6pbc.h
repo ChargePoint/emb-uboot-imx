@@ -50,6 +50,7 @@
 /* Environment organization */
 #define CONFIG_ENV_SIZE			(8 * SZ_1K)
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+#define FDT_SEQ_MACADDR_FROM_ENV
 
 /* Serial */
 #define CONFIG_MXC_UART
