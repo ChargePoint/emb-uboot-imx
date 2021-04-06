@@ -15,8 +15,9 @@
 #define CONFIG_SERIAL_TAG
 #define CONFIG_REMAKE_ELF
 
+#define CONFIG_DISPLAY_BOARDINFO_LATE
+
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_ARCH_MISC_INIT
 
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_BOARD_SETUP
@@ -30,11 +31,10 @@
 
 /* Physical Memory Map */
 #define CONFIG_SYS_SDRAM_BASE           0x80000000
-#define CONFIG_NR_DRAM_BANKS            4
 #define PHYS_SDRAM_1                    0x080000000
-#define PHYS_SDRAM_1_SIZE               0x080000000	/* 2 GB */
+#define PHYS_SDRAM_1_SIZE               SZ_2G		/* 2 GB */
 #define PHYS_SDRAM_2                    0x880000000
-#define PHYS_SDRAM_2_SIZE               0x040000000	/* 1 GB */
+#define PHYS_SDRAM_2_SIZE               SZ_1G		/* 1 GB */
 
 #define CONFIG_SYS_MEMTEST_START        0xA0000000
 #define CONFIG_SYS_MEMTEST_END \
@@ -47,15 +47,12 @@
 #define USDHC2_BASE_ADDR                0x5B020000
 #define CONFIG_SUPPORT_EMMC_BOOT
 
-#define CONFIG_MXC_GPIO
-
 /* Link Definitions */
-#define CONFIG_LOADADDR                 0x98000000
+#define CONFIG_LOADADDR                 0x80280000
 #define CONFIG_SYS_LOAD_ADDR            CONFIG_LOADADDR
 #define CONFIG_SYS_INIT_SP_ADDR         0x80200000
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE                 (8 * SZ_1K)
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define FDT_SEQ_MACADDR_FROM_ENV
@@ -75,9 +72,9 @@
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_PROMPT_HUSH_PS2      "UCB> "
-#define CONFIG_SYS_CBSIZE               2048
+#define CONFIG_SYS_CBSIZE               SZ_2K
 #define CONFIG_SYS_MAXARGS              64
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE \
 	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
@@ -85,14 +82,15 @@
 #define COUNTER_FREQUENCY               8000000	/* 8MHz */
 
 /* USB Config */
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_USB_STORAGE
 #define CONFIG_USBD_HS
-#define CONFIG_USB_EHCI_HCD
+#endif
+
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 
 /* USB OTG controller configs */
 #ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_MXC_USB_PORTSC           (PORT_PTS_UTMI | PORT_PTS_PTW)
@@ -143,7 +141,7 @@
  * Resource checking produces unwanted device tree warnings.
  * Happened after UCB switched to 5.4 kernel dt bindings.
  */
-#define CONFIG_SKIP_RESOURCE_CHECING
+#define CONFIG_SKIP_RESOURCE_CHECKING
 
 #define CONFIG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \

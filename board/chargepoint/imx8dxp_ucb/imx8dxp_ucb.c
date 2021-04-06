@@ -4,37 +4,32 @@
  *
  * Portions Copyright 2018 NXP
  */
+#define DEBUG
 #include <common.h>
 #include <malloc.h>
+#include <env.h>
 #include <errno.h>
 #include <netdev.h>
 #include <fsl_ifc.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
-#include <environment.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
-#include <asm/mach-imx/sci/sci.h>
+#include <asm/arch/sci/sci.h>
 #include <asm/arch/imx8-pins.h>
-#include <dm.h>
 #include <asm/arch/snvs_security_sc.h>
 #include <imx8_hsio.h>
-#include <usb.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/video.h>
-#include <asm/arch/video_common.h>
 #include <power-domain.h>
 #include <asm/arch/lpcg.h>
-#include <bootm.h>
-
-#ifdef CONFIG_USB_CDNS3_GADGET
-#include <cdns3-uboot.h>
-#endif
+#include <usb.h>
+#include "../../freescale/common/tcpc.h"
 
 #include "../common/fitimage_keys.h"
 
@@ -67,10 +62,11 @@ static iomux_cfg_t uart0_pads[] = {
 int board_early_init_f(void)
 {
 	sc_err_t err;
+#if 0
 	uint16_t lc;
 	sc_ipc_t ipcHndl;
 
-	ipcHndl = gd->arch.ipc_channel_handle;
+	ipcHndl = -1; /* ignored */
 
 	/* Determine the security state of the chip (OEM closed) */
 	err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
@@ -78,25 +74,13 @@ int board_early_init_f(void)
 		/* HAB is in OEM closed, so disable the serial console */
 		gd->flags |= (GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE);
 	}
-
-	/* Power up UART0 */
-	err = sc_pm_set_resource_power_mode(ipcHndl, SC_R_UART_0,
-					    SC_PM_PW_MODE_ON);
-	if (err != SC_ERR_NONE)
-		return 0;
+#endif
 
 	/* Set UART0 clock root to 80 MHz */
-	sc_pm_clock_rate_t rate = 80000000;
-	err = sc_pm_set_clock_rate(ipcHndl, SC_R_UART_0, 2, &rate);
+	sc_pm_clock_rate_t rate = SC_80MHZ; 
+	err = sc_pm_setup_uart(SC_R_UART_0, rate);
 	if (err != SC_ERR_NONE)
 		return 0;
-
-	/* Enable UART0 clock root */
-	err = sc_pm_clock_enable(ipcHndl, SC_R_UART_0, 2, true, false);
-	if (err != SC_ERR_NONE)
-		return 0;
-
-	LPCG_AllClockOn(LPUART_0_LPCG);
 
 	imx8_iomux_setup_multiple_pads(uart0_pads, ARRAY_SIZE(uart0_pads));
 
@@ -148,12 +132,12 @@ static void imx8qxp_hsio_initialize(void)
 		}
 	}
 
-	LPCG_AllClockOn(HSIO_PCIE_X1_LPCG);
-	LPCG_AllClockOn(HSIO_PHY_X1_LPCG);
-	LPCG_AllClockOn(HSIO_PHY_X1_CRR1_LPCG);
-	LPCG_AllClockOn(HSIO_PCIE_X1_CRR3_LPCG);
-	LPCG_AllClockOn(HSIO_MISC_LPCG);
-	LPCG_AllClockOn(HSIO_GPIO_LPCG);
+	lpcg_all_clock_on(HSIO_PCIE_X1_LPCG);
+	lpcg_all_clock_on(HSIO_PHY_X1_LPCG);
+	lpcg_all_clock_on(HSIO_PHY_X1_CRR1_LPCG);
+	lpcg_all_clock_on(HSIO_PCIE_X1_CRR3_LPCG);
+	lpcg_all_clock_on(HSIO_MISC_LPCG);
+	lpcg_all_clock_on(HSIO_GPIO_LPCG);
 }
 
 void pci_init_board(void)
@@ -167,22 +151,58 @@ void pci_init_board(void)
 
 #ifdef CONFIG_USB
 
-#ifdef CONFIG_USB_CDNS3_GADGET
-static struct cdns3_device cdns3_device_data = {
-	.none_core_base = 0x5B110000,
-	.xhci_base = 0x5B130000,
-	.dev_base = 0x5B140000,
-	.phy_base = 0x5B160000,
-	.otg_base = 0x5B120000,
-	.dr_mode = USB_DR_MODE_PERIPHERAL,
-	.index = 1,
+#ifdef CONFIG_USB_TCPC
+struct tcpc_port port;
+struct tcpc_port_config port_config = {
+	.i2c_bus = 1,
+	.addr = 0x50,
+	.port_type = TYPEC_PORT_DFP,
 };
 
-int usb_gadget_handle_interrupts(int index)
-{
-	cdns3_uboot_handle_interrupt(index);
 
-	return 0;
+void ss_mux_select(enum typec_cc_polarity pol)
+{
+	if (pol == TYPEC_POLARITY_CC1)
+		dm_gpio_set_value(&type_sel_desc, 0);
+	else
+		dm_gpio_set_value(&type_sel_desc, 1);
+}
+
+static void setup_typec(void)
+{
+	int ret;
+	struct gpio_desc typec_en_desc;
+
+	ret = dm_gpio_lookup_name("GPIO5_9", &type_sel_desc);
+	if (ret) {
+		printf("%s lookup GPIO5_9 failed ret = %d\n", __func__, ret);
+		return;
+	}
+
+	ret = dm_gpio_request(&type_sel_desc, "typec_sel");
+	if (ret) {
+		printf("%s request typec_sel failed ret = %d\n", __func__, ret);
+		return;
+	}
+
+	dm_gpio_set_dir_flags(&type_sel_desc, GPIOD_IS_OUT);
+
+	ret = dm_gpio_lookup_name("gpio@1a_7", &typec_en_desc);
+	if (ret) {
+		printf("%s lookup gpio@1a_7 failed ret = %d\n", __func__, ret);
+		return;
+	}
+
+	ret = dm_gpio_request(&typec_en_desc, "typec_en");
+	if (ret) {
+		printf("%s request typec_en failed ret = %d\n", __func__, ret);
+		return;
+	}
+
+	/* Enable SS MUX */
+	dm_gpio_set_dir_flags(&typec_en_desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+
+	tcpc_init(&port, port_config, &ss_mux_select);
 }
 #endif
 
@@ -190,30 +210,20 @@ int board_usb_init(int index, enum usb_init_type init)
 {
 	int ret = 0;
 
-#ifdef CONFIG_USB_CDNS3_GADGET
-	struct power_domain pd;
-	if (index != 1 || init == USB_INIT_HOST)
-		return ret;
-
-	/* Power on usb */
-	if (!power_domain_lookup_name("conn_usb2", &pd)) {
-		ret = power_domain_on(&pd);
-		if (ret) {
-			printf("Power up conn_usb2 (error = %d)\n", ret);
-			return ret;
-		}
-	}
-
-	if (!power_domain_lookup_name("conn_usb2_phy", &pd)) {
-		ret = power_domain_on(&pd);
-		if (ret) {
-			printf("Power up conn_usb2_phy (error = %d)\n", ret);
-			return ret;
-		}
-	}
-	ret = cdns3_uboot_init(&cdns3_device_data);
-	printf("%d cdns3_uboot_initmode %d\n", index, ret);
+	if (index == 1) {
+		if (init == USB_INIT_HOST) {
+#ifdef CONFIG_USB_TCPC
+			ret = tcpc_setup_dfp_mode(&port);
 #endif
+#ifdef CONFIG_USB_CDNS3_GADGET
+		} else {
+#ifdef CONFIG_USB_TCPC
+			ret = tcpc_setup_ufp_mode(&port);
+			printf("%d setufp mode %d\n", index, ret);
+#endif
+#endif
+		}
+	}
 
 	return ret;
 }
@@ -222,46 +232,79 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 {
 	int ret = 0;
 
-#ifdef CONFIG_USB_CDNS3_GADGET
-	struct power_domain pd;
-	if (index != 1 || init == USB_INIT_HOST)
-		return ret;
-
-	cdns3_uboot_exit(1);
-
-	/* Power off usb */
-	if (!power_domain_lookup_name("conn_usb2", &pd)) {
-		ret = power_domain_off(&pd);
-		if (ret) {
-			printf("Power down conn_usb2 (error = %d)\n", ret);
-		}
-	}
-
-	if (!power_domain_lookup_name("conn_usb2_phy", &pd)) {
-		ret = power_domain_off(&pd);
-		if (ret) {
-			printf("Power down conn_usb2_phy (error = %d)\n", ret);
-		}
-	}
+	if (index == 1) {
+		if (init == USB_INIT_HOST) {
+#ifdef CONFIG_USB_TCPC
+			ret = tcpc_disable_src_vbus(&port);
 #endif
+		}
+	}
 
 	return ret;
 }
+
 #endif // CONFIG_USB
+
+#ifdef CONFIG_FEC_MXC
+#include <miiphy.h>
+
+int board_eth_init(bd_t *bis)
+{
+	int ret;
+	struct power_domain pd;
+
+	printf("[%s] %d\n", __func__, __LINE__);
+
+	if (CONFIG_FEC_ENET_DEV) {
+		if (!power_domain_lookup_name("conn_enet1", &pd))
+			power_domain_on(&pd);
+	} else {
+		if (!power_domain_lookup_name("conn_enet0", &pd))
+			power_domain_on(&pd);
+	}
+
+	ret = fecmxc_initialize_multi(bis, CONFIG_FEC_ENET_DEV,
+		CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
+	if (ret)
+		printf("FEC1 MXC: %s:failed\n", __func__);
+
+	return ret;
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
+
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
+
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
+
+	return 0;
+}
+#endif // CONFIG_FEC_MXC
 
 int board_init(void)
 {
-
+puts("XXXXXXXXXX\n");
 	setup_fitimage_keys();
 
 #ifdef CONFIG_MXC_GPIO
 	board_gpio_init();
 #endif
 
+#if defined(CONFIG_USB) && defined(CONFIG_USB_TCPC)
+	setup_typec();
+#endif
+
 	return 0;
 }
 
-void board_quiesce_devices()
+void board_quiesce_devices(void)
 {
 	const char *power_on_devices[] = {
 		"dma_lpuart0",
@@ -280,7 +323,7 @@ void board_quiesce_devices()
 void reset_cpu(ulong addr)
 {
 	puts("SCI reboot request");
-	sc_pm_reboot(SC_IPC_CH, SC_PM_RESET_TYPE_COLD);
+	sc_pm_reboot(-1, SC_PM_RESET_TYPE_COLD);
 	for (;;) {
 		putc('.');
 	}
@@ -297,7 +340,7 @@ int board_late_init(void)
 	uint16_t lc;
 	sc_ipc_t ipcHndl;
 
-	ipcHndl = gd->arch.ipc_channel_handle;
+	ipcHndl = -1;
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 	board_late_mmc_env_init();
@@ -469,7 +512,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 		uint32_t word;
 		sc_ipc_t ipcHndl;
 
-		ipcHndl = gd->arch.ipc_channel_handle;
+		ipcHndl = -1;
 
 #define FUSE_UNIQUE_ID_LOW	16
 #define FUSE_UNIQUE_ID_HIGH	17
