@@ -100,6 +100,13 @@
 
 /* Networking */
 #define CONFIG_MII
+#define CONFIG_PHY_GIGE /* Support for 1000BASE-X */
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_ATHEROS
+
+#define CONFIG_FEC_XCV_TYPE             RGMII
+#define FEC_QUIRK_ENET_MAC
+
 #define CONFIG_FEC_ENET_DEV 0
 
 #if (CONFIG_FEC_ENET_DEV == 0)
@@ -114,8 +121,6 @@
 
 /* ENET0 MDIO are shared */
 #define CONFIG_FEC_MXC_MDIO_BASE        0x5B040000
-#define CONFIG_FEC_XCV_TYPE             RGMII
-#define FEC_QUIRK_ENET_MAC
 
 #ifndef CONFIG_LIB_RAND
 #define CONFIG_LIB_RAND
