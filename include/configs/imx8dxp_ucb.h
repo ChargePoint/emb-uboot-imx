@@ -138,7 +138,7 @@
  * Resource checking produces unwanted device tree warnings.
  * Happened after UCB switched to 5.4 kernel dt bindings.
  */
-#define CONFIG_SKIP_RESOURCE_CHECING
+#define CONFIG_SKIP_RESOURCE_CHECKING
 
 #define CONFIG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
