@@ -12,6 +12,11 @@ $(obj)/../../../arch/$(ARCH)/dts/imx8dxp-chargepoint-ucb.dts: \
 		$(src)/imx8dxp-chargepoint-ucb.dts
 	ln -fsn $(abspath $<) $@
 
+extra-y += ../../../arch/$(ARCH)/dts/imx8dxp-chargepoint-ucb-u-boot.dtsi
+$(obj)/../../../arch/$(ARCH)/dts/imx8dxp-chargepoint-ucb-u-boot.dtsi: \
+		$(src)/imx8dxp-chargepoint-ucb-u-boot.dtsi
+	ln -fsn $(abspath $<) $@
+
 extra-y += ../../../arch/$(ARCH)/dts/chargepoint-pubkey.dtsi
 $(obj)/../../../arch/$(ARCH)/dts/chargepoint-pubkey.dtsi: \
 		$(src)/../common/chargepoint-pubkey.dtsi

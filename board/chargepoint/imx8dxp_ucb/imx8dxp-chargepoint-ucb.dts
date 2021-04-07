@@ -16,6 +16,7 @@
 
 /* Refer to fsl-imx8qxp-mek.dts and imx6qp-cpnk.dts */
 #include "fsl-imx8qxp.dtsi"
+#include "imx8dxp-chargepoint-ucb-u-boot.dtsi"
 
 #if defined(CONFIG_NOT_UUU_BUILD)
 #include "chargepoint-pubkey.dtsi"
@@ -27,6 +28,7 @@
 	compatible = "fsl,imx8dxp-ucb", "fsl,imx8dxp", "fsl,imx8qxp";
 
 	chosen {
+		bootargs = "console=ttyLP0,115200 earlycon";
 		stdout-path = &lpuart0;
 	};
 
