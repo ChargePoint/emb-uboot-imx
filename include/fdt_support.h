@@ -284,6 +284,8 @@ int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
 
 int fdt_overlay_apply_verbose(void *fdt, void *fdto);
 
+int fdt_valid(struct fdt_header **blobp);
+
 #endif /* ifdef CONFIG_OF_LIBFDT */
 
 #ifdef USE_HOSTCC
