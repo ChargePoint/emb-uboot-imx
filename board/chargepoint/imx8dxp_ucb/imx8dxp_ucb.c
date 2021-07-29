@@ -505,7 +505,34 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	if (!env_get("ethaddr") && !env_get("eth1addr")) {
 		u8 mac_addr[6];
+		uint32_t mac_seed;
 		char mac_str[ARP_HLEN_ASCII + 1];
+
+		/*
+		 * If a valid mac address can not be found from the fuse
+		 * banks then incorporate the core of a pseudo random
+		 * generator from xorshift32 that is derived from
+		 * p. 4 of Marsaglia, "Xorshift RNGs"
+		 *
+		 * uint32_t xorshift32(struct xorshift32_state *state)
+		 * {
+		 *         uint32_t x = state->a;
+		 *         x ^= x << 13;
+		 *         x ^= x >> 17;
+		 *         x ^= x << 5;
+		 *         return state->a = x;
+		 * }
+		 *
+		 * The collision of 64-bit to 46-bit because of multicast
+		 * and locally derived bits is a concern, but the cpuid
+		 * values are generated from NXP as a consecutive sequence
+		 * meaning a run from the same parts lot may only differ
+		 * in 1-bit which is a larger concern then the collision
+		 * domains. Because the seed is not really a random value
+		 * it is more important to use a PRNG generator to deal with
+		 * small bit differences instead of just hashing the cpuid
+		 * for a value.
+		 */
 
 		/* MAC0 */
 		imx_get_mac_from_fuse(0, mac_addr);
@@ -514,14 +541,25 @@ int ft_board_setup(void *blob, bd_t *bd)
 			mac_addr[0], mac_addr[1], mac_addr[2],
 			mac_addr[3], mac_addr[4], mac_addr[5]);
 		if (!is_valid_ethaddr(mac_addr)) {
+			mac_seed = uid_low;
+			mac_seed ^= mac_seed << 13;
+			mac_seed ^= mac_seed >> 17;
+			mac_seed ^= mac_seed << 5;
+			mac_seed ^= uid_high;
+			mac_seed ^= mac_seed << 13;
+			mac_seed ^= mac_seed >> 17;
+			mac_seed ^= mac_seed << 5;
 			mac_addr[0] =
-				((uid_low >> 24) ^ (uid_low >> 16)) & 0xff;
+				((mac_seed >> 24) ^ (mac_seed >> 16)) & 0xff;
 			mac_addr[1] =
-				((uid_low >> 8) ^ (uid_low >> 0)) & 0xff;
-			mac_addr[2] = uid_low >> 24;
-			mac_addr[3] = uid_low >> 16;
-			mac_addr[4] = uid_low >> 8;
-			mac_addr[5] = uid_low >> 0;
+				((mac_seed >> 8) ^ (mac_seed >> 0)) & 0xff;
+			mac_seed ^= mac_seed << 13;
+			mac_seed ^= mac_seed >> 17;
+			mac_seed ^= mac_seed << 5;
+			mac_addr[2] = mac_seed >> 24;
+			mac_addr[3] = mac_seed >> 16;
+			mac_addr[4] = mac_seed >> 8;
+			mac_addr[5] = mac_seed >> 0;
 
 			mac_addr[0] &= 0xfe; /* clear multicast bit */
 			mac_addr[0] |= 0x02; /* set local assignment bit */
@@ -544,14 +582,25 @@ int ft_board_setup(void *blob, bd_t *bd)
 			mac_addr[0], mac_addr[1], mac_addr[2],
 			mac_addr[3], mac_addr[4], mac_addr[5]);
 		if (!is_valid_ethaddr(mac_addr)) {
+			mac_seed = uid_high;
+			mac_seed ^= mac_seed << 5;
+			mac_seed ^= mac_seed >> 17;
+			mac_seed ^= mac_seed << 13;
+			mac_seed ^= uid_low;
+			mac_seed ^= mac_seed << 5;
+			mac_seed ^= mac_seed >> 17;
+			mac_seed ^= mac_seed << 13;
 			mac_addr[0] =
-				((uid_high >> 24) ^ (uid_high >> 16)) & 0xff;
+				((mac_seed >> 24) ^ (mac_seed >> 16)) & 0xff;
 			mac_addr[1] =
-				((uid_high >> 8) ^ (uid_high >> 0)) & 0xff;
-			mac_addr[2] = uid_high >> 24;
-			mac_addr[3] = uid_high >> 16;
-			mac_addr[4] = uid_high >> 8;
-			mac_addr[5] = uid_high >> 0;
+				((mac_seed >> 8) ^ (mac_seed >> 0)) & 0xff;
+			mac_seed ^= mac_seed << 5;
+			mac_seed ^= mac_seed >> 17;
+			mac_seed ^= mac_seed << 13;
+			mac_addr[2] = mac_seed >> 24;
+			mac_addr[3] = mac_seed >> 16;
+			mac_addr[4] = mac_seed >> 8;
+			mac_addr[5] = mac_seed >> 0;
 
 			mac_addr[0] &= 0xfe; /* clear multicast bit */
 			mac_addr[0] |= 0x02; /* set local assignment bit */
