@@ -963,6 +963,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	if (!env_get("ethaddr")) {
 		u8 mac_addr[6];
+		uint32_t mac_seed;
 		char mac_str[ARP_HLEN_ASCII + 1];
 		uint32_t mac_val1, mac_val0;
 		struct ocotp_regs *ocotp =
@@ -984,14 +985,25 @@ int ft_board_setup(void *blob, bd_t *bd)
 			mac_addr[0], mac_addr[1], mac_addr[2],
 			mac_addr[3], mac_addr[4], mac_addr[5]);
 		if (!is_valid_ethaddr(mac_addr)) {
+			mac_seed = uid_low;
+			mac_seed ^= mac_seed << 13;
+			mac_seed ^= mac_seed >> 17;
+			mac_seed ^= mac_seed << 5;
+			mac_seed ^= uid_high;
+			mac_seed ^= mac_seed << 13;
+			mac_seed ^= mac_seed >> 17;
+			mac_seed ^= mac_seed << 5;
 			mac_addr[0] =
-				((uid_high >> 24) ^ (uid_high >> 16)) & 0xff;
+				((mac_seed >> 24) ^ (mac_seed >> 16)) & 0xff;
 			mac_addr[1] =
-				((uid_high >> 8) ^ (uid_high >> 0)) & 0xff;
-			mac_addr[2] = uid_low >> 24;
-			mac_addr[3] = uid_low >> 16;
-			mac_addr[4] = uid_low >> 8;
-			mac_addr[5] = uid_low >> 0;
+				((mac_seed >> 8) ^ (mac_seed >> 0)) & 0xff;
+			mac_seed ^= mac_seed << 13;
+			mac_seed ^= mac_seed >> 17;
+			mac_seed ^= mac_seed << 5;
+			mac_addr[2] = mac_seed >> 24;
+			mac_addr[3] = mac_seed >> 16;
+			mac_addr[4] = mac_seed >> 8;
+			mac_addr[5] = mac_seed >> 0;
 
 			mac_addr[0] &= 0xfe; /* clear multicast bit */
 			mac_addr[0] |= 0x02; /* set local assignment bit */
