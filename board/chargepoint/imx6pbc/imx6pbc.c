@@ -160,6 +160,7 @@ static struct gpio_ni gpios_output_low[] = {
 	NI(FAN1_SP_CTRL),
 	NI(FAN2_SP_CTRL),
 	NI(RTD_START_SYNC),
+	NI(PHY_RSTn),
 	NI(RS485_DE),
 	NI(RS485_REn),
 
@@ -170,7 +171,6 @@ static struct gpio_ni gpios_output_high[] = {
 #define NI(_x)	{ .name = #_x,  .id = _x }
 
 	NI(ETH_PWR_EN),
-	NI(PHY_RSTn),
 	NI(SER_PWR_EN),
 	NI(EN_PMIC_I2C),
 	NI(PM_RESET_N),
