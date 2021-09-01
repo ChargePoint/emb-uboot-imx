@@ -96,7 +96,18 @@
 			vin-supply = <&reg_p5v0>;
 		};
 
-		/* for RS485 transceiver */
+		/* for Marvell Switch power */
+		reg_eth_pwr: regulator-marvell-power {
+			compatible = "regulator-fixed";
+			regulator-name = "eth_pwr_en";
+			regulator-min-microvolt = <1500000>;
+			regulator-max-microvolt = <1500000>;
+			gpio = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+			enable-active-high;
+			vin-supply = <&reg_p5v0>;
+		};
+
+		/* for RS485 and CAN transceiver */
 		reg_ser_pwr: regulator-serial-power {
 			compatible = "regulator-fixed";
 			regulator-name = "ser_pwr_en";
@@ -104,6 +115,7 @@
 			regulator-max-microvolt = <5000000>;
 			gpio = <&gpio1 6 GPIO_ACTIVE_HIGH>;
 			enable-active-high;
+			regulator-always-on;
 			vin-supply = <&reg_p5v0>;
 		};
 	};
@@ -160,6 +172,7 @@
 		    MX6QDL_PAD_DISP0_DAT18__GPIO5_IO12	0x1b0b0 /* I2C PMIC ENABLE */
 		    MX6QDL_PAD_GPIO_9__GPIO1_IO09	0x1b0b0 /* SOC_LED */
 		    MX6QDL_PAD_KEY_ROW2__GPIO4_IO11	0x1b0b0 /* SOC_LED1 */
+		    MX6QDL_PAD_KEY_COL2__GPIO4_IO10	0x1b0b0 /* SW_PMSHDOWN: Emergency Stop Button */
 		>;
 	};
 
@@ -230,6 +243,7 @@
 		    MX6QDL_PAD_SD1_DAT3__PWM1_OUT	0x1b0b0
 		>;
 	};
+
 	pinctrl_pwm2: pwm2grp {
 		fsl,pins = <
 		    MX6QDL_PAD_SD1_DAT2__PWM2_OUT	0x1b0b0
@@ -307,6 +321,9 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
 	phy-mode = "rgmii";
+	phy-supply = <&reg_eth_pwr>;
+	phy-reset-gpios = <&gpio1 3 GPIO_ACTIVE_LOW>;
+	phy-reset-duration = <10>; /* millisecond */
 	status = "okay";
 
 	fixed-link {
@@ -326,7 +343,6 @@
 			reg = <0>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_enet_switch>;
-			reset-gpios = <&gpio1 3 GPIO_ACTIVE_LOW>;
 
 			ports {
 				#address-cells = <1>;
@@ -372,15 +388,19 @@
 
 				switch0phy1: switch0phy1@11 {
 					reg = <0x11>;
+					max-speed = <100>;
 				};
 				switch0phy2: switch0phy2@12 {
 					reg = <0x12>;
+					max-speed = <100>;
 				};
 				switch0phy3: switch0phy3@13 {
 					reg = <0x13>;
+					max-speed = <100>;
 				};
 				switch0phy4: switch0phy4@14 {
 					reg = <0x14>;
+					max-speed = <100>;
 				};
 			};
 		};
@@ -700,12 +720,12 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
 	status = "okay";
-	/* appears no driver for ADS114S08B RTD */
+
 	spidev0: spi@0 {
-		/* just to disable boot warning from spidev driver */
-		compatible = "rohm,dh2228fv";
+		compatible = "ti,ads114s0xb";
 		reg = <0>;
-		/* 10Mhz, not sure if this is correct for ADS114 */
 		spi-max-frequency = <10000000>;
+		spi-cpha;
+		status = "okay";
 	};
 };
