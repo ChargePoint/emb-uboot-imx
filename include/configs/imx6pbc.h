@@ -202,6 +202,7 @@
 	"bootparta=0:2\0" \
 	"bootpartb=0:3\0" \
 	"importbootenv=echo Importing env from mmc ${bootenvpart} ...; " \
+		"part uuid mmc ${bootenvpart} bootenvuuid; " \
 		"if ext4load mmc ${bootenvpart} " \
 			"${loadaddr} ${bootenv}; then " \
 				"env import -c ${loadaddr} ${filesize} " \
@@ -229,6 +230,7 @@
 			"part uuid mmc ${_trybootpart} bootuuid; " \
 			"setenv bootargs ${bootargs_secureboot} " \
 				"console=${console} " \
+				"bootenv=PARTUUID=${bootenvuuid} " \
 				"root=PARTUUID=${bootuuid} rootwait rw; " \
 			"echo Try-booting ${bootfile} from mmc " \
 				"${_trybootpart} ...; " \
@@ -246,6 +248,7 @@
 		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
 		"setenv bootargs ${bootargs_secureboot} console=${console} " \
+			"bootenv=PARTUUID=${bootenvuuid} " \
 			"root=PARTUUID=${bootuuid} rootwait rw; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
 			"bootm ${loadaddr}; " \
@@ -257,6 +260,7 @@
 		"echo Failover boot ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
 		"setenv bootargs ${bootargs_secureboot} console=${console} " \
+			"bootenv=PARTUUID=${bootenvuuid} " \
 			"root=PARTUUID=${bootuuid} rootwait rw; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
 			"bootm ${loadaddr}; " \
