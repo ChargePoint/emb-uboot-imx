@@ -69,6 +69,12 @@ choice
 	prompt "NXP i.MX8M board select"
 	optional
 
+config TARGET_CHARGEPOINT_IMX8MM_MCB
+	bool "ChargePoint imx8mm MCB"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 config TARGET_IMX8MQ_CM
 	bool "Ronetix iMX8MQ-CM SoM"
 		select BINMAN
@@ -450,6 +456,7 @@ config TARGET_LIBREM5
 
 endchoice
 
+source "board/chargepoint/imx8mm_mcb/Kconfig"
 source "board/advantech/imx8mp_rsb3720a1/Kconfig"
 source "board/beacon/imx8mm/Kconfig"
 source "board/beacon/imx8mn/Kconfig"
