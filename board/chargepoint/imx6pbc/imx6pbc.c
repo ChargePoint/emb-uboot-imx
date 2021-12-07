@@ -557,8 +557,6 @@ int power_init_board(void)
 void ldo_mode_set(int ldo_bypass)
 {
 	unsigned int value;
-	int is_400M;
-	unsigned char vddarm;
 	struct pmic *p = pmic_get("PFUZE100");
 
 	if (!p) {
@@ -589,82 +587,12 @@ void ldo_mode_set(int ldo_bypass)
 		value |= 0x2d;
 		pmic_reg_write(p, PFUZE100_SW1CVOL, value);
 	}
-	/* switch to ldo_bypass mode , boot on 800Mhz */
-	if (ldo_bypass) {
-		prep_anatop_bypass();
-		if (is_mx6dqp()) {
-			/* decrease VDDARM for 400Mhz DQP:1.1V*/
-			pmic_reg_read(p, PFUZE100_SW2VOL, &value);
-			value &= ~0x3f;
-			value |= 0x1c;
-			pmic_reg_write(p, PFUZE100_SW2VOL, value);
-		} else {
-			/* decrease VDDARM for 400Mhz DQ:1.1V, DL:1.275V */
-			pmic_reg_read(p, PFUZE100_SW1ABVOL, &value);
-			value &= ~0x3f;
-			if (is_mx6dl())
-				value |= 0x27;
-			else
-				value |= 0x20;
 
-			pmic_reg_write(p, PFUZE100_SW1ABVOL, value);
-		}
-		/* increase VDDSOC to 1.3V */
-		pmic_reg_read(p, PFUZE100_SW1CVOL, &value);
-		value &= ~0x3f;
-		value |= 0x28;
-		pmic_reg_write(p, PFUZE100_SW1CVOL, value);
-
-		/*
-		 * MX6Q/DQP:
-		 * VDDARM:1.15V@800M; VDDSOC:1.175V@800M
-		 * VDDARM:0.975V@400M; VDDSOC:1.175V@400M
-		 * MX6DL:
-		 * VDDARM:1.175V@800M; VDDSOC:1.175V@800M
-		 * VDDARM:1.15V@400M; VDDSOC:1.175V@400M
-		 */
-		is_400M = set_anatop_bypass(2);
-		if (is_mx6dqp()) {
-			pmic_reg_read(p, PFUZE100_SW2VOL, &value);
-			value &= ~0x3f;
-			if (is_400M)
-				value |= 0x17;
-			else
-				value |= 0x1e;
-			pmic_reg_write(p, PFUZE100_SW2VOL, value);
-		}
-
-		if (is_400M) {
-			if (is_mx6dl())
-				vddarm = 0x1f;
-			else
-				vddarm = 0x1b;
-		} else {
-			if (is_mx6dl())
-				vddarm = 0x23;
-			else
-				vddarm = 0x22;
-		}
-		pmic_reg_read(p, PFUZE100_SW1ABVOL, &value);
-		value &= ~0x3f;
-		value |= vddarm;
-		pmic_reg_write(p, PFUZE100_SW1ABVOL, value);
-
-		/* decrease VDDSOC to 1.175V */
-		pmic_reg_read(p, PFUZE100_SW1CVOL, &value);
-		value &= ~0x3f;
-		value |= 0x23;
-		pmic_reg_write(p, PFUZE100_SW1CVOL, value);
-
-		finish_anatop_bypass();
-		printf("switch to ldo_bypass mode!\n");
-	}
+	return;
 }
 #elif defined(CONFIG_DM_PMIC_PFUZE100)
 void ldo_mode_set(int ldo_bypass)
 {
-	int is_400M;
-	unsigned char vddarm;
 	struct udevice *dev;
 	int ret;
 
@@ -687,57 +615,6 @@ void ldo_mode_set(int ldo_bypass)
 		}
 		/* increase VDDSOC to 1.425V */
 		pmic_clrsetbits(dev, PFUZE100_SW1CVOL, 0x3f, 0x2d);
-	}
-	/* switch to ldo_bypass mode , boot on 800Mhz */
-	if (ldo_bypass) {
-		prep_anatop_bypass();
-		if (is_mx6dqp()) {
-			/* decrease VDDARM for 400Mhz DQP:1.1V*/
-			pmic_clrsetbits(dev, PFUZE100_SW2VOL, 0x3f, 0x1c);
-		} else {
-			/* decrease VDDARM for 400Mhz DQ:1.1V, DL:1.275V */
-			if (is_mx6dl())
-				pmic_clrsetbits(dev, PFUZE100_SW1ABVOL, 0x3f, 0x27);
-			else
-				pmic_clrsetbits(dev, PFUZE100_SW1ABVOL, 0x3f, 0x20);
-		}
-		/* increase VDDSOC to 1.3V */
-		pmic_clrsetbits(dev, PFUZE100_SW1CVOL, 0x3f, 0x28);
-
-		/*
-		 * MX6Q/DQP:
-		 * VDDARM:1.15V@800M; VDDSOC:1.175V@800M
-		 * VDDARM:0.975V@400M; VDDSOC:1.175V@400M
-		 * MX6DL:
-		 * VDDARM:1.175V@800M; VDDSOC:1.175V@800M
-		 * VDDARM:1.15V@400M; VDDSOC:1.175V@400M
-		 */
-		is_400M = set_anatop_bypass(2);
-		if (is_mx6dqp()) {
-			if (is_400M)
-				pmic_clrsetbits(dev, PFUZE100_SW2VOL, 0x3f, 0x17);
-			else
-				pmic_clrsetbits(dev, PFUZE100_SW2VOL, 0x3f, 0x1e);
-		}
-
-		if (is_400M) {
-			if (is_mx6dl())
-				vddarm = 0x22;
-			else
-				vddarm = 0x1b;
-		} else {
-			if (is_mx6dl())
-				vddarm = 0x23;
-			else
-				vddarm = 0x22;
-		}
-		pmic_clrsetbits(dev, PFUZE100_SW1ABVOL, 0x3f, vddarm);
-
-		/* decrease VDDSOC to 1.175V */
-		pmic_clrsetbits(dev, PFUZE100_SW1CVOL, 0x3f, 0x23);
-
-		finish_anatop_bypass();
-		printf("switch to ldo_bypass mode!\n");
 	}
 
 	return;
