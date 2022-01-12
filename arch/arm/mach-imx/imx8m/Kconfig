@@ -69,8 +69,8 @@ choice
 	prompt "NXP i.MX8M board select"
 	optional
 
-config TARGET_CHARGEPOINT_IMX8MM_SBC
-	bool "ChargePoint imx8mm SBC"
+config TARGET_CHARGEPOINT_IMX8MM_MCB
+	bool "ChargePoint imx8mm MCB"
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
@@ -450,7 +450,7 @@ config TARGET_LIBREM5
 
 endchoice
 
-source "board/chargepoint/imx8mm_sbc/Kconfig"
+source "board/chargepoint/imx8mm_mcb/Kconfig"
 source "board/freescale/imx8mq_evk/Kconfig"
 source "board/freescale/imx8mq_val/Kconfig"
 source "board/freescale/imx8mm_ab2/Kconfig"
