@@ -3,8 +3,8 @@
  * Copyright 2019 NXP
  */
 
-#ifndef __IMX8MM_SBC_H
-#define __IMX8MM_SBC_H
+#ifndef __IMX8MM_MCB_H
+#define __IMX8MM_MCB_H
 
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
@@ -32,7 +32,7 @@
 
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C
-#if defined(CONFIG_IMX8M_LPDDR4) && defined(CONFIG_TARGET_CHARGEPOINT_IMX8MM_SBC)
+#if defined(CONFIG_IMX8M_LPDDR4) && defined(CONFIG_TARGET_CHARGEPOINT_IMX8MM_MCB)
 #define CONFIG_POWER_PCA9450
 #else
 #define CONFIG_POWER_BD71837
