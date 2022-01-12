@@ -9,8 +9,8 @@
 #include "imx8mm.dtsi"
 
 / {
-	model = "NXP i.MX8MM ChargePoint SBC board";
-	compatible = "fsl,imx8mm-sbc", "fsl,imx8mm";
+	model = "NXP i.MX8MM ChargePoint MCB board";
+	compatible = "fsl,imx8mm-mcb", "fsl,imx8mm";
 
 	memory@40000000 { /* 1GB RAM */
 		device_type = "memory";
