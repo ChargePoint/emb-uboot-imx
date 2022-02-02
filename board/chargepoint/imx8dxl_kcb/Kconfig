@@ -1,0 +1,14 @@
+if  TARGET_CHARGEPOINT_IMX8DXL_KCB
+
+config SYS_BOARD
+	default "imx8dxl_kcb"
+
+config SYS_VENDOR
+	default "chargepoint"
+
+config SYS_CONFIG_NAME
+	default "chargepoint_imx8dxl_kcb"
+
+source "board/freescale/common/Kconfig"
+
+endif

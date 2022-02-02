@@ -153,6 +153,11 @@ config TARGET_IMX8X_17X17_VAL
 	select BOARD_LATE_INIT
 	select IMX8QXP
 
+config TARGET_CHARGEPOINT_IMX8DXL_KCB
+	bool "Support i.MX8DXL board(evk)"
+	select BOARD_LATE_INIT
+	select IMX8DXL
+
 config TARGET_IMX8DXL_PHANTOM_MEK
 	bool "Support i.MX8DXL PHANTOM MEK board"
 	select BOARD_LATE_INIT
@@ -176,6 +181,7 @@ config TARGET_IMX8DXL_DDR3_EVK
 
 endchoice
 
+source "board/chargepoint/imx8dxl_kcb/Kconfig"
 source "board/freescale/imx8qm_mek/Kconfig"
 source "board/freescale/imx8qxp_mek/Kconfig"
 source "board/freescale/imx8qm_val/Kconfig"
