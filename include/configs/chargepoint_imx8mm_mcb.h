@@ -68,7 +68,6 @@
 	"bootfile=fitImage\0" \
 	"bootparta=2:2\0" \
 	"bootpartb=2:3\0" \
-    "loadaddr=0x71000000\0" \
 	"importbootenv=echo Importing env from mmc ${bootenvpart} ...; " \
 		"part uuid mmc ${bootenvpart} bootenvuuid; " \
 		"if ext4load mmc ${bootenvpart} " \
@@ -149,8 +148,16 @@
 #define CONFIG_BOOTARGS \
 	"console=" CONSOLE_DEV ",115200 earlyprintk=serial ignore_loglevel"
 
-/* Link Definitions */
-#define CONFIG_LOADADDR			0x40000000
+/*
+ * Link Definitions
+ *
+ * NOTE: loadaddr tracks the fastboot buffer for a fit image boot, the
+ *       size and location of a buffer allows the relocation and extraction
+ *       of the kernel to lower memory and the initrd to relocate to upper
+ *       memory. This is a deviation from the imx8mm references that don't
+ *       use FIT images.
+ */
+#define CONFIG_LOADADDR			0x71000000
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 

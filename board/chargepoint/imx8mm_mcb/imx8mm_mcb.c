@@ -98,5 +98,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 		fdt_root(blob);
 	}
+
+	return 0;
 }
 #endif
