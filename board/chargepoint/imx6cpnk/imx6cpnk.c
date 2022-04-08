@@ -29,6 +29,7 @@
 #include <mmc.h>
 #include <net.h>
 #include <fsl_esdhc.h>
+#include "../common/bootreason.h"
 #include "../common/fitimage_keys.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -770,6 +771,17 @@ int board_late_init(void)
 #ifdef CONFIG_ENV_IS_IN_MMC
 	board_late_mmc_env_init();
 #endif
+
+	/*
+	 * Set the reason the system was reset by reading the watchdog
+	 * reset reason.
+	 */
+	int appendcnt = 0;
+	char appendargs[512] = {0};
+	appendcnt += scnprintf(&appendargs[appendcnt],
+			       sizeof(appendargs) - appendcnt,
+			       " resetreason=%s", get_wdog_reset_reason());
+	env_set("bootargs_append", appendargs);
 
 #if defined(CONFIG_SECURE_BOOT)
 	/* set an environment that this is a secure boot */
