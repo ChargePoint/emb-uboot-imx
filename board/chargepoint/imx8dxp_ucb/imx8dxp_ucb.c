@@ -291,6 +291,38 @@ int board_mmc_get_env_dev(int devno)
 	return devno;
 }
 
+static const char *get_reset_reason(void)
+{
+    sc_pm_reset_reason_t reason;
+
+    sc_err_t ret = sc_pm_reset_reason(SC_IPC_CH, &reason);
+
+    if (ret != SC_ERR_NONE) {
+        printf("sc_pm_reset_reason() failed: %i\n", ret);
+        return "unknown";
+    }
+
+    switch (reason)
+    {
+        case SC_PM_RESET_REASON_POR:        return "POR";
+        case SC_PM_RESET_REASON_JTAG:       return "JTAG";
+        case SC_PM_RESET_REASON_SW:         return "SW";
+        case SC_PM_RESET_REASON_WDOG:       return "WDOG";
+        case SC_PM_RESET_REASON_LOCKUP:     return "LOCKUP";
+        case SC_PM_RESET_REASON_SNVS:       return "SNVS";
+        case SC_PM_RESET_REASON_TEMP:       return "TEMP";
+        case SC_PM_RESET_REASON_MSI:        return "MSI";
+        case SC_PM_RESET_REASON_UECC:       return "UECC";
+        case SC_PM_RESET_REASON_SCFW_WDOG:  return "SCFW_WDOG";
+        case SC_PM_RESET_REASON_ROM_WDOG:   return "ROM_WDOG";
+        case SC_PM_RESET_REASON_SECO:       return "SECO";
+        case SC_PM_RESET_REASON_SCFW_FAULT: return "SCFW_FAULT";
+        default: break;
+    }
+
+    return "invalid";
+}
+
 int board_late_init(void)
 {
 	sc_err_t err;
@@ -436,6 +468,8 @@ int board_late_init(void)
 	/* activate debug LED 4 to indicate we're about to jump to kernel */
 	set_gpio(GPIO_DBG_LED4, "debug_led4", 1);
 #endif
+
+	printf("Reset reason: %s\n", get_reset_reason());
 
 	return 0;
 }
