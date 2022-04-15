@@ -37,6 +37,7 @@
 #endif
 
 #include "../common/fitimage_keys.h"
+#include "../common/bootargs_util.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -469,7 +470,9 @@ int board_late_init(void)
 	set_gpio(GPIO_DBG_LED4, "debug_led4", 1);
 #endif
 
-	printf("Reset reason: %s\n", get_reset_reason());
+	const char *reset_reason = get_reset_reason();
+	printf("Reset reason: %s\n", reset_reason);
+	bootargs_append_param("resetreason", reset_reason);
 
 	return 0;
 }
