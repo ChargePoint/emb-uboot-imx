@@ -37,7 +37,6 @@
 #endif
 
 #include "../common/fitimage_keys.h"
-#include "../common/bootargs_util.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -472,7 +471,7 @@ int board_late_init(void)
 
 	const char *reset_reason = get_reset_reason();
 	printf("Reset reason: %s\n", reset_reason);
-	bootargs_append_param("resetreason", reset_reason);
+	env_set("resetreason", reset_reason);
 
 	return 0;
 }
