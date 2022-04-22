@@ -413,7 +413,8 @@ int board_late_init(void)
 			break;
 		}
 
-		if (dm_i2c_read(udev, PTN5150A_CTRL, &value, 1)) {
+		ret = dm_i2c_read(udev, PTN5150A_CTRL, &value, 1);
+		if (ret) {
 			printf("Cannot read %x:%x PTN5150A@%x:%x - error=%x\n",
 			       PTN5150A_CTRL, value,
 			       i2cbus, i2caddr, ret);
@@ -422,7 +423,8 @@ int board_late_init(void)
 		value &= ~(PTN5150A_CTRL_RP_MASK|PTN5150A_CTRL_PORT_MASK);
 		value |= (0x1 << 3); /* set to 180 microA */
 		value |= (0x2 << 1); /* set to dual role */
-		if (dm_i2c_write(udev, PTN5150A_CTRL, &value, 1)) {
+		ret = dm_i2c_write(udev, PTN5150A_CTRL, &value, 1);
+		if (ret) {
 			printf("Cannot write %x:%x PTN5150A@%x:%x - error=%x\n",
 			       PTN5150A_CTRL, value,
 			       i2cbus, i2caddr, ret);
