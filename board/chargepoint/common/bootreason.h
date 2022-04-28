@@ -64,12 +64,15 @@ static inline const char *get_wdog_reset_reason(void)
 static inline const char *get_wdog_reset_reason(void)
 {
 	u32 cause;
+#if defined(CONFIG_DISPLAY_CPUINFO) && !defined(CONFIG_SPL_BUILD)
+	cause = get_imx_reset_cause();
+#else
 	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
 
 	/* Reset register is not always cleared, so read and reset */
 	cause = readl(&src_regs->srsr);
 	writel(cause, &src_regs->srsr);
-
+#endif
 	switch (cause) {
 	case 0x00001:
 	case 0x00011:
