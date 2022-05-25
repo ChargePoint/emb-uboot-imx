@@ -64,6 +64,9 @@ static inline const char *get_wdog_reset_reason(void)
 static inline const char *get_wdog_reset_reason(void)
 {
 	u32 cause;
+#ifdef CONFIG_MX6
+	unsigned int wrsr;
+#endif
 #if defined(CONFIG_DISPLAY_CPUINFO) && !defined(CONFIG_SPL_BUILD)
 	cause = get_imx_reset_cause();
 #else
@@ -85,6 +88,14 @@ static inline const char *get_wdog_reset_reason(void)
 #ifdef  CONFIG_MX7
 		return "WDOG1";
 #else
+#ifdef CONFIG_MX6
+		wrsr = readw(&((struct wdog_regs *)WDOG1_BASE_ADDR)->wrsr);
+		if (wrsr & (1 << 0)) {
+			return "SW";
+		} else if (wrsr & (1 << 4)) {
+			return "POR";
+		}
+#endif
 		return "WDOG";
 #endif
 	case 0x00020:
