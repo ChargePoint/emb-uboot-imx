@@ -203,11 +203,22 @@
 	"initrd_high=0xffffffff\0" \
 	"console=" CONSOLE_DEV "\0" \
 	"video=mxcfb0:dev=ldb,1024x768M@60,bpp=32,if=RGB24\0" \
-	"bootenvpart=0:1\0" \
+	"ota_triggered=0\0" \
+	"ota_errors=0\0" \
+	"compat_mmcdev=0\0" \
+	"compat_mmcpart=5\0" \
+	"compat_ota_engine=OTA_uImage.imx6q\0" \
+	"compat_ota_filename=ota.tar.xz\0" \
+	"compat_ota_mmcpart=3\0" \
+	"compat_ota_device=/dev/mmcblk0p4\0" \
+	"compat_image=/boot/zImage\0" \
+	"compat_fdt_file=/boot/imx6qp-sabresd-cpnk.dtb\0" \
+	"compat_fdt_addr=0x18000000\0" \
+	"bootenvpart=0:b\0" \
 	"bootenv=uboot.env\0" \
 	"bootfile=fitImage\0" \
-	"bootparta=0:2\0" \
-	"bootpartb=0:3\0" \
+	"bootparta=0:c\0" \
+	"bootpartb=0:d\0" \
 	"importbootenv=echo Importing env from mmc ${bootenvpart} ...; " \
 		"part uuid mmc ${bootenvpart} bootenvuuid; " \
 		"if ext4load mmc ${bootenvpart} " \
@@ -264,7 +275,8 @@
 		"fi; " \
 		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
-		"setenv bootargs ${bootargs_secureboot} console=${console} video=${video} " \
+		"setenv bootargs ${bootargs_secureboot} " \
+			"console=${console} video=${video} " \
 			"bootenv=PARTUUID=${bootenvuuid} " \
 			"root=PARTUUID=${bootuuid} rootwait rw " \
 			"${bootargs_append}; " \
@@ -277,7 +289,8 @@
 		"fi; " \
 		"echo Failover boot ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
-		"setenv bootargs ${bootargs_secureboot} console=${console} video=${video} " \
+		"setenv bootargs ${bootargs_secureboot} " \
+			"console=${console} video=${video} " \
 			"bootenv=PARTUUID=${bootenvuuid} " \
 			"root=PARTUUID=${bootuuid} rootwait rw " \
 			"${bootargs_append}; " \
@@ -286,6 +299,37 @@
 	"\0"
 
 #define CONFIG_BOOTCOMMAND \
+	"usb start; " \
+	"if fatload usb 0:1 ${loadaddr} ${compat_ota_engine}; then " \
+		"setenv bootargs console=${console} vidoe=${video} " \
+			"ota_device=/dev/sda1 " \
+			"ota_filename=${compat_ota_filename}; " \
+		"bootm ${loadaddr}; " \
+	"fi; " \
+	"mmc dev 0 2; " \
+	"mmc read ${loadaddr} 0x400 0x10; " \
+	"env import -c ${loadaddr} 0x2000 ota_triggered ota_errors; " \
+	"mmc dev 0; " \
+	"if test ${ota_triggered} -eq 1; then " \
+		"if ext4load mmc ${compat_mmcdev}:${compat_ota_mmcpart} " \
+			"${loadaddr} ${compat_ota_engine}; then " \
+			"setenv bootargs console=${console} vidoe=${video} " \
+				"ota_device=${compat_ota_device} " \
+				"ota_filename=${compat_ota_filename}; " \
+			"bootm ${loadaddr}; " \
+		"fi; " \
+	"fi; " \
+	"if ext4load mmc ${compat_mmcdev}:${compat_mmcpart} " \
+		"${loadaddr} ${compat_image}; then " \
+		"setenv bootargs console=${console} vidoe=${video} " \
+			"root=/dev/mmcblk0p5 rootwait rw; " \
+		"if ext4load mmc ${compat_mmcdev}:${compat_mmcpart} " \
+			"${compat_fdt_addr} ${compat_fdt_file}; then " \
+			"bootz ${loadaddr} - ${compat_fdt_addr}; " \
+		"else " \
+			"bootz; " \
+		"fi; " \
+	"fi; " \
 	"run mmcboot"
 
 #define CONFIG_BOOTARGS \
