@@ -1019,7 +1019,6 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 	fsl-imx8dxl-evk.dtb \
 	fsl-imx8dxl-evk-lcdif.dtb \
 	fsl-imx8dxl-ddr3-evk.dtb \
-	imx8dxl-chargepoint-kcb.dtb \
 	imx8-deneb.dtb \
 	imx8-giedi.dtb
 
@@ -1031,7 +1030,6 @@ dtb-$(CONFIG_ARCH_IMX8ULP) += \
 	imx8ulp-watch.dtb
 
 dtb-$(CONFIG_ARCH_IMX8M) += \
-	imx8mm-chargepoint-mcb.dtb \
 	imx8mm-evk.dtb \
 	imx8mm-evk-qca-wifi.dtb \
 	imx8mm-ddr4-evk.dtb \
@@ -1100,6 +1098,10 @@ dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8MM_MCB) += imx8mm-chargepoint-mcb.dtb
 dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb \
 	imxrt1170-evk.dtb \
+
+dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8DXL_KCB) += imx8dxl-chargepoint-kcb.dtb
+dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8DXP_UCB) += imx8dxp-chargepoint-ucb.dtb
+dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8MM_MCB) += imx8mm-chargepoint-mcb.dtb
 
 dtb-$(CONFIG_RCAR_GEN2) += \
 	r8a7790-lager-u-boot.dtb \
