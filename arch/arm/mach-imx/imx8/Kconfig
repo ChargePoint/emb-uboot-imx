@@ -242,6 +242,17 @@ config TARGET_IMX8DXL_ORANGEBOX
 	select ARCH_MISC_INIT
 	select SPL_CRYPTO if SPL
 
+config TARGET_CHARGEPOINT_IMX8DXL_KCB
+	bool "Support i.MX8DXL chargepoint kcb"
+	select BOARD_LATE_INIT
+	select IMX8DXL
+
+# NOTE: select correct SoC variant when DXP is supported
+config TARGET_CHARGEPOINT_IMX8DXP_UCB
+	bool "Support i.MX8DXP chargepoint ucb"
+	select BOARD_LATE_INIT
+	select IMX8QXP
+
 endchoice
 
 source "board/freescale/imx8qm_mek/Kconfig"
