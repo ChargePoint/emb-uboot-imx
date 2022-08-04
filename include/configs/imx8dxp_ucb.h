@@ -189,7 +189,7 @@
 			"ext4write mmc ${bootenvpart} ${loadaddr} " \
 				"/${bootenv} ${filesize}; " \
 			"part uuid mmc ${_trybootpart} bootuuid; " \
-			"setenv bootargs ${bootargs_secureboot} " \
+			"setenv bootargs reboot=h ${bootargs_secureboot} " \
 				"console=${console} " \
 				"bootenv=PARTUUID=${bootenvuuid} " \
 				"root=PARTUUID=${bootuuid} rootwait rw " \
@@ -213,7 +213,8 @@
 		"fi; " \
 		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
-		"setenv bootargs ${bootargs_secureboot} console=${console} " \
+		"setenv bootargs reboot=h ${bootargs_secureboot} " \
+			"console=${console} " \
 			"bootenv=PARTUUID=${bootenvuuid} " \
 			"root=PARTUUID=${bootuuid} rootwait rw " \
 			"${bootargs_append}; " \
@@ -226,7 +227,8 @@
 		"fi; " \
 		"echo Failover boot ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
-		"setenv bootargs ${bootargs_secureboot} console=${console} " \
+		"setenv bootargs reboot=h ${bootargs_secureboot} " \
+			"console=${console} " \
 			"bootenv=PARTUUID=${bootenvuuid} " \
 			"root=PARTUUID=${bootuuid} rootwait rw " \
 			"${bootargs_append}; " \
