@@ -53,6 +53,11 @@
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define FDT_SEQ_MACADDR_FROM_ENV
 
+/* FIT */
+#ifdef CONFIG_FIT
+#define CONFIG_IMAGE_FORMAT_LEGACY
+#endif
+
 /* Serial */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
@@ -301,7 +306,8 @@
 #define CONFIG_BOOTCOMMAND \
 	"usb start; " \
 	"if fatload usb 0:1 ${loadaddr} ${compat_ota_engine}; then " \
-		"setenv bootargs console=${console} vidoe=${video} " \
+		"setenv bootargs console=${console},${baudrate} " \
+			"video=${video} " \
 			"ota_device=/dev/sda1 " \
 			"ota_filename=${compat_ota_filename}; " \
 		"bootm ${loadaddr}; " \
@@ -313,7 +319,8 @@
 	"if test ${ota_triggered} -eq 1; then " \
 		"if ext4load mmc ${compat_mmcdev}:${compat_ota_mmcpart} " \
 			"${loadaddr} ${compat_ota_engine}; then " \
-			"setenv bootargs console=${console} vidoe=${video} " \
+			"setenv bootargs console=${console},${baudrate} " \
+				"video=${video} " \
 				"ota_device=${compat_ota_device} " \
 				"ota_filename=${compat_ota_filename}; " \
 			"bootm ${loadaddr}; " \
@@ -321,7 +328,8 @@
 	"fi; " \
 	"if ext4load mmc ${compat_mmcdev}:${compat_mmcpart} " \
 		"${loadaddr} ${compat_image}; then " \
-		"setenv bootargs console=${console} vidoe=${video} " \
+		"setenv bootargs console=${console},${baudrate} " \
+			"video=${video} " \
 			"root=/dev/mmcblk0p5 rootwait rw; " \
 		"if ext4load mmc ${compat_mmcdev}:${compat_mmcpart} " \
 			"${compat_fdt_addr} ${compat_fdt_file}; then " \
