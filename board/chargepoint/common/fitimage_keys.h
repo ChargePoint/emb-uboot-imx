@@ -85,3 +85,7 @@ static inline void setup_fitimage_keys(void)
 }
 
 #endif /* _CHARGEPOINT_FITIMAGE_KEYS_H_ */
+<<<<<<< HEAD
+=======
+
+>>>>>>> 03bbec169c (kestrel: Add support for FIT Image verification)
