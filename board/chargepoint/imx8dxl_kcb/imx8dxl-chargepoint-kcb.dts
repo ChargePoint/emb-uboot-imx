@@ -7,6 +7,11 @@
 
 #include "fsl-imx8dxl.dtsi"
 
+#if !defined(CONFIG_FASTBOOT)
+#include "chargepoint-pubkey.dtsi"
+#include "prod-pubkey-kcb.dtsi"
+#endif
+
 / {
 	model = "NXP i.MX8DXL Chargepoint KCB Board";
 	compatible = "fsl,imx8dxl-kcb", "fsl,imx8dxl";
