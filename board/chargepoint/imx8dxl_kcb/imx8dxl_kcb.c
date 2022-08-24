@@ -20,6 +20,8 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
 #include <usb.h>
+#include "../common/fitimage_keys.h"
+
 //#include "../../freescale/common/tcpc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -220,6 +222,8 @@ int checkboard(void)
 
 int board_init(void)
 {
+	setup_fitimage_keys();
+
 	board_gpio_init();
 
 	return 0;
@@ -246,6 +250,8 @@ int board_late_init(void)
 {
 	char *fdt_file;
 	bool __maybe_unused m4_boot;
+	sc_err_t err;
+	uint16_t lc;
 
 	build_info();
 
@@ -274,12 +280,32 @@ int board_late_init(void)
 	board_late_mmc_env_init();
 #endif
 
-#if defined(CONIG_NOT_UUU_BUILD)
+	/* Determine the security state of the chip (OEM closed) */
+	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
+
+	if (err == SC_ERR_NONE) {
+		switch (lc) {
+		default:
+		case 0x1: 	/* Pristine */
+		case 0x2: 	/* Fab */
+		case 0x8: 	/* Open */
+		case 0x20: 	/* NXP closed */
+		case 0x100: /* Partial field return */
+		case 0x200: /* Full field return */
+			break;
+
+		case 0x80: /* OEM closed */
+			/* set an environment that this is a secure boot */
+			env_set("bootargs_secureboot", "uboot-secureboot");
+			env_set("sec_boot", "yes");
+			break;
+		}
+	}
+
+#if defined(CONFIG_NOT_UUU_BUILD)
 	/* set an environment that this is a secure boot */
-	if (imx_hab_is_enabled()) {
 		env_set("bootargs_secureboot", "uboot-secureboot");
 		env_set("sec_boot", "yes");
-	}
 #endif
 
 	return 0;
