@@ -12,6 +12,44 @@
 #ifndef _CHARGEPOINT_FITIMAGE_KEYS_H_
 #define _CHARGEPOINT_FITIMAGE_KEYS_H_
 
+#include <fuse.h>
+
+#if defined(CONFIG_ARCH_IMX8M)
+struct imx_sec_config_fuse_t {
+	int bank;
+	int word;
+};
+
+struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
+	.bank = 1,
+	.word = 3,
+};
+
+#define HAB_ENABLED_BIT (is_soc_type(MXC_SOC_IMX8M)? 0x2000000 : 0x2)
+
+/* Check hab status, this is basically copied from imx_hab_is_enabled() */
+bool hab_is_enabled(void)
+{
+
+	struct imx_sec_config_fuse_t *fuse =
+		(struct imx_sec_config_fuse_t *)&imx_sec_config_fuse;
+	uint32_t reg;
+	int ret;
+
+	ret = fuse_read(fuse->bank, fuse->word, &reg);
+	if (ret) {
+		printf("\nSecure boot fuse read error!\n");
+		return false;
+	}
+
+	if (!((reg & HAB_ENABLED_BIT) == HAB_ENABLED_BIT)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+#endif
+
 static inline void setup_fitimage_keys(void)
 {
 #if CONFIG_IS_ENABLED(FIT_SIGNATURE)
@@ -43,12 +81,13 @@ static inline void setup_fitimage_keys(void)
 		}
 	} while(0);
 #else
-	sig_prefix = imx_hab_is_enabled() ? "prod:" : "dev:";
+	sig_prefix = hab_is_enabled() ? "prod:" : "dev:";
 #endif
 	sig_blob = (void *)(uintptr_t)gd->fdt_blob;
 
 	/* process the signature nodes */
 	sig_node = fdt_subnode_offset(sig_blob, 0, FIT_SIG_NODENAME);
+
 	if (sig_node < 0) {
 		printf("%s: No signature node found: %s\n",
 		      __func__, fdt_strerror(sig_node));

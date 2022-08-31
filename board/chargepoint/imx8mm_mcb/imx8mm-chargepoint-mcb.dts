@@ -8,6 +8,11 @@
 #include <dt-bindings/usb/pd.h>
 #include "imx8mm.dtsi"
 
+#if !defined(CONFIG_FASTBOOT)
+#include "chargepoint-pubkey.dtsi"
+#include "prod-pubkey-mcb.dtsi"
+#endif
+
 / {
 	model = "NXP i.MX8MM ChargePoint MCB board";
 	compatible = "fsl,imx8mm-mcb", "fsl,imx8mm";
