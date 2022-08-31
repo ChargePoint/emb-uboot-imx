@@ -45,12 +45,13 @@ static inline void setup_fitimage_keys(void)
 		}
 	} while(0);
 #else
-	sig_prefix = imx_hab_is_enabled() ? "prod:" : "dev:";
+	sig_prefix = hab_is_enabled() ? "prod:" : "dev:";
 #endif
 	sig_blob = (void *)(uintptr_t)gd->fdt_blob;
 
 	/* process the signature nodes */
 	sig_node = fdt_subnode_offset(sig_blob, 0, FIT_SIG_NODENAME);
+
 	if (sig_node < 0) {
 		debug("%s: No signature node found: %s\n",
 		      __func__, fdt_strerror(sig_node));
@@ -85,7 +86,3 @@ static inline void setup_fitimage_keys(void)
 }
 
 #endif /* _CHARGEPOINT_FITIMAGE_KEYS_H_ */
-<<<<<<< HEAD
-=======
-
->>>>>>> 03bbec169c (kestrel: Add support for FIT Image verification)
