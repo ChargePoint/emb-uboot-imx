@@ -17,4 +17,14 @@ $(obj)/../../../arch/$(ARCH)/dts/imx8mm-chargepoint-mcb.dts: \
 		$(src)/imx8mm-chargepoint-mcb.dts
 	ln -fsn $(abspath $<) $@
 
+extra-y += ../../../arch/$(ARCH)/dts/chargepoint-pubkey.dtsi
+$(obj)/../../../arch/$(ARCH)/dts/chargepoint-pubkey.dtsi: \
+		$(src)/../common/chargepoint-pubkey.dtsi
+	ln -fsn $(abspath $<) $@
+
+extra-y += ../../../arch/$(ARCH)/dts/prod-pubkey-mcb.dtsi
+$(obj)/../../../arch/$(ARCH)/dts/prod-pubkey-mcb.dtsi: \
+		$(src)/prod-pubkey-mcb.dtsi
+	ln -fsn $(abspath $<) $@
+
 endif
