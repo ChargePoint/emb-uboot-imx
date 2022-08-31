@@ -12,6 +12,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/io.h>
+#include "../common/fitimage_keys.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -44,6 +45,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	setup_fitimage_keys();
 	return 0;
 }
 
@@ -58,9 +60,9 @@ int board_late_init(void)
 	env_set("board_rev", "iMX8MM");
 #endif
 
-#if defined(CONIG_NOT_UUU_BUILD)
+#if !defined(CONFIG_FASTBOOT)
 	/* set an environment that this is a secure boot */
-	if (imx_hab_is_enabled()) {
+	if (hab_is_enabled()) {
 		env_set("bootargs_secureboot", "uboot-secureboot");
 	}
 #endif
