@@ -2256,6 +2256,8 @@ source "arch/arm/cpu/armv7/Kconfig"
 
 source "arch/arm/cpu/armv8/Kconfig"
 
+source "arch/arm/cpu/armv8/crypto/Kconfig"
+
 source "arch/arm/mach-imx/Kconfig"
 
 source "arch/arm/mach-nexell/Kconfig"
