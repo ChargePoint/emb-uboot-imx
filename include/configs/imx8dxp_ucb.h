@@ -231,6 +231,7 @@
 		"setenv bootargs ${bootargs_secureboot} console=${console} " \
 			"bootenv=PARTUUID=${bootenvuuid} " \
 			"root=PARTUUID=${bootuuid} rootwait rw " \
+			"systemd.unit=rescue.target " \
 			"${bootargs_append}; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
 			"bootm ${bootmarg}; " \
