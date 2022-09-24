@@ -31,6 +31,7 @@
 #include <power-domain.h>
 #include <asm/arch/lpcg.h>
 #include <bootm.h>
+#include <miiphy.h>
 
 #ifdef CONFIG_USB_CDNS3_GADGET
 #include <cdns3-uboot.h>
@@ -41,6 +42,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define ENET_INPUT_PAD_CTRL ((SC_PAD_CONFIG_OD_IN << PADRING_CONFIG_SHIFT)  | \
+				(SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+				(SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | \
+				(SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
+
+#define ENET_NORMAL_PAD_CTRL ((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
+				(SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+				(SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | \
+				(SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
 
 /*
  * Do not overwrite the console
@@ -464,8 +474,163 @@ size_t display_count = ARRAY_SIZE(displays);
 #endif /* CONFIG_VIDEO_IMXDPUV1 */
 
 #ifdef CONFIG_OF_BOARD_SETUP
+
 /* define the get mac function here to avoid including fec_mxc.h */
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
+#define ETHPHY0_PATH "/bus@5b000000/ethernet@5b040000"
+#define ETHPHY1_PATH "/bus@5b000000/ethernet@5b050000"
+#define MDIO_ETH_PATH "/mdio/ethernet-phy@/"
+#define ETHPHY0_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@0/"
+#define ETHPHY1_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@1/"
+
+typedef enum {
+	PHY_VENDOR_QUALCOMM = 1,
+	PHY_VENDOR_REALTEK,
+	PHY_VENDOR_MAX
+} phy_vtype_t;
+
+static iomux_cfg_t pad_enet0[] = {
+	SC_P_ENET0_RGMII_RX_CTL | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_RXD0 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_RXD1 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_RXD2 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_RXD3 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_RXC | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_TX_CTL | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_RGMII_TXD0 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_RGMII_TXD1 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_RGMII_TXD2 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_RGMII_TXD3 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_RGMII_TXC | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+
+	/* Shared MDIO */
+	SC_P_ENET0_MDC | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_MDIO | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+};
+
+static iomux_cfg_t pad_enet1[] = {
+        SC_P_SPDIF0_TX | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+        SC_P_SPDIF0_RX | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+        SC_P_ESAI0_TX3_RX2 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+        SC_P_ESAI0_TX2_RX3 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+        SC_P_ESAI0_TX1 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+        SC_P_ESAI0_TX0 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+        SC_P_ESAI0_SCKR | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+        SC_P_ESAI0_TX4_RX1 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+        SC_P_ESAI0_TX5_RX0 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+        SC_P_ESAI0_FST  | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+        SC_P_ESAI0_SCKT | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+        SC_P_ESAI0_FSR  | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+
+        /* Shared MDIO */
+        SC_P_ENET0_MDC | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+        SC_P_ENET0_MDIO | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+};
+
+static void enet_device_phy_reset(void)
+{
+	struct gpio_desc desc;
+	int ret;
+
+	ret = dm_gpio_lookup_name("gpio@1a_4", &desc);
+	if (ret)
+		return;
+
+	ret = dm_gpio_request(&desc, "enet0_reset");
+	if (ret)
+		return;
+
+	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
+	dm_gpio_set_value(&desc, 0);
+	udelay(50);
+	dm_gpio_set_value(&desc, 1);
+
+	/* The board has a long delay for this reset to become stable */
+	mdelay(200);
+}
+
+
+
+static phy_vtype_t get_phy_vendor(bd_t *bis)
+{
+        int ret = PHY_VENDOR_QUALCOMM;
+        uint32_t base_mii = IMX_FEC_BASE;
+	int phy_id = CONFIG_FEC_MXC_PHYADDR;
+        struct mii_dev *bus = NULL;
+        unsigned short id1, id2;
+        struct phy_device *phydev = NULL;
+	struct power_domain pd;
+
+	if (!power_domain_lookup_name("conn_enet0", &pd))
+		power_domain_on(&pd);
+
+
+
+	imx8_iomux_setup_multiple_pads(pad_enet0, ARRAY_SIZE(pad_enet0));
+
+        bus = fec_get_miibus((ulong)IMX_FEC_BASE, CONFIG_FEC_ENET_DEV);
+        if (!bus) {
+                return -ENOMEM;
+	}
+
+        phydev = phy_find_by_mask(bus, 1 << phy_id, PHY_INTERFACE_MODE_RGMII);
+        if (!phydev) {
+		mdio_unregister(bus);
+		free(bus);
+		return -ENOMEM;
+        }
+        /* get the PHY id */
+        id1 = phy_read(phydev, MDIO_DEVAD_NONE, 2);
+        id2 = phy_read(phydev, MDIO_DEVAD_NONE, 3);
+	/*check for realtek phy id based on datasheet*/
+        if ((id1 == 0x001c) && (id2 == 0xc916)) {
+                ret = PHY_VENDOR_REALTEK;
+        }
+	enet_device_phy_reset();
+
+        return ret;
+}
+
+
+/*update device tree to support realtek specific parameters*/
+static void realtek_phy_supp(void *blob) 
+{
+	int offs = -1;
+
+	offs = fdt_path_offset(blob,ETHPHY0_PATH);
+	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
+		printf("fdt eth0 phy-mode FDT_ERR_NOTFOUND\n");
+	}
+	if (fdt_delprop(blob, offs,"fsl,rgmii_rxc_dly") < 0) {
+		printf("fdt eth0 rgmii_rxc_dly FDT_ERR_NOTFOUND\n");
+	}
+        if (fdt_delprop(blob, offs,"fsl,ar8031-phy-fixup") < 0) {
+                printf("fdt eth0 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
+        }
+
+	offs = fdt_path_offset(blob,ETHPHY1_PATH);
+	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
+		printf("fdt eth1 phy-mode FDT_ERR_NOTFOUND\n");
+	}
+        if (fdt_delprop(blob, offs,"fsl,rgmii_rxc_dly") < 0) {
+                printf("fdt eth1 rgmii_rxc_dly FDT_ERR_NOTFOUND\n");
+        }
+        if (fdt_delprop(blob, offs,"fsl,ar8031-phy-fixup") < 0) {
+                printf("fdt eth1 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
+        }
+
+
+	offs = fdt_path_offset(blob,ETHPHY0_MDIO_PATH);
+	if (fdt_setprop_u32(blob, offs, "reg",1) < 0) {
+		printf("fdt eth0 reg FDT_ERR_NOTFOUND\n");
+	}
+
+	offs = fdt_path_offset(blob,ETHPHY1_MDIO_PATH);
+	if (fdt_setprop_u32(blob, offs, "reg",2) < 0) {
+		printf("fdt eth0 reg FDT_ERR_NOTFOUND\n");
+	}
+	return;
+}
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
@@ -480,6 +645,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 		sc_err_t err;
 		uint32_t word;
 		sc_ipc_t ipcHndl;
+		phy_vtype_t phyType;
 
 		ipcHndl = gd->arch.ipc_channel_handle;
 
@@ -513,6 +679,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 		env_set("serial#", serial_str);
 
 		fdt_root(blob);
+	}
+	phyType = get_phy_vendor(bd);
+	printf("Phy vendor: %d\n",phyType);
+	if(phyType != PHY_VENDOR_QUALCOMM) {
+		realtek_phy_supp(blob);
 	}
 
 	if (!env_get("ethaddr") && !env_get("eth1addr")) {
