@@ -55,13 +55,6 @@
 
 #define CONFIG_CMD_READ
 
-
-#undef CONFIG_CMD_EXPORTENV
-#undef CONFIG_CMD_IMPORTENV
-#undef CONFIG_CMD_IMLS
-
-#undef CONFIG_CMD_CRC32
-
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 #define USDHC1_BASE_ADDR                0x5B010000
 #define USDHC2_BASE_ADDR                0x5B020000
@@ -92,12 +85,15 @@
 #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
 #endif
 
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	2
+/* Environment organization */
+#define CONFIG_ENV_SIZE                 (8 * SZ_1K)
+#define CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
-/* USDHC2 for SD */
-#define CONFIG_SYS_MMC_ENV_DEV		1   /* USDHC2 */
-#define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
+/* Default environment is in mmcblk0boot1 */
+#define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_FSL_USDHC_NUM	2
+#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN           SZ_32M
@@ -124,7 +120,7 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Monitor Command Prompt */
-#define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
+#define CONFIG_SYS_PROMPT_HUSH_PS2     "UBOOT_KCB> "
 #define CONFIG_SYS_CBSIZE              2048
 #define CONFIG_SYS_MAXARGS             64
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
@@ -262,6 +258,7 @@
 			"ext4load mmc ${_trybootpart} ${loadaddr} " \
 				"${bootfile} && " \
 					"bootm ${bootmarg}; " \
+		"else echo Try-boot fail ${trybootpart}; " \
 		"fi; " \
 	"\0" \
 	"mmcboot=setenv -f _bootpart ${bootparta}; " \
