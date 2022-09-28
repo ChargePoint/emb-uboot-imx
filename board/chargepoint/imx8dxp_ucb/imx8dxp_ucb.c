@@ -635,6 +635,7 @@ static void realtek_phy_supp(void *blob)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	uint32_t uid_high, uid_low;
+	phy_vtype_t phyType;
 
 	/*
 	 * i.MX8 Configuration and Manufacturing Info in OTP fuse array
@@ -645,7 +646,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 		sc_err_t err;
 		uint32_t word;
 		sc_ipc_t ipcHndl;
-		phy_vtype_t phyType;
 
 		ipcHndl = gd->arch.ipc_channel_handle;
 
