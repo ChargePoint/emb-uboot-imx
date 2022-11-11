@@ -526,7 +526,7 @@ static void enet_device_phy_reset(void)
 	struct gpio_desc desc;
 	int ret;
 
-	ret = dm_gpio_lookup_name("gpio@1a_4", &desc);
+	ret = dm_gpio_lookup_name("GPIO1_4", &desc);
 	if (ret)
 		return;
 
@@ -534,54 +534,47 @@ static void enet_device_phy_reset(void)
 	if (ret)
 		return;
 
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
-	dm_gpio_set_value(&desc, 0);
-	udelay(50);
 	dm_gpio_set_value(&desc, 1);
+	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	mdelay(10);
+	dm_gpio_set_value(&desc, 0);
 
 	/* The board has a long delay for this reset to become stable */
 	mdelay(200);
 }
 
-
-enum phy_vtype_e {
-	PHY_VENDOR_QUALCOMM = 1,
-	PHY_VENDOR_REALTEK,
-	PHY_VENDOR_MAX
-};
-
-static enum phy_vtype_e get_phy_vendor(bd_t *bis)
+int board_eth_init(bd_t *bis)
 {
-	int ret;
-	unsigned short id1, id2;
-	uint32_t base_mii = IMX_FEC_BASE;
-	int phy_id = CONFIG_FEC_MXC_PHYADDR;
 	struct power_domain pd;
-	struct mii_dev *bus = NULL;
-	struct phy_device *phydev = NULL;
 
 	if (!power_domain_lookup_name("conn_enet0", &pd))
 		power_domain_on(&pd);
 
 	imx8_iomux_setup_multiple_pads(pad_enet0, ARRAY_SIZE(pad_enet0));
+	enet_device_phy_reset();
 
-	bus = fec_get_miibus((ulong)IMX_FEC_BASE, CONFIG_FEC_ENET_DEV);
-	if (!bus) {
-		return -ENOMEM;
-	}
+	int ret = fecmxc_initialize_multi(bis, CONFIG_FEC_ENET_DEV,
+		CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
+	if (ret)
+		printf("FEC1 MXC: %s:failed\n", __func__);
 
-	phydev = phy_find_by_mask(bus, 1 << phy_id, PHY_INTERFACE_MODE_RGMII);
-	if (!phydev) {
-		mdio_unregister(bus);
-		free(bus);
-		return -ENOMEM;
-	}
+	return 0;
+}
 
+static enum phy_vtype_e {
+	PHY_VENDOR_QUALCOMM = 1,
+	PHY_VENDOR_REALTEK,
+	PHY_VENDOR_MAX
+} phyType;
+
+int board_phy_config(struct phy_device *phydev)
+{
+	unsigned short id1, id2;
 	/*
 	 * assume the phy vendor is qualcomm - this can be verified by
 	 * the phyid as needed
 	 */
-	ret = PHY_VENDOR_QUALCOMM;
+	phyType = PHY_VENDOR_QUALCOMM;
 
 	/* check for realtek phy id based on datasheet */
 	id1 = phy_read(phydev, MDIO_DEVAD_NONE, 2);
@@ -607,13 +600,11 @@ static enum phy_vtype_e get_phy_vendor(bd_t *bis)
 		phy_write(phydev, MDIO_DEVAD_NONE,
 			  MIIM_RTL8211F_PAGE_SELECT, 0x0);
 
-		ret = PHY_VENDOR_REALTEK;
+		phyType = PHY_VENDOR_REALTEK;
 	}
-	enet_device_phy_reset();
 
-	return ret;
+	return 0;
 }
-
 
 /* update device tree to support realtek specific parameters */
 #define ETHPHY0_PATH "/bus@5b000000/ethernet@5b040000"
@@ -663,7 +654,6 @@ static void realtek_phy_supp(void *blob)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	uint32_t uid_high, uid_low;
-	enum phy_vtype_e phyType;
 
 	/*
 	 * i.MX8 Configuration and Manufacturing Info in OTP fuse array
@@ -709,7 +699,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 		fdt_root(blob);
 	}
 
-	phyType = get_phy_vendor(bd);
 	printf("Phy vendor: %d\n", phyType);
 	if(phyType != PHY_VENDOR_QUALCOMM) {
 		realtek_phy_supp(blob);
