@@ -9,6 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "imx8dxp_ucb"
 
+source "board/chargepoint/common/Kconfig"
 source "board/freescale/common/Kconfig"
 
 endif
