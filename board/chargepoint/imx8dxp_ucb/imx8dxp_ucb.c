@@ -604,6 +604,15 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
+#define WIFI_EN_REGULATOR_PATH "/regulators/regulator@4"
+static void enable_wifi_regulator(void *blob)
+{
+	int offs = fdt_path_offset(blob, WIFI_EN_REGULATOR_PATH);
+	if (fdt_delprop(blob, offs, "status") < 0) {
+		printf(WIFI_EN_REGULATOR_PATH "/status not found\n");
+	}
+}
+
 /* update device tree to support realtek specific parameters */
 #define ETHPHY0_PATH "/bus@5b000000/ethernet@5b040000"
 #define ETHPHY1_PATH "/bus@5b000000/ethernet@5b050000"
@@ -700,6 +709,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 	printf("Phy vendor: %d\n", phyType);
 	if(phyType != PHY_VENDOR_QUALCOMM) {
 		realtek_phy_supp(blob);
+	}
+
+	if (env_get_yesno("enable_wifi") == 1) { // leave things alone if the variable is missing or false
+		printf("Enabling wifi regulator\n");
+		enable_wifi_regulator(blob);
 	}
 
 	if (!env_get("ethaddr") && !env_get("eth1addr")) {
