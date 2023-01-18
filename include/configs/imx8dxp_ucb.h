@@ -165,15 +165,15 @@
 		"if ext4load mmc ${bootenvpart} " \
 			"${loadaddr} ${bootenv}; then " \
 				"env import -c ${loadaddr} ${filesize} " \
-					"display fitconfig " \
+					"display fitconfig enable_wifi " \
 					"trybootpart bootpart bootlabel; " \
 		"elif ext4load mmc ${bootenvpart} " \
 			"${loadaddr} ${bootenv}-backup; then " \
 				"env import -c ${loadaddr} ${filesize} " \
-					"display fitconfig " \
+					"display fitconfig enable_wifi " \
 					"bootpart bootlabel; " \
 				"env export -c ${loadaddr} " \
-					"display fitconfig " \
+					"display fitconfig enable_wifi " \
 					"trybootpart bootpart bootlabel; " \
 				"ext4write mmc ${bootenvpart} ${loadaddr} " \
 					"/${bootenv} ${filesize}; " \
