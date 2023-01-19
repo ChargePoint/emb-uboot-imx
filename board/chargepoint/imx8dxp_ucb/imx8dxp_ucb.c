@@ -32,6 +32,7 @@
 #include <asm/arch/lpcg.h>
 #include <bootm.h>
 #include <miiphy.h>
+#include <version.h>
 
 #ifdef CONFIG_USB_CDNS3_GADGET
 #include <cdns3-uboot.h>
@@ -613,6 +614,17 @@ static void enable_wifi_regulator(void *blob)
 	}
 }
 
+static void record_scm_status(void *blob)
+{
+	int offs = fdt_path_offset(blob, "/chosen");
+	int err = fdt_setprop(blob, offs, "u-boot,scm-status", SCM_STATUS,
+		sizeof SCM_STATUS);
+	if (err < 0) {
+		printf("WARNING: could not set u-boot,scm-status (%s).\n",
+			fdt_strerror(err));
+	}
+}
+
 /* update device tree to support realtek specific parameters */
 #define ETHPHY0_PATH "/bus@5b000000/ethernet@5b040000"
 #define ETHPHY1_PATH "/bus@5b000000/ethernet@5b050000"
@@ -715,6 +727,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 		printf("Enabling wifi regulator\n");
 		enable_wifi_regulator(blob);
 	}
+
+	record_scm_status(blob);
 
 	if (!env_get("ethaddr") && !env_get("eth1addr")) {
 		u8 mac_addr[6];
