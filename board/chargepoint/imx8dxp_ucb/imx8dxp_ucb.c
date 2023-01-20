@@ -613,6 +613,15 @@ static void enable_wifi_regulator(void *blob)
 	}
 }
 
+#define KERNEL_HEARTBEAT_LED_PATH "/leds/DBG_LED_5"
+static void disable_kernel_heartbeat(void *blob)
+{
+	int offs = fdt_path_offset(blob, KERNEL_HEARTBEAT_LED_PATH);
+	if (fdt_setprop_string(blob, offs, "status", "disabled") < 0) {
+		printf("Failed to set " KERNEL_HEARTBEAT_LED_PATH "/status\n");
+	}
+}
+
 /* update device tree to support realtek specific parameters */
 #define ETHPHY0_PATH "/bus@5b000000/ethernet@5b040000"
 #define ETHPHY1_PATH "/bus@5b000000/ethernet@5b050000"
@@ -714,6 +723,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 	if (env_get_yesno("enable_wifi") == 1) { // leave things alone if the variable is missing or false
 		printf("Enabling wifi regulator\n");
 		enable_wifi_regulator(blob);
+	}
+
+	if (env_get_yesno("energystar") == 1) { // leave things alone if the variable is missing or false
+		printf("Energy star mode\n");
+		disable_kernel_heartbeat(blob);
 	}
 
 	if (!env_get("ethaddr") && !env_get("eth1addr")) {
