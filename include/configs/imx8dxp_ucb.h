@@ -165,15 +165,15 @@
 		"if ext4load mmc ${bootenvpart} " \
 			"${loadaddr} ${bootenv}; then " \
 				"env import -c ${loadaddr} ${filesize} " \
-					"display fitconfig enable_wifi " \
+					"display fitconfig enable_wifi energystar " \
 					"trybootpart bootpart bootlabel; " \
 		"elif ext4load mmc ${bootenvpart} " \
 			"${loadaddr} ${bootenv}-backup; then " \
 				"env import -c ${loadaddr} ${filesize} " \
-					"display fitconfig enable_wifi " \
+					"display fitconfig enable_wifi energystar " \
 					"bootpart bootlabel; " \
 				"env export -c ${loadaddr} " \
-					"display fitconfig enable_wifi " \
+					"display fitconfig enable_wifi energystar " \
 					"trybootpart bootpart bootlabel; " \
 				"ext4write mmc ${bootenvpart} ${loadaddr} " \
 					"/${bootenv} ${filesize}; " \
@@ -191,6 +191,9 @@
 			"ext4write mmc ${bootenvpart} ${loadaddr} " \
 				"/${bootenv} ${filesize}; " \
 			"part uuid mmc ${_trybootpart} bootuuid; " \
+			"if test \"${energystar}\" = true; then " \
+				"setenv -f bootargs_append ${bootargs_append} energystar=1; " \
+			"fi; " \
 			"setenv bootargs reboot=h ${bootargs_secureboot} " \
 				"console=${console} " \
 				"bootenv=PARTUUID=${bootenvuuid} " \
@@ -215,6 +218,9 @@
 		"fi; " \
 		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
+		"if test \"${energystar}\" = true; then " \
+			"setenv -f bootargs_append ${bootargs_append} energystar=1; " \
+		"fi; " \
 		"setenv bootargs reboot=h ${bootargs_secureboot} " \
 			"console=${console} " \
 			"bootenv=PARTUUID=${bootenvuuid} " \
@@ -229,6 +235,9 @@
 		"fi; " \
 		"echo Failover boot ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
+		"if test \"${energystar}\" = true; then " \
+			"setenv -f bootargs_append ${bootargs_append} energystar=1; " \
+		"fi; " \
 		"setenv bootargs reboot=h ${bootargs_secureboot} " \
 			"console=${console} " \
 			"bootenv=PARTUUID=${bootenvuuid} " \
