@@ -191,7 +191,7 @@
 			"ext4write mmc ${bootenvpart} ${loadaddr} " \
 				"/${bootenv} ${filesize}; " \
 			"part uuid mmc ${_trybootpart} bootuuid; " \
-			"if test ${energystar} = true; then " \
+			"if test \"${energystar}\" = true; then " \
 				"setenv -f bootargs_append ${bootargs_append} energystar=1; " \
 			"fi; " \
 			"setenv bootargs reboot=h ${bootargs_secureboot} " \
@@ -218,7 +218,7 @@
 		"fi; " \
 		"echo Booting ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
-		"if test ${energystar} = true; then " \
+		"if test \"${energystar}\" = true; then " \
 			"setenv -f bootargs_append ${bootargs_append} energystar=1; " \
 		"fi; " \
 		"setenv bootargs reboot=h ${bootargs_secureboot} " \
@@ -235,7 +235,7 @@
 		"fi; " \
 		"echo Failover boot ${bootfile} from mmc ${_bootpart} ...; " \
 		"part uuid mmc ${_bootpart} bootuuid; " \
-		"if test ${energystar} = true; then " \
+		"if test \"${energystar}\" = true; then " \
 			"setenv -f bootargs_append ${bootargs_append} energystar=1; " \
 		"fi; " \
 		"setenv bootargs reboot=h ${bootargs_secureboot} " \
