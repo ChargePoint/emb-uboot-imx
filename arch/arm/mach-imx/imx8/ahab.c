@@ -292,8 +292,9 @@ static int do_ahab_close(cmd_tbl_t *cmdtp, int flag, int argc,
 	sc_err_t err;
 	uint16_t lc;
 	sc_ipc_t ipcHndl = gd->arch.ipc_channel_handle;
+	int confirmed = argc >= 2 && !strcmp(argv[1], "-y");
 
-	if (!confirm_close())
+	if (!confirmed && !confirm_close())
 		return -EACCES;
 
 	err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
@@ -334,6 +335,6 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	  ahab_close, CONFIG_SYS_MAXARGS, 1, do_ahab_close,
-	  "Change AHAB lifecycle to OEM closed",
-	  ""
+	  "Change AHAB lifecycle to OEM closed (PERMANENT)",
+	  "ahab_close [-y]"
 );
