@@ -568,6 +568,7 @@ static enum phy_vtype_e {
 int board_phy_config(struct phy_device *phydev)
 {
 	unsigned short id1, id2;
+	printf("%s:%d %p\n", __FUNCTION__, __LINE__, phydev);
 	/*
 	 * assume the phy vendor is qualcomm - this can be verified by
 	 * the phyid as needed
@@ -578,26 +579,6 @@ int board_phy_config(struct phy_device *phydev)
 	id1 = phy_read(phydev, MDIO_DEVAD_NONE, 2);
 	id2 = phy_read(phydev, MDIO_DEVAD_NONE, 3);
 	if ((id1 == 0x001c) && (id2 == 0xc916)) {
-		enum {
-			MIIM_RTL8211F_PAGE_SELECT = 0x1f,
-			RTL8211F_PHYCR2 = 0xa43,
-			RTL8211F_LCR = 0xd04
-		};
-
-		/* Set green LED for Link, yellow LED for Active */
-		phy_write(phydev, MDIO_DEVAD_NONE,
-			  MIIM_RTL8211F_PAGE_SELECT, RTL8211F_LCR);
-		phy_write(phydev, MDIO_DEVAD_NONE, 0x10, 0x4658);
-		phy_write(phydev, MDIO_DEVAD_NONE,
-			  MIIM_RTL8211F_PAGE_SELECT, 0x0);
-
-		/* Enable Spread-Spectrum Clocking (SSC) on System Clock */
-		phy_write(phydev, MDIO_DEVAD_NONE,
-			  MIIM_RTL8211F_PAGE_SELECT, RTL8211F_PHYCR2);
-		phy_write(phydev, MDIO_DEVAD_NONE, 0x19, 0x086a);
-		phy_write(phydev, MDIO_DEVAD_NONE,
-			  MIIM_RTL8211F_PAGE_SELECT, 0x0);
-
 		phyType = PHY_VENDOR_REALTEK;
 	}
 
