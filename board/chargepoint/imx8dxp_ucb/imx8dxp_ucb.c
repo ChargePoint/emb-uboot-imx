@@ -568,7 +568,6 @@ static enum phy_vtype_e {
 int board_phy_config(struct phy_device *phydev)
 {
 	unsigned short id1, id2;
-	printf("%s:%d %p\n", __FUNCTION__, __LINE__, phydev);
 	/*
 	 * assume the phy vendor is qualcomm - this can be verified by
 	 * the phyid as needed
