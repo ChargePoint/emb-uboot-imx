@@ -106,6 +106,7 @@ int board_early_init_f(void)
 }
 
 #ifdef CONFIG_MXC_GPIO
+#define GPIO_SER_PWR_EN	IMX_GPIO_NR(0, 29)
 #define GPIO_DBG_LED4	IMX_GPIO_NR(1, 8)
 #define GPIO_DBG_LED5	IMX_GPIO_NR(1, 7)
 #define GPIO_DBG_LED11	IMX_GPIO_NR(3, 14)
@@ -127,6 +128,8 @@ static void board_gpio_init(void)
 	set_gpio(GPIO_DBG_LED11, "debug_led11", 0);
 
 	set_gpio(GPIO_USBH_RESET, "usb5734_reset", 0);
+
+	set_gpio(GPIO_SER_PWR_EN, "ser_pwr_en", 1);
 }
 #endif
 
