@@ -700,14 +700,12 @@ int ft_board_setup(void *blob, bd_t *bd)
 		realtek_phy_supp(blob);
 	}
 
-	if (env_get_yesno("enable_wifi") == 1) { // leave things alone if the variable is missing or false
-		printf("Enabling wifi regulator\n");
-		enable_wifi_regulator(blob);
-	}
-
-	if (env_get_yesno("energystar") == 1) { // leave things alone if the variable is missing or false
+	if (env_get_yesno("energystar") == 1) {
 		printf("Energy star mode\n");
 		disable_kernel_heartbeat(blob);
+	} else {
+		printf("Enabling wifi regulator\n");
+		enable_wifi_regulator(blob);
 	}
 
 	if (!env_get("ethaddr") && !env_get("eth1addr")) {
