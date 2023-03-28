@@ -315,15 +315,19 @@
 	"fi; " \
 	"mmc dev 0 2; " \
 	"mmc read ${loadaddr} 0x400 0x10; " \
-	"env import -c ${loadaddr} 0x2000 ota_triggered ota_errors; " \
+	"env import -c ${loadaddr} 0x2000 " \
+		"ota_filename ota_triggered ota_errors; " \
 	"mmc dev 0; " \
+	"if test -z \"${ota_filename}\"; then "\
+		"setenv -f ota_filename ${compat_ota_filename}; " \
+	"fi; " \
 	"if test ${ota_triggered} -eq 1; then " \
 		"if ext4load mmc ${compat_mmcdev}:${compat_ota_mmcpart} " \
 			"${loadaddr} ${compat_ota_engine}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
 				"video=${video} " \
 				"ota_device=${compat_ota_device} " \
-				"ota_filename=${compat_ota_filename}; " \
+				"ota_filename=${ota_filename}; " \
 			"bootm ${loadaddr}; " \
 		"fi; " \
 	"fi; " \
