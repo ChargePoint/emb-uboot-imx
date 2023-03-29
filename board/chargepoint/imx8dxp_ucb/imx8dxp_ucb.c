@@ -587,15 +587,6 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
-#define WIFI_EN_REGULATOR_PATH "/regulators/regulator@4"
-static void enable_wifi_regulator(void *blob)
-{
-	int offs = fdt_path_offset(blob, WIFI_EN_REGULATOR_PATH);
-	if (fdt_delprop(blob, offs, "status") < 0) {
-		printf(WIFI_EN_REGULATOR_PATH "/status not found\n");
-	}
-}
-
 #define KERNEL_HEARTBEAT_LED_PATH "/leds/DBG_LED_5"
 static void disable_kernel_heartbeat(void *blob)
 {
@@ -706,9 +697,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 	if (env_get_yesno("energystar") == 1) {
 		printf("Energy star mode\n");
 		disable_kernel_heartbeat(blob);
-	} else {
-		printf("Enabling wifi regulator\n");
-		enable_wifi_regulator(blob);
 	}
 
 	if (!env_get("ethaddr") && !env_get("eth1addr")) {
