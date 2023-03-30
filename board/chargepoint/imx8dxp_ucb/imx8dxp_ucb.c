@@ -527,18 +527,28 @@ static void enet_device_phy_reset(void)
 	struct gpio_desc desc;
 	int ret;
 
-	ret = dm_gpio_lookup_name("GPIO1_4", &desc);
-	if (ret)
-		return;
+	struct {
+		const char *pin_number;
+		const char *gpio_name;
+	} phy_config[2] = {
+		{ .pin_number = "GPIO1_4", .gpio_name = "enet0_reset" },
+		{ .pin_number = "GPIO1_5", .gpio_name = "enet1_reset" },
+	};
 
-	ret = dm_gpio_request(&desc, "enet0_reset");
-	if (ret)
-		return;
+	for (int i = 0; i < 2; i++) {
+		ret = dm_gpio_lookup_name(phy_config[i].pin_number, &desc);
+		if (ret)
+			continue;
 
-	dm_gpio_set_value(&desc, 1);
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-	mdelay(10);
-	dm_gpio_set_value(&desc, 0);
+		ret = dm_gpio_request(&desc, phy_config[i].gpio_name);
+		if (ret)
+			continue;
+
+		dm_gpio_set_value(&desc, 1);
+		dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		mdelay(10);
+		dm_gpio_set_value(&desc, 0);
+	}
 
 	/* The board has a long delay for this reset to become stable */
 	mdelay(200);
@@ -552,6 +562,7 @@ int board_eth_init(bd_t *bis)
 		power_domain_on(&pd);
 
 	imx8_iomux_setup_multiple_pads(pad_enet0, ARRAY_SIZE(pad_enet0));
+	imx8_iomux_setup_multiple_pads(pad_enet1, ARRAY_SIZE(pad_enet1));
 	enet_device_phy_reset();
 
 	int ret = fecmxc_initialize_multi(bis, CONFIG_FEC_ENET_DEV,
