@@ -305,14 +305,6 @@
 	"\0"
 
 #define CONFIG_BOOTCOMMAND \
-	"usb start; " \
-	"if fatload usb 0:1 ${loadaddr} ${compat_ota_engine}; then " \
-		"setenv bootargs console=${console},${baudrate} " \
-			"video=${video} " \
-			"ota_device=/dev/sda1 " \
-			"ota_filename=${compat_ota_filename}; " \
-		"bootm ${loadaddr}; " \
-	"fi; " \
 	"mmc dev 0 2; " \
 	"mmc read ${loadaddr} 0x400 0x10; " \
 	"env import -c ${loadaddr} 0x2000 " \
