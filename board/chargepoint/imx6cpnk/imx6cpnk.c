@@ -468,10 +468,12 @@ static void setup_display(void)
 #endif /* CONFIG_VIDEO_IPUV3 */
 
 static iomux_v3_cfg_t const lg_init_pads[] = {
-        /* Last GASP controls */
-        IOMUX_PADS(v__GPIO1_IO13  | MUX_PAD_CTRL(NO_PAD_CTRL)), /* LG CHG_ENABLE */
-        IOMUX_PADS(PAD_SD2_DAT0__GPIO1_IO15  | MUX_PAD_CTRL(NO_PAD_CTRL)), /* LG CHG_CAPGOOD */
-        IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL)), /* LG CHG_PFWn */
+	/* LG CHG_ENABLE */
+	IOMUX_PADS(v__GPIO1_IO13  | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	/* LG CHG_CAPGOOD */
+	IOMUX_PADS(PAD_SD2_DAT0__GPIO1_IO15  | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	/* LG CHG_PFWn */
+	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 /* forward declare pin_mux init since pin_mux.h cannot be included */
@@ -482,8 +484,9 @@ int board_early_init_f(void)
 	/* call generated pin_mux code from the NXP pin tools */
 	BOARD_InitPins();
 
-        /* Setup Last Gasp init pads */
-        imx_iomux_v3_setup_multiple_pads(lg_init_pads, ARRAY_SIZE(lg_init_pads));
+	/* Setup Last Gasp init pads */
+	imx_iomux_v3_setup_multiple_pads(lg_init_pads,
+					 ARRAY_SIZE(lg_init_pads));
 
 #if defined(CONFIG_VIDEO_IPUV3)
 	setup_display();
@@ -810,47 +813,49 @@ int board_late_init(void)
 
 #ifdef CONFIG_USB_EHCI_MX6
 #ifdef CONFIG_DM_USB
-#define USB_OTHERREGS_OFFSET    0x800
-#define UCTRL_PWR_POL           (1 << 9)
+#define USB_OTHERREGS_OFFSET	0x800
+#define UCTRL_PWR_POL		(1 << 9)
 #define OTG_ID_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |            \
-        PAD_CTL_PUS_47K_UP  | PAD_CTL_SPEED_LOW |               \
-        PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+	PAD_CTL_PUS_47K_UP  | PAD_CTL_SPEED_LOW |               \
+	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
 
 static iomux_v3_cfg_t const usb_otg_pads[] = {
 #define GPIO_OTG_PWREN  IMX_GPIO_NR(3, 22)
-        IOMUX_PADS(PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL)),
-        IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(OTG_ID_PAD_CTRL)),
-        IOMUX_PADS(PAD_EIM_D21__USB_OTG_OC | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(OTG_ID_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_D21__USB_OTG_OC | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const usb_hc1_pads[] = {
-        IOMUX_PADS(PAD_GPIO_4__GPIO1_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL)),
-        IOMUX_PADS(PAD_GPIO_5__GPIO1_IO05 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_4__GPIO1_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_5__GPIO1_IO05 | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
+
 int board_ehci_hcd_init(int port)
 {
-        u32 *usbnc_usb_ctrl;
+	u32 *usbnc_usb_ctrl;
 
 	switch (port) {
-        case 0:
-                SETUP_IOMUX_PADS(usb_otg_pads);
+	case 0:
+		SETUP_IOMUX_PADS(usb_otg_pads);
 
-                /*
-                 * Set daisy chain for otg_pin_id on 6q.
-                 *  For 6dl, this bit is reserved.
-                 */
-                imx_iomux_set_gpr_register(1, 13, 1, 0);
+		/*
+		 * Set daisy chain for otg_pin_id on 6q.
+		 * For 6dl, this bit is reserved.
+		 */
+		imx_iomux_set_gpr_register(1, 13, 1, 0);
 
-                usbnc_usb_ctrl = (u32 *)(USB_BASE_ADDR + USB_OTHERREGS_OFFSET +
-                                 port * 4);
+		usbnc_usb_ctrl = (u32 *)(USB_BASE_ADDR + USB_OTHERREGS_OFFSET +
+					 port * 4);
 
-                setbits_le32(usbnc_usb_ctrl, UCTRL_PWR_POL);
-                break;
-        case 1:
-                SETUP_IOMUX_PADS(usb_hc1_pads);
-                gpio_request(IMX_GPIO_NR(1, 29), "USB HC1 Power Enable");
-                break;
+		setbits_le32(usbnc_usb_ctrl, UCTRL_PWR_POL);
+		break;
+
+	case 1:
+		SETUP_IOMUX_PADS(usb_hc1_pads);
+		gpio_request(IMX_GPIO_NR(1, 29), "USB HC1 Power Enable");
+		break;
 
 	default:
 		printf("MXC USB port %d not yet supported\n", port);
