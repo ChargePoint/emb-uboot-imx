@@ -219,7 +219,6 @@
 	"compat_image=/boot/zImage\0" \
 	"compat_fdt_file=/boot/imx6qp-sabresd-cpnk.dtb\0" \
 	"compat_fdt_addr=0x18000000\0" \
-	"bootdelay=0\0" \
 	"bootenvpart=0:b\0" \
 	"bootenv=uboot.env\0" \
 	"bootfile=fitImage\0" \
@@ -314,7 +313,6 @@
 	"if test -z \"${ota_filename}\"; then "\
 		"setenv -f ota_filename ${compat_ota_filename}; " \
 	"fi; " \
-	"setenv -f bootdelay ${bootdelay}; " \
 	"if test ${ota_triggered} -eq 1; then " \
 		"if ext4load mmc ${compat_mmcdev}:${compat_ota_mmcpart} " \
 			"${loadaddr} ${compat_ota_engine}; then " \
