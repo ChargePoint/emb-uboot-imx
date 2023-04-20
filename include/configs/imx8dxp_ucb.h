@@ -186,7 +186,7 @@
 			"setenv -f _trybootpart ${trybootpart}; " \
 			"setenv -f trybootpart; " \
 			"env export -c ${loadaddr} " \
-				"display fitconfig " \
+				"display fitconfig energystar " \
 				"trybootpart bootpart bootlabel; " \
 			"ext4write mmc ${bootenvpart} ${loadaddr} " \
 				"/${bootenv} ${filesize}; " \
