@@ -204,6 +204,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_MFG_ENV_SETTINGS \
+	"version_uboot=" U_BOOT_VERSION "\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"console=" CONSOLE_DEV "\0" \
@@ -327,7 +328,8 @@
 		"${loadaddr} ${compat_image}; then " \
 		"setenv bootargs console=${console},${baudrate} " \
 			"video=${video} " \
-			"root=/dev/mmcblk0p5 rootwait rw; " \
+			"root=/dev/mmcblk0p5 rootwait rw " \
+			"version_uboot=${version_uboot}; " \
 		"if ext4load mmc ${compat_mmcdev}:${compat_mmcpart} " \
 			"${compat_fdt_addr} ${compat_fdt_file}; then " \
 			"bootz ${loadaddr} - ${compat_fdt_addr}; " \
