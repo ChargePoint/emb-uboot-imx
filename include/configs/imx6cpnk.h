@@ -327,7 +327,7 @@
 		"${loadaddr} ${compat_image}; then " \
 		"setenv bootargs console=${console},${baudrate} " \
 			"video=${video} " \
-			"root=/dev/mmcblk0p5 rootwait rw; " \
+			"root=/dev/mmcblk0p5 rootwait rw ${bootargs_append}; " \
 		"if ext4load mmc ${compat_mmcdev}:${compat_mmcpart} " \
 			"${compat_fdt_addr} ${compat_fdt_file}; then " \
 			"bootz ${loadaddr} - ${compat_fdt_addr}; " \

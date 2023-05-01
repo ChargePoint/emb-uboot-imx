@@ -78,7 +78,6 @@ static inline const char *get_wdog_reset_reason(void)
 #endif
 	switch (cause) {
 	case 0x00001:
-	case 0x00011:
 		return "POR";
 	case 0x00004:
 		return "CSU";
@@ -97,6 +96,13 @@ static inline const char *get_wdog_reset_reason(void)
 		}
 #endif
 		return "WDOG";
+#endif
+        case 0x00011:
+		/* In this case both POWER  and watchdog flag is set*/	
+#ifdef  CONFIG_MX7
+                return "POR + WDOG1";
+#else
+                return "POR + WDOG";
 #endif
 	case 0x00020:
 		return "JTAG_HIGH-Z";
