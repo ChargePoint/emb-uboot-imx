@@ -194,8 +194,7 @@
 			"if test \"${energystar}\" = true; then " \
 				"setenv -f bootargs_append ${bootargs_append} energystar=1; " \
 			"fi; " \
-			"setenv bootargs fsck.mode=force fsck.repair=yes " \
-			    "reboot=h ${bootargs_secureboot} " \
+			"setenv bootargs reboot=h ${bootargs_secureboot} " \
 				"console=${console} " \
 				"bootenv=PARTUUID=${bootenvuuid} " \
 				"root=PARTUUID=${bootuuid} rootwait rw " \
@@ -222,8 +221,7 @@
 		"if test \"${energystar}\" = true; then " \
 			"setenv -f bootargs_append ${bootargs_append} energystar=1; " \
 		"fi; " \
-		"setenv bootargs fsck.mode=force fsck.repair=yes " \
-		    "reboot=h ${bootargs_secureboot} " \
+		"setenv bootargs reboot=h ${bootargs_secureboot} " \
 			"console=${console} " \
 			"bootenv=PARTUUID=${bootenvuuid} " \
 			"root=PARTUUID=${bootuuid} rootwait rw " \
