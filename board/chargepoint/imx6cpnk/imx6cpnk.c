@@ -467,14 +467,6 @@ static void setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
-static iomux_v3_cfg_t const lg_init_pads[] = {
-	/* LG CHG_ENABLE */
-	IOMUX_PADS(PAD_SD2_DAT2__GPIO1_IO13  | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	/* LG CHG_CAPGOOD */
-	IOMUX_PADS(PAD_SD2_DAT0__GPIO1_IO15  | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	/* LG CHG_PFWn */
-	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL)),
-};
 
 /* forward declare pin_mux init since pin_mux.h cannot be included */
 extern void BOARD_InitPins(void);
@@ -483,10 +475,6 @@ int board_early_init_f(void)
 {
 	/* call generated pin_mux code from the NXP pin tools */
 	BOARD_InitPins();
-
-	/* Setup Last Gasp init pads */
-	imx_iomux_v3_setup_multiple_pads(lg_init_pads,
-					 ARRAY_SIZE(lg_init_pads));
 
 #if defined(CONFIG_VIDEO_IPUV3)
 	setup_display();
