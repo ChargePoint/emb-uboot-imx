@@ -295,6 +295,8 @@
 	pinctrl_hog: hoggrp {
 		fsl,pins = <
 		  MX6QDL_PAD_SD2_DAT2__GPIO1_IO13 0x1b0b0 /* LG CHG_ENABLE */
+		  MX6QDL_PAD_SD2_DAT0__GPIO1_IO15 0x1b0b0 /* LG CHG_CAPGOOD */
+		  MX6QDL_PAD_GPIO_2__GPIO1_IO02 0x1b0b0 /* LG CHG_PFWn */
 		  /*MX6QDL_PAD_KEY_COL0__GPIO4_IO06 0x1b0b0*/ /* NFC_IRQ(RFID) */
 		  /*MX6QDL_PAD_KEY_ROW0__GPIO4_IO07 0x130b0*/ /* RFID Reset, pull-down */
 		  MX6QDL_PAD_KEY_COL4__GPIO4_IO14 0x130b0 /* UX 5V enable, pull-down */
