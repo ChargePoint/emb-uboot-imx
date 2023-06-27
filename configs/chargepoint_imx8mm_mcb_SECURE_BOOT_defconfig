@@ -110,3 +110,15 @@ CONFIG_DM_RESET=y
 CONFIG_RSA=y
 CONFIG_SPL_RSA=y
 CONFIG_RSA_SOFTWARE_EXP=y
+
+CONFIG_WATCHDOG=y
+CONFIG_WDT=y
+# IMX is required to have the UCLASS UDRIVER defined
+CONFIG_IMX_WATCHDOG=y
+CONFIG_WATCHDOG_TIMEOUT_MSECS=75000
+# Cause watchdog to NOT be fed in u-boot by defining this one
+# Great for testing that watchdog is truly functioning
+# CONFIG_WATCHDOG_RESET_DISABLE=y
+
+# Enable the CONFIG_CMD_WDT=y to show the diag menu for discovery and starting of wdt devices.
+CONFIG_CMD_WDT=y

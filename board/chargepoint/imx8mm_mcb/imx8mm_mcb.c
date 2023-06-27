@@ -14,6 +14,15 @@
 #include <asm/io.h>
 #include "../common/fitimage_keys.h"
 
+//#define WDT_USE_STARTUP
+#ifdef WDT_USE_STARTUP
+#include <watchdog.h>
+#include <dm.h>
+
+extern void chptStartWatchdog(void);
+extern void chptResetWatchdog(void);
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_FSEL1)
@@ -30,11 +39,7 @@ static iomux_v3_cfg_t const wdog_pads[] = {
 
 int board_early_init_f(void)
 {
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
-
 	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
-
-	set_wdog_reset(wdog);
 
 	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
 
@@ -45,6 +50,13 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+#ifndef CONFIG_SPL_BUILD
+#ifdef WDT_USE_STARTUP
+	chptStartWatchdog();
+	chptResetWatchdog();
+#endif
+#endif
+
 	setup_fitimage_keys();
 	return 0;
 }

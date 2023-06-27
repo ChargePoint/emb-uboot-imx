@@ -12,6 +12,8 @@ obj-y += spl.o
 obj-$(CONFIG_IMX8M_LPDDR4) += lpddr4_timing.o
 else
 
+#obj-y += ../common/watchdog_startup.o
+
 extra-y += ../../../arch/$(ARCH)/dts/imx8mm-chargepoint-mcb.dts
 $(obj)/../../../arch/$(ARCH)/dts/imx8mm-chargepoint-mcb.dts: \
 		$(src)/imx8mm-chargepoint-mcb.dts
