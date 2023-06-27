@@ -236,7 +236,6 @@ config TARGET_IMX8DXL_ORANGEBOX
 
 endchoice
 
-source "board/chargepoint/imx8dxl_kcb/Kconfig"
 source "board/freescale/imx8qm_mek/Kconfig"
 source "board/freescale/imx8qxp_mek/Kconfig"
 source "board/congatec/cgtqmx8/Kconfig"
@@ -251,6 +250,7 @@ source "board/toradex/colibri-imx8x/Kconfig"
 source "board/siemens/capricorn/Kconfig"
 
 # ChargePoint
+source "board/chargepoint/imx8dxl_kcb/Kconfig"
 source "board/chargepoint/imx8dxp_ucb/Kconfig"
 
 config SKIP_RESOURCE_CHECKING
