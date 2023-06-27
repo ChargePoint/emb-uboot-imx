@@ -1,17 +1,24 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2021 ChargePoint, Inc.
- *
- * Portions Copyright 2018 NXP
+ * Copyright 2018 NXP
  */
 #include <common.h>
+#include <efi_loader.h>
+#include <env.h>
+#include <init.h>
+#include <miiphy.h>
+#include <netdev.h>
+#include <asm/global_data.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/imx8mm_pins.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/gpio.h>
+#include <asm/mach-imx/mxc_i2c.h>
+#include <i2c.h>
 #include <asm/io.h>
+#include <usb.h>
 #include "../common/fitimage_keys.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -43,8 +50,43 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#if IS_ENABLED(CONFIG_FEC_MXC)
+static int setup_fec(void)
+{
+	struct iomuxc_gpr_base_regs *gpr =
+		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
+
+	/* Use 125M anatop REF_CLK1 for ENET1, not from external */
+	clrsetbits_le32(&gpr->gpr[1], 0x2000, 0);
+
+	return 0;
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
+
+#ifndef CONFIG_DM_ETH
+	/* enable rgmii rxc skew and phy mode select to RGMII copper */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
+
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
+#endif
+
+	return 0;
+}
+#endif
+
 int board_init(void)
 {
+	if (IS_ENABLED(CONFIG_FEC_MXC))
+		setup_fec();
+
 	setup_fitimage_keys();
 	return 0;
 }
@@ -55,14 +97,14 @@ int board_late_init(void)
 	board_late_mmc_env_init();
 #endif
 
-#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	env_set("board_name", "MCB");
-	env_set("board_rev", "iMX8MM");
-#endif
+	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)) {
+		env_set("board_name", "MCB");
+		env_set("board_rev", "iMX8MM");
+	}
 
 #if !defined(CONFIG_FASTBOOT)
 	/* set an environment that this is a secure boot */
-	if (hab_is_enabled()) {
+	if (imx_hab_is_enabled()) {
 		env_set("bootargs_secureboot", "uboot-secureboot");
 	}
 #endif
@@ -71,7 +113,7 @@ int board_late_init(void)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	uint32_t uid_high, uid_low;
 

@@ -9,6 +9,10 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "chargepoint_imx8mm_mcb"
 
-source "board/freescale/common/Kconfig"
+config IMX_CONFIG
+	default "board/chargepoint/imx8mm_mcb/imximage-8mm.cfg"
+
+config IMX8M_1G_MEMORY
+	bool "imx8m 1GB memory size"
 
 endif

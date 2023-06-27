@@ -19,6 +19,7 @@
 #endif
 
 #include <image.h>
+#include <asm/mach-imx/hab.h>
 
 static inline void setup_fitimage_keys(void)
 {
