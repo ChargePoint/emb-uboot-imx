@@ -20,11 +20,20 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
 #include <usb.h>
+#include <asm/setup.h>
+#include <asm/bootm.h>
 #include "../common/fitimage_keys.h"
 
-//#include "../../freescale/common/tcpc.h"
-
 DECLARE_GLOBAL_DATA_PTR;
+
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
+}
 
 #define ENET_INPUT_PAD_CTRL	((SC_PAD_CONFIG_OD_IN << PADRING_CONFIG_SHIFT) | (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) \
 						| (SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
@@ -70,122 +79,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(DM_GPIO)
-static void board_gpio_init(void)
-{
-#if defined(CONFIG_DM_VIDEO)
-	int ret;
-	struct gpio_desc desc;
-
-	/* M40_DEBUG_UART_SEL */
-	ret = dm_gpio_lookup_name("gpio@20_3", &desc);
-	if (ret) {
-		printf("%s lookup gpio@20_3 failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	ret = dm_gpio_request(&desc, "M40_DEBUG_UART_SEL");
-	if (ret) {
-		printf("%s request M40_DEBUG_UART_SEL failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE | GPIOD_ACTIVE_LOW);
-
-	/* SPI0_SEL */
-	ret = dm_gpio_lookup_name("gpio@20_8", &desc);
-	if (ret) {
-		printf("%s lookup gpio@20_8 failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	ret = dm_gpio_request(&desc, "SPI0_SEL");
-	if (ret) {
-		printf("%s request SPI0_SEL failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE | GPIOD_ACTIVE_LOW);
-
-	/* UART1_SEL */
-	ret = dm_gpio_lookup_name("gpio@20_6", &desc);
-	if (ret) {
-		printf("%s lookup gpio@20_6 failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	ret = dm_gpio_request(&desc, "UART1_SEL");
-	if (ret) {
-		printf("%s request UART1_SEL failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE | GPIOD_ACTIVE_LOW);
-
-	/* MUX3_EN */
-	ret = dm_gpio_lookup_name("gpio@21_8", &desc);
-	if (ret) {
-		printf("%s lookup gpio@21_8 failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	ret = dm_gpio_request(&desc, "MUX3_EN");
-	if (ret) {
-		printf("%s request MUX3_EN failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE | GPIOD_ACTIVE_LOW);
-
-	/* SPI3_CS0_SEL */
-	ret = dm_gpio_lookup_name("gpio@20_4", &desc);
-	if (ret) {
-		printf("%s lookup gpio@20_4 failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	ret = dm_gpio_request(&desc, "SPI3_CS0_SEL");
-	if (ret) {
-		printf("%s request SPI3_CS0_SEL failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE | GPIOD_ACTIVE_LOW);
-
-	/* SPI3_SEL */
-	ret = dm_gpio_lookup_name("gpio@20_7", &desc);
-	if (ret) {
-		printf("%s lookup gpio@20_7 failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	ret = dm_gpio_request(&desc, "SPI3_SEL");
-	if (ret) {
-		printf("%s request SPI3_SEL failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE | GPIOD_ACTIVE_LOW);
-
-	/* BL_CTR */
-	ret = dm_gpio_lookup_name("gpio@20_5", &desc);
-	if (ret) {
-		printf("%s lookup gpio@20_5 failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	ret = dm_gpio_request(&desc, "BL_CTR");
-	if (ret) {
-		printf("%s request BL_CTR failed ret = %d\n", __func__, ret);
-		return;
-	}
-
-	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-#endif
-}
-#else
 static inline void board_gpio_init(void) {}
-#endif
 
 #if IS_ENABLED(CONFIG_NET)
 #include <miiphy.h>
@@ -235,21 +129,19 @@ void board_quiesce_devices(void)
 		"dma_lpuart0",
 	};
 
-	power_off_pd_devices(power_on_devices, ARRAY_SIZE(power_on_devices));
+	imx8_power_off_pd_devices(power_on_devices, ARRAY_SIZE(power_on_devices));
 }
 
 /*
  * Board specific reset that is system reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/* TODO */
 }
 
 int board_late_init(void)
 {
-	char *fdt_file;
-	bool __maybe_unused m4_boot;
 	sc_err_t err;
 	uint16_t lc;
 
@@ -261,24 +153,6 @@ int board_late_init(void)
 #endif
 
 	env_set("sec_boot", "no");
-
-	fdt_file = env_get("fdt_file");
-	m4_boot = check_m4_parts_boot();
-
-	if (fdt_file && !strcmp(fdt_file, "undefined")) {
-#if defined(CONFIG_TARGET_IMX8DXL_DDR3_EVK)
-		env_set("fdt_file", "imx8dxl-ddr3-evk.dtb");
-#else
-		if (m4_boot)
-			env_set("fdt_file", "imx8dxl-evk-rpmsg.dtb");
-		else
-			env_set("fdt_file", "imx8dxl-evk.dtb");
-#endif
-	}
-
-#ifdef CONFIG_ENV_IS_IN_MMC
-	board_late_mmc_env_init();
-#endif
 
 	/* Determine the security state of the chip (OEM closed) */
 	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
@@ -312,52 +186,25 @@ int board_late_init(void)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	uint32_t uid_high, uid_low;
+	struct tag_serialnr sn;
+	sn.low = sn.high = 0;
 
-	/*
-	 * i.MX8 Configuration and Manufacturing Info in OTP fuse array
-	 *   UNIQUE_ID LOW: 16
-	 *   UNIQUE_ID HI: 17
-	 */
 	do {
-		sc_err_t err;
-		uint32_t word;
-
-#define FUSE_UNIQUE_ID_LOW	16
-#define FUSE_UNIQUE_ID_HIGH	17
-
-		word = FUSE_UNIQUE_ID_LOW;
-		err = sc_misc_otp_fuse_read(-1, word, &uid_low);
-		if (err != SC_ERR_NONE) {
-			printf("%s fuse %d read error: %d\n",
-				__func__, word, err);
-			goto out;
-		}
-		word = FUSE_UNIQUE_ID_HIGH;
-		err = sc_misc_otp_fuse_read(-1, word, &uid_high);
-		if (err != SC_ERR_NONE) {
-			printf("%s fuse %d read error: %d\n",
-				__func__, word, err);
-			goto out;
-		}
-
-#undef FUSE_UNIQUE_ID_LOW
-#undef FUSE_UNIQUE_ID_HIGH
+		get_board_serial(&sn);
 	} while(0);
 
 	if (!env_get("serial#")) {
 		char serial_str[17];
 
 		snprintf(serial_str, sizeof(serial_str),
-			 "%08x%08x", uid_high, uid_low);
+			 "%08x%08x", sn.high, sn.low);
 		env_set("serial#", serial_str);
 
 		fdt_root(blob);
 	}
 
-out:
 	return 0;
 }
 #endif
