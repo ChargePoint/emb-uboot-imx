@@ -86,7 +86,9 @@
 #endif
 
 /* Environment organization */
-#define CONFIG_ENV_SIZE                 (8 * SZ_1K)
+// RMW - include/generated/autoconf.h:106 has it as 0x2000 (same thing)
+// #define CONFIG_ENV_SIZE                 (8 * SZ_1K)
+#define CONFIG_ENV_SIZE                 0x2000
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
