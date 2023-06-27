@@ -220,8 +220,31 @@ int checkboard(void)
 	return 0;
 }
 
+void enumerateWDT(void)
+{
+	int ret;
+	struct udevice *dev;
+	struct uclass *uc;
+	
+	printf("enumerateWDT: Interrogating systemn for WDT devices.\n");
+
+	ret = uclass_get(UCLASS_WDT, &uc);
+	if (ret) {
+		printf("enumerateWDT: Unable to find Watchdog Driver Class UCLASS_WDT. Err=%d\n", ret);
+		return;
+	}
+	else {
+		printf("enumerateWDT: Watchdog class drivers list:\n");
+		uclass_foreach_dev(dev, uc) {
+			printf("    %s (%s)\n", dev->name, dev->driver->name);
+		}
+	}
+}
+
 int board_init(void)
 {
+	printf("RMW message from board_init()\n");
+
 	setup_fitimage_keys();
 
 	board_gpio_init();
@@ -252,6 +275,8 @@ int board_late_init(void)
 	bool __maybe_unused m4_boot;
 	sc_err_t err;
 	uint16_t lc;
+
+	enumerateWDT();
 
 	build_info();
 
