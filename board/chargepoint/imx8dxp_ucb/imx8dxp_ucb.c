@@ -11,7 +11,7 @@
 #include <fsl_ifc.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
-#include <cpu_func.h>
+//RMW in favor of env.h which is part of 2020 - #include <environment.h>
 #include <env.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
@@ -19,7 +19,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/sci/sci.h>
+#include <asm/arch-imx8/sci/sci.h>
 #include <asm/arch/imx8-pins.h>
 #include <asm/arch/snvs_security_sc.h>
 #include <dm.h>
@@ -27,10 +27,16 @@
 #include <usb.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/mach-imx/dma.h>
+#include <asm/mach-imx/video.h>
+//RMW #include <asm/arch/video_common.h>
 #include <power-domain.h>
 #include <asm/arch/lpcg.h>
 #include <bootm.h>
+#include <miiphy.h>
+
+#ifdef CONFIG_USB_CDNS3_GADGET
+#include <cdns3-uboot.h>
+#endif
 
 #include "../common/bootreason.h"
 #include "../common/fitimage_keys.h"
@@ -67,14 +73,18 @@ int board_early_init_f(void)
 	uint16_t lc;
 	sc_ipc_t ipcHndl;
 
-	ipcHndl = -1;
+printf("board_early_init_f() pre-uart\n");
+
+	ipcHndl = -1; //RMWgd->arch.ipc_channel_handle;
 
 	/* Determine the security state of the chip (OEM closed) */
+#ifdef RMW_INCLUDE
 	err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
 	if ((err == SC_ERR_NONE) && (lc == 0x80)) {
 		/* HAB is in OEM closed, so disable the serial console */
 		gd->flags |= (GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE);
 	}
+#endif
 
 	/* Power up UART0 */
 	err = sc_pm_set_resource_power_mode(ipcHndl, SC_R_UART_0,
@@ -94,13 +104,16 @@ int board_early_init_f(void)
 		return 0;
 
 	lpcg_all_clock_on(LPUART_0_LPCG);
+//RMW	LPCG_AllClockOn(LPUART_0_LPCG);
 
 	imx8_iomux_setup_multiple_pads(uart0_pads, ARRAY_SIZE(uart0_pads));
 
+printf("board_early_init_f() post-uart\n");
 	return 0;
 }
 
 #ifdef CONFIG_MXC_GPIO
+#define GPIO_SER_PWR_EN	IMX_GPIO_NR(0, 29)
 #define GPIO_DBG_LED4	IMX_GPIO_NR(1, 8)
 #define GPIO_DBG_LED5	IMX_GPIO_NR(1, 7)
 #define GPIO_DBG_LED11	IMX_GPIO_NR(3, 14)
@@ -122,6 +135,8 @@ static void board_gpio_init(void)
 	set_gpio(GPIO_DBG_LED11, "debug_led11", 0);
 
 	set_gpio(GPIO_USBH_RESET, "usb5734_reset", 0);
+
+	set_gpio(GPIO_SER_PWR_EN, "ser_pwr_en", 1);
 }
 #endif
 
@@ -163,9 +178,30 @@ void pci_init_board(void)
 #endif
 
 #ifdef CONFIG_USB
+
+#ifdef CONFIG_USB_CDNS3_GADGET
+static struct cdns3_device cdns3_device_data = {
+	.none_core_base = 0x5B110000,
+	.xhci_base = 0x5B130000,
+	.dev_base = 0x5B140000,
+	.phy_base = 0x5B160000,
+	.otg_base = 0x5B120000,
+	.dr_mode = USB_DR_MODE_PERIPHERAL,
+	.index = 1,
+};
+
+int usb_gadget_handle_interrupts(int index)
+{
+	cdns3_uboot_handle_interrupt(index);
+
+	return 0;
+}
+#endif
+
 int board_usb_init(int index, enum usb_init_type init)
 {
 	int ret = 0;
+	printf("board_usb_init() starting.\n");
 
 #ifdef CONFIG_USB_CDNS3_GADGET
 	struct power_domain pd;
@@ -188,6 +224,8 @@ int board_usb_init(int index, enum usb_init_type init)
 			return ret;
 		}
 	}
+//RMW	ret = cdns3_uboot_init(&cdns3_device_data);
+//RMW	printf("%d cdns3_uboot_initmode %d\n", index, ret);
 #endif
 
 	return ret;
@@ -201,6 +239,8 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 	struct power_domain pd;
 	if (index != 1 || init == USB_INIT_HOST)
 		return ret;
+
+//RMW	cdns3_uboot_exit(1);
 
 	/* Power off usb */
 	if (!power_domain_lookup_name("conn_usb2", &pd)) {
@@ -254,6 +294,7 @@ void reset_cpu(ulong addr)
 {
 	puts("SCI reboot request");
 	sc_pm_reboot(-1, SC_PM_RESET_TYPE_COLD);
+//RMW	sc_pm_reboot(SC_IPC_CH, SC_PM_RESET_TYPE_COLD);
 	for (;;) {
 		putc('.');
 	}
@@ -270,7 +311,7 @@ int board_late_init(void)
 	uint16_t lc;
 	sc_ipc_t ipcHndl;
 
-	ipcHndl = -1;
+	ipcHndl = -1; //RMW gd->arch.ipc_channel_handle;
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 	board_late_mmc_env_init();
@@ -301,10 +342,8 @@ int board_late_init(void)
 			break;
 
 		case 0x80: /* OEM closed */
-#if defined(CONIG_NOT_UUU_BUILD)
 			/* set an environment that this is a secure boot */
 			env_set("bootargs_secureboot", "uboot-secureboot");
-#endif
 			break;
 		}
 	}
@@ -438,8 +477,189 @@ size_t display_count = ARRAY_SIZE(displays);
 #endif /* CONFIG_VIDEO_IMXDPUV1 */
 
 #ifdef CONFIG_OF_BOARD_SETUP
+
 /* define the get mac function here to avoid including fec_mxc.h */
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
+
+#define ENET_INPUT_PAD_CTRL \
+		((SC_PAD_CONFIG_OD_IN << PADRING_CONFIG_SHIFT)  | \
+		(SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+		(SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | \
+		(SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
+
+#define ENET_NORMAL_PAD_CTRL \
+		((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
+		(SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+		(SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | \
+		(SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
+
+static iomux_cfg_t pad_enet0[] = {
+	SC_P_ENET0_RGMII_RX_CTL | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_RXD0 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_RXD1 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_RXD2 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_RXD3 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_RXC | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ENET0_RGMII_TX_CTL | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_RGMII_TXD0 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_RGMII_TXD1 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_RGMII_TXD2 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_RGMII_TXD3 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_RGMII_TXC | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+
+	/* Shared MDIO */
+	SC_P_ENET0_MDC | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_MDIO | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+};
+
+static iomux_cfg_t pad_enet1[] = {
+	SC_P_SPDIF0_TX | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_SPDIF0_RX | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ESAI0_TX3_RX2 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ESAI0_TX2_RX3 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ESAI0_TX1 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ESAI0_TX0 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
+	SC_P_ESAI0_SCKR | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ESAI0_TX4_RX1 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ESAI0_TX5_RX0 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ESAI0_FST  | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ESAI0_SCKT | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ESAI0_FSR  | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+
+	/* Shared MDIO */
+	SC_P_ENET0_MDC | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+	SC_P_ENET0_MDIO | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
+};
+
+static void enet_device_phy_reset(void)
+{
+	struct gpio_desc desc;
+	int ret;
+
+	struct {
+		const char *pin_number;
+		const char *gpio_name;
+	} phy_config[2] = {
+		{ .pin_number = "GPIO1_4", .gpio_name = "enet0_reset" },
+		{ .pin_number = "GPIO1_5", .gpio_name = "enet1_reset" },
+	};
+
+	for (int i = 0; i < 2; i++) {
+		ret = dm_gpio_lookup_name(phy_config[i].pin_number, &desc);
+		if (ret)
+			continue;
+
+		ret = dm_gpio_request(&desc, phy_config[i].gpio_name);
+		if (ret)
+			continue;
+
+		dm_gpio_set_value(&desc, 1);
+		dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		mdelay(10);
+		dm_gpio_set_value(&desc, 0);
+	}
+
+	/* The board has a long delay for this reset to become stable */
+	mdelay(200);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	struct power_domain pd;
+
+	if (!power_domain_lookup_name("conn_enet0", &pd))
+		power_domain_on(&pd);
+
+	imx8_iomux_setup_multiple_pads(pad_enet0, ARRAY_SIZE(pad_enet0));
+	imx8_iomux_setup_multiple_pads(pad_enet1, ARRAY_SIZE(pad_enet1));
+	enet_device_phy_reset();
+
+	int ret = fecmxc_initialize_multi(bis, CONFIG_FEC_ENET_DEV,
+		CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
+	if (ret)
+		printf("FEC1 MXC: %s:failed\n", __func__);
+
+	return 0;
+}
+
+static enum phy_vtype_e {
+	PHY_VENDOR_QUALCOMM = 1,
+	PHY_VENDOR_REALTEK,
+	PHY_VENDOR_MAX
+} phyType;
+
+int board_phy_config(struct phy_device *phydev)
+{
+	unsigned short id1, id2;
+	/*
+	 * assume the phy vendor is qualcomm - this can be verified by
+	 * the phyid as needed
+	 */
+	phyType = PHY_VENDOR_QUALCOMM;
+
+	/* check for realtek phy id based on datasheet */
+	id1 = phy_read(phydev, MDIO_DEVAD_NONE, 2);
+	id2 = phy_read(phydev, MDIO_DEVAD_NONE, 3);
+	if ((id1 == 0x001c) && (id2 == 0xc916)) {
+		phyType = PHY_VENDOR_REALTEK;
+	}
+
+	return 0;
+}
+
+#define KERNEL_HEARTBEAT_LED_PATH "/leds/DBG_LED_5"
+static void disable_kernel_heartbeat(void *blob)
+{
+	int offs = fdt_path_offset(blob, KERNEL_HEARTBEAT_LED_PATH);
+	if (fdt_setprop_string(blob, offs, "status", "disabled") < 0) {
+		printf("Failed to set " KERNEL_HEARTBEAT_LED_PATH "/status\n");
+	}
+}
+
+/* update device tree to support realtek specific parameters */
+#define ETHPHY0_PATH "/bus@5b000000/ethernet@5b040000"
+#define ETHPHY1_PATH "/bus@5b000000/ethernet@5b050000"
+#define MDIO_ETH_PATH "/mdio/ethernet-phy@/"
+#define ETHPHY0_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@0/"
+#define ETHPHY1_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@1/"
+
+static void realtek_phy_supp(void *blob)
+{
+	int offs = -1;
+
+	offs = fdt_path_offset(blob,ETHPHY0_PATH);
+	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
+		printf("fdt eth0 phy-mode FDT_ERR_NOTFOUND\n");
+	}
+	if (fdt_delprop(blob, offs,"fsl,rgmii_rxc_dly") < 0) {
+		printf("fdt eth0 rgmii_rxc_dly FDT_ERR_NOTFOUND\n");
+	}
+	if (fdt_delprop(blob, offs,"fsl,ar8031-phy-fixup") < 0) {
+		printf("fdt eth0 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
+	}
+
+	offs = fdt_path_offset(blob,ETHPHY1_PATH);
+	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
+		printf("fdt eth1 phy-mode FDT_ERR_NOTFOUND\n");
+	}
+	if (fdt_delprop(blob, offs,"fsl,rgmii_rxc_dly") < 0) {
+		printf("fdt eth1 rgmii_rxc_dly FDT_ERR_NOTFOUND\n");
+	}
+	if (fdt_delprop(blob, offs,"fsl,ar8031-phy-fixup") < 0) {
+		printf("fdt eth1 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
+	}
+
+	offs = fdt_path_offset(blob,ETHPHY0_MDIO_PATH);
+	if (fdt_setprop_u32(blob, offs, "reg",1) < 0) {
+		printf("fdt eth0 reg FDT_ERR_NOTFOUND\n");
+	}
+
+	offs = fdt_path_offset(blob,ETHPHY1_MDIO_PATH);
+	if (fdt_setprop_u32(blob, offs, "reg",2) < 0) {
+		printf("fdt eth0 reg FDT_ERR_NOTFOUND\n");
+	}
+	return;
+}
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
@@ -455,7 +675,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 		uint32_t word;
 		sc_ipc_t ipcHndl;
 
-		ipcHndl = -1;
+		ipcHndl = -1; //RMW gd->arch.ipc_channel_handle;
 
 #define FUSE_UNIQUE_ID_LOW	16
 #define FUSE_UNIQUE_ID_HIGH	17
@@ -487,6 +707,16 @@ int ft_board_setup(void *blob, bd_t *bd)
 		env_set("serial#", serial_str);
 
 		fdt_root(blob);
+	}
+
+	printf("Phy vendor: %d\n", phyType);
+	if(phyType != PHY_VENDOR_QUALCOMM) {
+		realtek_phy_supp(blob);
+	}
+
+	if (env_get_yesno("energystar") == 1) {
+		printf("Energy star mode\n");
+		disable_kernel_heartbeat(blob);
 	}
 
 	if (!env_get("ethaddr") && !env_get("eth1addr")) {
