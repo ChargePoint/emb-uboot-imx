@@ -61,7 +61,7 @@
 /* Default environment is in mmcblk0boot1 */
 #define CONFIG_SYS_MMC_ENV_DEV          0   /* mmcblk0 */
 #if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET               0   /* start of mmcblk0boot1 */
+//RMW #define CONFIG_ENV_OFFSET               0   /* start of mmcblk0boot1 */
 #ifndef CONFIG_SYS_MMC_ENV_PART
 #define CONFIG_SYS_MMC_ENV_PART         2   /* start of mmcblk0boot1 */
 #endif
