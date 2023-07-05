@@ -179,6 +179,8 @@
 	"\0"
 
 
+#endif
+
 #define CONFIG_BOOTCOMMAND \
 	"run mmcboot"
 

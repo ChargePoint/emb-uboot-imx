@@ -21,6 +21,8 @@
 #include <dm.h>
 #include <usb.h>
 #include <asm/arch/iomux.h>
+#include <asm/arch/imx8qxp_lpcg.h>
+#include <asm/arch/lpcg.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/imx8qxp_lpcg.h>
 #include <asm/arch/lpcg.h>
@@ -31,6 +33,36 @@
 
 #include "../common/bootreason.h"
 #include "../common/fitimage_keys.h"
+
+#if 1
+/* definition to expand macro then apply to pragma message */
+#define VALUE_TO_STRING(x) #x
+#define VALUE(x) VALUE_TO_STRING(x)
+#define VAR_NAME_VALUE(var) #var "="  VALUE(var)
+
+#pragma message(VAR_NAME_VALUE(CONFIG_SYS_PROMPT))
+#pragma message(VAR_NAME_VALUE(CONFIG_DM_GPIO))
+#pragma message(VAR_NAME_VALUE(CONFIG_MXC_GPIO))
+#pragma message(VAR_NAME_VALUE(CONFIG_FEC_MXC))
+
+#if CONFIG_IS_ENABLED(DM_GPIO)
+#pragma message("DM_GPIO is config'd")
+//#error got DM_GPIO test complete.
+#endif
+
+#if CONFIG_IS_ENABLED(MXC_GPIO)
+#pragma message("MXC_GPIO is config'd")
+//#error test complete for MXC_GPIO
+#endif
+
+#if CONFIG_IS_ENABLED(FEC_MXC)
+#pragma message("FEC_MXC is config'd")
+//#error test complete for FEC_MXC
+#endif
+
+//#error yes config found. End of tests.
+
+#endif // if 1
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -95,6 +127,9 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#define USE_DM_GPIO
+#ifdef  USE_DM_GPIO
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
 static void dm_set_gpio(const char *dtsName, const char *gpioname, int val)
