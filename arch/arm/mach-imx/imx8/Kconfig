@@ -251,6 +251,7 @@ config TARGET_CHARGEPOINT_IMX8DXL_KCB
 config TARGET_CHARGEPOINT_IMX8DXP_UCB
 	bool "Support i.MX8DXP chargepoint ucb"
 	select BOARD_LATE_INIT
+# Causes failures in imx_bootaux.c	select IMX8DXP
 	select IMX8QXP
 
 endchoice
