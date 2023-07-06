@@ -20,7 +20,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
 #include <usb.h>
-#include "../common/tcpc.h"
+#include "../../freescale/common/tcpc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
