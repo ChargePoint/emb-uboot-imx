@@ -34,9 +34,9 @@
 #include <bootm.h>
 #include <miiphy.h>
 
-#ifdef CONFIG_USB_CDNS3_GADGET
-#include <cdns3-uboot.h>
-#endif
+// #ifdef CONFIG_USB_CDNS3_GADGET
+// #include <cdns3-uboot.h>
+// #endif
 
 #include "../common/bootreason.h"
 #include "../common/fitimage_keys.h"
@@ -180,22 +180,22 @@ void pci_init_board(void)
 #ifdef CONFIG_USB
 
 #ifdef CONFIG_USB_CDNS3_GADGET
-static struct cdns3_device cdns3_device_data = {
-	.none_core_base = 0x5B110000,
-	.xhci_base = 0x5B130000,
-	.dev_base = 0x5B140000,
-	.phy_base = 0x5B160000,
-	.otg_base = 0x5B120000,
-	.dr_mode = USB_DR_MODE_PERIPHERAL,
-	.index = 1,
-};
+// static struct cdns3_device cdns3_device_data = {
+// 	.none_core_base = 0x5B110000,
+// 	.xhci_base = 0x5B130000,
+// 	.dev_base = 0x5B140000,
+// 	.phy_base = 0x5B160000,
+// 	.otg_base = 0x5B120000,
+// 	.dr_mode = USB_DR_MODE_PERIPHERAL,
+// 	.index = 1,
+// };
 
-int usb_gadget_handle_interrupts(int index)
-{
-	cdns3_uboot_handle_interrupt(index);
+// int usb_gadget_handle_interrupts(int index)
+// {
+// 	cdns3_uboot_handle_interrupt(index);
 
-	return 0;
-}
+// 	return 0;
+// }
 #endif
 
 int board_usb_init(int index, enum usb_init_type init)
