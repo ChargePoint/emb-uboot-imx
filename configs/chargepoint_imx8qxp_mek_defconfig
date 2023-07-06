@@ -130,6 +130,9 @@ CONFIG_USB_CDNS3=y
 CONFIG_USB_CDNS3_GADGET=y
 CONFIG_USB_GADGET_DUALSPEED=y
 CONFIG_CDNS3_USB_PHY=y
+#RMW wanting to disable PHY, but caused crash. Note that the crash only happens
+#RMW in the late bootcfg area which is likely still incorrectly configured. 
+#RMW Point is - the crash might not matter. Re-test taking it out a bit later on.
 CONFIG_PHY=y
 CONFIG_SDP_LOADADDR=0x80400000
 
