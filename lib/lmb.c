@@ -234,6 +234,7 @@ static long lmb_add_region_flags_nonoverlap(struct lmb_region *rgn, phys_addr_t 
 	unsigned long coalesced = 0;
 	long adjacent, i;
 
+	printf("RMW lmb_add_region() - adding base: 0x%lx ; size: 0x%lx\n", (ulong)base, (ulong)size);
 	if (rgn->cnt == 0) {
 		rgn->region[0].base = base;
 		rgn->region[0].size = size;
@@ -271,6 +272,7 @@ static long lmb_add_region_flags_nonoverlap(struct lmb_region *rgn, phys_addr_t 
 			coalesced++;
 			break;
 		} else if (lmb_addrs_overlap(base, size, rgnbase, rgnsize)) {
+			printf("RMW lmb_add_region() - failing due to lmb_addrs_overlap()\n");
 			/* regions overlap */
 			return -2;
 		}
@@ -287,6 +289,7 @@ static long lmb_add_region_flags_nonoverlap(struct lmb_region *rgn, phys_addr_t 
 		return coalesced;
 	if (rgn->cnt >= rgn->max)
 		return -1;
+	}
 
 	/* Couldn't coalesce the LMB, so add it to the sorted table. */
 	for (i = rgn->cnt-1; i >= 0; i--) {
@@ -375,6 +378,7 @@ long lmb_add(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *_rgn = &(lmb->memory);
 
+	printf("RMW lmb_add before calling lmb_add_region().\n");
 	return lmb_add_region(_rgn, base, size);
 }
 
@@ -471,16 +475,20 @@ static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
 	return addr & ~(size - 1);
 }
 
+#define RMWTAG "RMW "
+
 phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phys_addr_t max_addr)
 {
 	long i, rgn;
 	phys_addr_t base = 0;
 	phys_addr_t res_base;
 
+	printf(RMWTAG "__lmb_alloc_base() in: size=0x%llx, align=%lu, maxaddr=0x%llx\n", size, align, max_addr);
 	for (i = lmb->memory.cnt - 1; i >= 0; i--) {
 		phys_addr_t lmbbase = lmb->memory.region[i].base;
 		phys_size_t lmbsize = lmb->memory.region[i].size;
 
+		printf(RMWTAG "__lmb_alloc_base() base[%d]:0x%lx size[%d]:0x%lx\n", (int)i, (long)lmbbase, (int)i, (long)lmbsize);
 		if (lmbsize < size)
 			continue;
 		if (max_addr == LMB_ALLOC_ANYWHERE)
@@ -491,24 +499,33 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phy
 				base = -1;
 			base = min(base, max_addr);
 			base = lmb_align_down(base - size, align);
-		} else
+			printf(RMWTAG "__lmb_alloc_base() lmbbase < max_addr. base==0x%llx\n", base);
+		} else {
+			printf(RMWTAG "__lmb_alloc_base() - continue; looks lmbbase is out of range for region.\n");
 			continue;
+		}
 
 		while (base && lmbbase <= base) {
 			rgn = lmb_overlaps_region(&lmb->reserved, base, size);
+			printf(RMWTAG "__lmb_alloc_base() - in while rgn==%ld\n", rgn);
 			if (rgn < 0) {
 				/* This area isn't reserved, take it */
 				if (lmb_add_region(&lmb->reserved, base,
-						   size) < 0)
+						   size) < 0) {
+					printf(RMWTAG "__lmb_alloc_base() - lmb_add_region() failed.\n");
 					return 0;
+				}
 				return base;
 			}
 			res_base = lmb->reserved.region[rgn].base;
+			printf(RMWTAG "__lmb_alloc_base() - res_base=0x%lx, size=0x%llx\n", (long)res_base, size);
 			if (res_base < size)
 				break;
 			base = lmb_align_down(res_base - size, align);
+			printf(RMWTAG "__lmb_alloc_base() - just before end of while loop, new base=0x%lx\n", (long)base);
 		}
 	}
+	printf(RMWTAG "__lmb_alloc_base() - Dropping out with 0.\n");
 	return 0;
 }
 
