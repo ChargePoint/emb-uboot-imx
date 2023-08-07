@@ -249,14 +249,21 @@ int uclass_find_first_device(enum uclass_id id, struct udevice **devp)
 	struct uclass *uc;
 	int ret;
 
+	printf("RMW uclass_find_first_device() - Entry.\n");
+
 	*devp = NULL;
 	ret = uclass_get(id, &uc);
-	if (ret)
+	if (ret) {
+		printf("RMW uclass_find_first_device() - class id type not found.\n");
 		return ret;
-	if (list_empty(&uc->dev_head))
+	}
+	if (list_empty(&uc->dev_head)) {
+		printf("RMW uclass_find_first_device() list_empty()\n");
 		return 0;
+	}
 
 	*devp = list_first_entry(&uc->dev_head, struct udevice, uclass_node);
+	printf("RMW uclass_find_first_device() - exiting normally.\n");
 
 	return 0;
 }
@@ -464,15 +471,22 @@ int uclass_get_device_by_driver(enum uclass_id id,
 
 int uclass_get_device_tail(struct udevice *dev, int ret, struct udevice **devp)
 {
-	if (ret)
+//RMW	printf("RMW uclass_get_device_tail() - Entry ret=%d, dev=%s, devp=%s\n", ret, dev ? dev->name : "null", devp ? "non-null" : "null");
+
+	if (ret) {
+//RMW		printf("RMW uclass_get_device_tail() - incoming 'ret' was non-zero. Failing out.\n");
 		return ret;
+	}
 
 	assert(dev);
 	ret = device_probe(dev);
-	if (ret)
+	if (ret) {
+//RMW		printf("RMW uclass_get_device_tail() - device_probe() failed with ret=%d\n", ret);
 		return ret;
+	}
 
 	*devp = dev;
+//RMW	printf("RMW uclass_get_device_tail() - Regular exit.\n");
 
 	return 0;
 }
