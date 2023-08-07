@@ -14,9 +14,6 @@
 //	compatible = "fsl,imx8qxp-mek", "fsl,imx8qxp";
 
 	aliases {
-		i2c4 = &bb_i2c1;
-		i2c5 = &mfi_i2c1;
-		i2c6 = &i2cexp1_i2c1;
 	};
 
 	chosen {
@@ -272,32 +269,6 @@
 	pinctrl-0 = <&pinctrl_lpi2c1>;
 	status = "okay";
 
-	i2cswitch@71 {
-		compatible = "nxp,pca9646";
-		reg = <0x71>;
-		u-boot,i2c-offset-len = <0>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		bb_i2c1: i2c@0 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x0>;
-		};
-
-		mfi_i2c1: i2c@1 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x1>;
-		};
-
-		i2cexp1_i2c1: i2c@2 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x2>;
-		};
-
-	};
 };
 
 &usdhc1 {
