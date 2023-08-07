@@ -26,18 +26,6 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-/* RMW - all usdhc2 references must stay as underlying 
-		 fsl-imx8qxp-mek-u-boot.dtsi references and expects usdhc2 to be present. */
-		reg_usdhc2_vmmc: regulator-usdhc2-vmmc {
-			compatible = "regulator-fixed";
-			regulator-name = "SD1_SPWR";
-			regulator-min-microvolt = <3000000>;
-			regulator-max-microvolt = <3000000>;
-			gpio = <&gpio4 19 GPIO_ACTIVE_HIGH>;
-			enable-active-high;
-			off-on-delay-us = <3480>;
-		};
-
 	};
 };
 
@@ -179,26 +167,6 @@
 			>;
 		};
 
-		pinctrl_usdhc2_gpio: usdhc2gpiogrp {
-			fsl,pins = <
-				SC_P_USDHC1_RESET_B_LSIO_GPIO4_IO19	0x00000021
-				SC_P_USDHC1_WP_LSIO_GPIO4_IO21		0x00000021
-				SC_P_USDHC1_CD_B_LSIO_GPIO4_IO22	0x00000021
-			>;
-		};
-
-		pinctrl_usdhc2: usdhc2grp {
-			fsl,pins = <
-				SC_P_USDHC1_CLK_CONN_USDHC1_CLK		0x06000041
-				SC_P_USDHC1_CMD_CONN_USDHC1_CMD		0x00000021
-				SC_P_USDHC1_DATA0_CONN_USDHC1_DATA0	0x00000021
-				SC_P_USDHC1_DATA1_CONN_USDHC1_DATA1	0x00000021
-				SC_P_USDHC1_DATA2_CONN_USDHC1_DATA2	0x00000021
-				SC_P_USDHC1_DATA3_CONN_USDHC1_DATA3	0x00000021
-				SC_P_USDHC1_VSELECT_CONN_USDHC1_VSELECT	0x00000021
-			>;
-		};
-
 		pinctrl_flexspi0: flexspi0grp {
 			fsl,pins = <
 				SC_P_QSPI0A_DATA0_LSIO_QSPI0A_DATA0	0x06000021
@@ -244,6 +212,7 @@
 	status = "okay";
 };
 
+/* RMW remove?  Mentioned in usdhc2 regulator which was ripped out */
 &gpio4 {
 	status = "okay";
 };
@@ -276,18 +245,6 @@
 	pinctrl-0 = <&pinctrl_usdhc1>;
 	bus-width = <8>;
 	non-removable;
-	status = "okay";
-};
-
-&usdhc2 {
-	pinctrl-names = "default", "state_100mhz", "state_200mhz";
-	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
-	pinctrl-1 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
-	pinctrl-2 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
-	bus-width = <4>;
-	cd-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
-	wp-gpios = <&gpio4 21 GPIO_ACTIVE_HIGH>;
-	vmmc-supply = <&reg_usdhc2_vmmc>;
 	status = "okay";
 };
 
