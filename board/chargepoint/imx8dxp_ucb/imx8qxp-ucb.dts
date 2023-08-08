@@ -17,7 +17,6 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyLP0,115200 earlycon";
 		stdout-path = &lpuart0;
 	};
 
@@ -26,6 +25,34 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+		reg_audio: fixedregulator@0 {
+			compatible = "regulator-fixed";
+			reg = <0>;
+			regulator-name = "wm8974_supply";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-always-on;
+		};
+
+		reg_spk_pwren: regulator@1 {
+			compatible = "regulator-fixed";
+			reg = <1>;
+			regulator-name = "spk_pwren";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			gpio = <&gpio3 12 GPIO_ACTIVE_HIGH>;
+			enable-active-high;
+			regulator-always-on;
+		};
+
+		reg_adc_vref_1v8: adc_vref_1v8 {
+			compatible = "regulator-fixed";
+			reg = <2>;
+			regulator-name = "vref_1v8";
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			regulator-always-on;
+		};
 	};
 };
 
