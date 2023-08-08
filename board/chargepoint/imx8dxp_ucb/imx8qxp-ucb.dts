@@ -169,6 +169,20 @@
 			>;
 		};
 
+        pinctrl_flexcan1: flexcan0grp {
+	        fsl,pins = <
+		        SC_P_FLEXCAN0_TX_ADMA_FLEXCAN0_TX                   0x21
+		        SC_P_FLEXCAN0_RX_ADMA_FLEXCAN0_RX                   0x21
+                    >;
+        };
+
+        pinctrl_flexcan2: flexcan1grp {
+	        fsl,pins = <
+		        SC_P_FLEXCAN1_TX_ADMA_FLEXCAN1_TX                   0x21
+		        SC_P_FLEXCAN1_RX_ADMA_FLEXCAN1_RX                   0x21
+                    >;
+        };
+
 		pinctrl_lpi2c1: lpi2c1grp {
 			fsl,pins = <
 				SC_P_USB_SS3_TC1_ADMA_I2C1_SCL	0x06000021
@@ -196,6 +210,22 @@
 				SC_P_UART0_TX_ADMA_UART0_TX	0x06000020
 			>;
 		};
+
+        pinctrl_lpuart1: lpuart1grp {
+	        fsl,pins = <
+		        SC_P_UART1_TX_ADMA_UART1_TX                     0x06000020
+		        SC_P_UART1_RX_ADMA_UART1_RX                     0x06000020
+		        SC_P_UART1_RTS_B_ADMA_UART1_RTS_B               0x06000020
+		        SC_P_UART1_CTS_B_ADMA_UART1_CTS_B               0x06000020
+	        >;
+        };
+
+        pinctrl_lpuart2: lpuart2grp {
+	        fsl,pins = <
+		        SC_P_UART2_TX_ADMA_UART2_TX                     0x06000020
+		        SC_P_UART2_RX_ADMA_UART2_RX                     0x06000020
+	        >;
+        };
 
 		pinctrl_usdhc1: usdhc1grp {
 			fsl,pins = <
@@ -239,20 +269,29 @@
 	status = "okay";
 };
 
-&gpio0 {
+/* bluetooth on wifi */
+&lpuart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpuart1>;
 	status = "okay";
 };
 
-&gpio1 {
+/* rfid */
+&lpuart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpuart2>;
 	status = "okay";
 };
 
-&gpio3 {
+&flexcan1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_flexcan1>;
 	status = "okay";
 };
 
-/* RMW remove?  Mentioned in usdhc2 regulator which was ripped out */
-&gpio4 {
+&flexcan2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_flexcan2>;
 	status = "okay";
 };
 
