@@ -7,11 +7,14 @@
 
 #include "fsl-imx8qxp.dtsi"
 
+#if defined(CONFIG_NOT_UUU_BUILD)
+#include "chargepoint-pubkey.dtsi"
+#include "prod-pubkey-ucb.dtsi"
+#endif
+
 / {
 	model = "ChargePoint i.MX8DXP UCB";
 	compatible = "fsl,imx8dxp-ucb", "fsl,imx8dxp", "fsl,imx8qxp";
-//	model = "NXP i.MX8QXP MEK";
-//	compatible = "fsl,imx8qxp-mek", "fsl,imx8qxp";
 
 	aliases {
 	};
@@ -222,8 +225,12 @@
 	};
 };
 
-&A35_0 {
-	u-boot,dm-pre-reloc;
+&acm {
+	status = "okay";
+};
+
+&pd_dma_lpuart0 {
+	debug_console;
 };
 
 &lpuart0 {
