@@ -126,7 +126,7 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 		int len;
 
 		uc_priv = dev_get_uclass_priv(dev);
-		printf("RMW dm_gpio_lookup_name() for() devname=%s, bank_name=%s\n", dev->name, uc_priv ? uc_priv->bank_name : "null");
+		printf("RMW dm_gpio_lookup_name() for() name=%s dev->name=%s, bank_name=%s\n", name, dev->name, uc_priv ? uc_priv->bank_name : "null");
 
 		if (numeric != -1) {
 			printf("RMW dm_gpio_lookup_name() numeric==-1\n");
