@@ -60,16 +60,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hog>;
 
-/*	iomuxc-imx8dxp-ucb { */
-	imx8qxp-mek {
-/* MEK hog group
-		pinctrl_hog: hoggrp {
-			fsl,pins = <
-				SC_P_MCLK_OUT0_ADMA_ACM_MCLK_OUT0	0x0600004c
-				SC_P_COMP_CTL_GPIO_1V8_3V3_GPIORHB_PAD	0x000514a0
-			>;
-		};
-*/
+	iomuxc-imx8dxp-ucb {
 		pinctrl_hog: hoggrp {
 		        fsl,pins = <
 			        SC_P_SPI3_SCK_LSIO_GPIO0_IO13                   0xC0000041 /* CSI0_GPIO1 */
