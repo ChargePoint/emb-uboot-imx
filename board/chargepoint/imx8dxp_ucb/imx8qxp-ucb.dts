@@ -173,6 +173,13 @@
 			>;
 		};
 
+        pinctrl_lpi2c2: lpi2cgrp {
+	        fsl,pins = <
+		        SC_P_MIPI_DSI1_GPIO0_00_ADMA_I2C2_SCL               0x06000021
+		        SC_P_MIPI_DSI1_GPIO0_01_ADMA_I2C2_SDA               0x06000021
+	        >;
+        };
+
 		pinctrl_lpuart0: lpuart0grp {
 			fsl,pins = <
 				SC_P_UART0_RX_ADMA_UART0_RX	0x06000020
@@ -269,6 +276,30 @@
 		SPKVDD1-supply = <&reg_spk_pwren>;
 		SPKVDD2-supply = <&reg_spk_pwren>;
 	};
+
+	/* RTC and tamper TODO: driver needs to be ported from upstream */
+	ucb_rtc: pcf85363@51 {
+		compatible = "nxp,pcf85363";
+		reg = <0x51>;
+	};
+};
+
+/* UX board sensors and GestIC */
+&i2c2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpi2c2>;
+	status = "okay";
+
+	ux_temp_sensor: tc74@48 {
+		compatible = "tc74";
+		reg = <0x48>;
+	};
+
+	/* TODO: add backlight */
+
 };
 
 &usdhc1 {
