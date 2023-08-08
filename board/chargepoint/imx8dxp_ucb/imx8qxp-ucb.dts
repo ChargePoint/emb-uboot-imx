@@ -180,6 +180,13 @@
 	        >;
         };
 
+        pinctrl_lpi2c3: lpi3cgrp {
+	        fsl,pins = <
+		        SC_P_SPI3_CS1_ADMA_I2C3_SCL                         0x06000021
+		        SC_P_MCLK_IN1_ADMA_I2C3_SDA                         0x06000021
+	        >;
+        };
+
 		pinctrl_lpuart0: lpuart0grp {
 			fsl,pins = <
 				SC_P_UART0_RX_ADMA_UART0_RX	0x06000020
@@ -300,6 +307,38 @@
 
 	/* TODO: add backlight */
 
+};
+
+&i2c3 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpi2c3>;
+	status = "okay";
+
+	/* PCIe clock generator 9FGV0241 no driver require */
+
+	ucb_temp_sensor: tc74@4d {
+		compatible = "tc74";
+		reg = <0x4d>;
+	};
+
+	eeprom: eeprom@50 {
+		compatible = "microchip,24c16";
+		reg = <0x50>;
+		pagesize = <16>;
+	};
+
+	/* tilt sensor */
+	lsm303c_acc@1d { /* Accelerometer */
+		compatible = "st,lsm303c_acc";
+		reg = <0x1d>;
+	};
+	lsm303c_mag@1e { /* Magnetometer */
+		compatible = "st,lsm303c_mag";
+		reg = <0x1e>;
+	};
 };
 
 &usdhc1 {
