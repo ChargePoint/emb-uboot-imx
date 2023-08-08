@@ -14,6 +14,7 @@
 
 /dts-v1/;
 
+/* Refer to fsl-imx8qxp-mek.dts and imx6qp-cpnk.dts */
 #include "fsl-imx8qxp.dtsi"
 
 #if defined(CONFIG_NOT_UUU_BUILD)
@@ -332,11 +333,78 @@
 	status = "okay";
 };
 
+&fec1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_fec1>;
+	phy-mode = "rgmii-txid";
+	phy-handle = <&ethphy0>;
+	/* TODO: phy-reset? */
+	fsl,magic-packet;
+	fsl,rgmii_rxc_dly;
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy0: ethernet-phy@0 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <0>;
+			at803x,eee-disabled;
+			at803x,vddio-1p8v;
+		};
+
+		ethphy1: ethernet-phy@1 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <1>;
+			at803x,eee-disabled;
+			at803x,vddio-1p8v;
+			status = "okay";
+		};
+	};
+};
+
+&fec2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_fec2>;
+	phy-mode = "rgmii-txid";
+	phy-handle = <&ethphy1>;
+	/* TODO: phy-reset? */
+	fsl,magic-packet;
+	fsl,rgmii_rxc_dly;
+	status = "okay";
+};
+
 &pcieb {
 	ext_osc = <1>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pcieb>;
 	reset-gpio = <&gpio4 0 GPIO_ACTIVE_LOW>;
+	status = "okay";
+};
+
+&usbphy1 {
+	fsl,tx-d-cal = <114>;
+};
+
+&usbotg1 {
+	srp-disable;
+	hnp-disable;
+	adp-disable;
+	power-polarity-active-high;
+	disable-over-current;
+	status = "okay";
+};
+
+&dpu1 {
+	status = "okay";
+};
+
+&ldb1_phy {
+	status = "okay";
+};
+
+&ldb1 {
 	status = "okay";
 };
 
@@ -352,6 +420,8 @@
 };
 
 &i2c1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
 	clock-frequency = <100000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_lpi2c1>;
