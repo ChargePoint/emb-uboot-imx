@@ -129,7 +129,6 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 		printf("RMW dm_gpio_lookup_name() for() name=%s dev->name=%s, bank_name=%s\n", name, dev->name, uc_priv ? uc_priv->bank_name : "null");
 
 		if (numeric != -1) {
-			printf("RMW dm_gpio_lookup_name() numeric==-1\n");
 			offset = numeric - uc_priv->gpio_base;
 			/* Allow GPIOs to be numbered from 0 */
 			if (offset < uc_priv->gpio_count)
