@@ -178,7 +178,6 @@
 			"bootm ${bootmarg}; " \
 	"\0"
 
-
 #endif
 
 #define CONFIG_BOOTCOMMAND \
