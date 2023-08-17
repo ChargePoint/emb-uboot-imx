@@ -25,7 +25,6 @@
 #define PHYS_SDRAM_1_SIZE               0x080000000	/* 2 GB */
 #define PHYS_SDRAM_2                    0x880000000
 #define PHYS_SDRAM_2_SIZE               0x040000000	/* 1 GB */
-
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
 /* Serial */
