@@ -21,6 +21,7 @@
 #include <dm.h>
 #include <usb.h>
 #include <asm/arch/iomux.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/arch/imx8qxp_lpcg.h>
 #include <asm/arch/lpcg.h>
 #include <asm/arch/sys_proto.h>
@@ -33,6 +34,10 @@
 
 #include "../common/bootreason.h"
 #include "../common/fitimage_keys.h"
+
+#if CONFIG_IS_ENABLED(FEC_MXC)
+#include <miiphy.h>
+#endif
 
 #include "../common/bootreason.h"
 #include "../common/fitimage_keys.h"
@@ -286,6 +291,64 @@ int board_late_init(void)
 	/* activate debug LED 4 to indicate we're about to jump to kernel */
 	dm_set_gpio("gpio1_8", "debug_led4", 1);
 #endif
+
+	return 0;
+}
+
+void board_quiesce_devices(void)
+{
+	const char *power_on_devices[] = {
+		"dma_lpuart0",
+
+		/* HIFI DSP boot */
+		"audio_sai0",
+		"audio_ocram",
+	};
+
+	power_off_pd_devices(power_on_devices, ARRAY_SIZE(power_on_devices));
+}
+
+/*
+ * Board specific reset that is system reset.
+ */
+void reset_cpu(ulong addr)
+{
+	sc_pm_reboot(-1, SC_PM_RESET_TYPE_COLD);
+	while(1);
+
+}
+
+int board_mmc_get_env_dev(int devno)
+{
+	return devno;
+}
+
+int board_late_init(void)
+{
+	char *fdt_file;
+	bool m4_boot;
+
+	printf("board_late_init() entry here.\n");
+
+#ifdef CONFIG_AHAB_BOOT
+	env_set("sec_boot", "yes");
+#else
+	env_set("sec_boot", "no");
+#endif
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+	board_late_mmc_env_init();
+#endif
+
+	fdt_file = env_get("fdt_file");
+	m4_boot = check_m4_parts_boot();
+
+	if (fdt_file && !strcmp(fdt_file, "undefined")) {
+		if (m4_boot)
+			env_set("fdt_file", "imx8qxp-mek-rpmsg.dtb");
+		else
+			env_set("fdt_file", "imx8qxp-mek.dtb");
+	}
 
 	return 0;
 }
