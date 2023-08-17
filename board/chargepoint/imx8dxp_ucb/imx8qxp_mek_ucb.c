@@ -325,6 +325,9 @@ int board_mmc_get_env_dev(int devno)
 
 int board_late_init(void)
 {
+	sc_err_t err;
+	uint16_t lc;
+	sc_ipc_t ipcHndl = -1;
 	char *fdt_file;
 	bool m4_boot;
 
@@ -349,6 +352,151 @@ int board_late_init(void)
 		else
 			env_set("fdt_file", "imx8qxp-mek.dtb");
 	}
+
+	/*
+	 * Set the reason the system was reset by reading the watchdog
+	 * reset reason.
+	 */
+	int appendcnt = 0;
+	char appendargs[512] = {0};
+	appendcnt += scnprintf(&appendargs[appendcnt],
+			       sizeof(appendargs) - appendcnt,
+			       " resetreason=%s", get_wdog_reset_reason());
+	env_set("bootargs_append", appendargs);
+
+	/* Determine the security state of the chip (OEM closed) */
+	err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
+	if (err == SC_ERR_NONE) {
+		switch (lc) {
+		default:
+		case 0x1: /* Pristine */
+		case 0x2: /* Fab */
+		case 0x8: /* Open */
+		case 0x20: /* NXP closed */
+		case 0x100: /* Partial field return */
+		case 0x200: /* Full field return */
+			break;
+
+		case 0x80: /* OEM closed */
+			/* set an environment that this is a secure boot */
+			env_set("bootargs_secureboot", "uboot-secureboot");
+			break;
+		}
+	}
+
+	/*
+	 * Set the digipot for the backlight from the schematic
+	 *  POT = 0x80, I_BLU = 600mA (MAX do NOT use)
+	 *  POT = 0x40, I_BLU = 300mA (mid-init)
+	 *  POT = 0x15, I_BLU = 100mA (test)
+	 */
+	do {
+		int ret;
+		const int i2cbus = 3; /* MCP4531 I2C BUS 3 */
+		const int i2caddr = 0x2e;
+		struct udevice *udev;
+		uint offset;
+		uint val;
+
+		ret = i2c_get_chip_for_busnum(i2cbus, i2caddr, 1, &udev);
+		if (ret) {
+			printf("Cannot find MCP4531 - error=%x\n", ret);
+			break;
+		}
+
+		/*
+		 * MCP4531 - Address/Command Byte
+		 *
+		 *          4-bits       2-bits    2-bits
+		 *  MSB | Memory Map | Operation | D9/D8 Data | LSB
+		 *
+		 *  Memory Map:
+		 *    Wiper 0 - 0x00
+		 *    Wiper 1 - 0x01
+		 *    TCON - 0x04
+		 *
+		 *  Operation:
+		 *    Write - 0x0
+		 *    Increment - 0x1
+		 *    Decrement - 0x2
+		 *    Read - 0x3
+		 */
+
+		offset = ((0 << 4) | (0 << 2)); /* write wiper0 */
+		val = 0x15;
+		ret = dm_i2c_reg_write(udev, offset | val >> 8, val & 0xff);
+		if (ret) {
+			printf("Cannot write %x:%x MCP4531@%x:%x - error=%x\n",
+			       offset | val >> 8, val & 0xff,
+			       i2cbus, i2caddr, ret);
+			break;
+		}
+
+		printf("Wrote %x:%x to MCP4531@%x:%x\n",
+		       offset | val >> 8, val & 0xff, i2cbus, i2caddr);
+	} while(0);
+
+	/*
+	 * Set PTN5150A Control Register
+	 *
+	 * Control 0x2
+	 *  [7:5] Reserved
+	 *  [4:3] Rp Section (DFP mode)
+	 *        00: 80 microA Default
+	 *        01: 180 microA Medium
+	 *        10: 330 microA High
+	 *        11: Reserved
+	 *  [2:1] Port Mode Selection
+	 *        00: Device (UFP)
+	 *        01: Host (DFP)
+	 *        10: Dual Role (DRP)
+	 *  [0]   Interrupt Mask for detached/attached
+	 *        0: Does not Mask Interrupts
+	 *        1: Mask Interrupts for register offset 03H bit[1:0].
+	 */
+#define PTN5150A_BUS	1
+#define PTN5150A_ADDR	0x1d
+#define PTN5150A_CTRL	0x2
+#define PTN5150A_CTRL_RP_MASK   (0x3 << 3)
+#define PTN5150A_CTRL_PORT_MASK (0x3 << 1)
+	do {
+		int ret;
+		const int i2cbus = PTN5150A_BUS;
+		const int i2caddr = PTN5150A_ADDR;
+		uint8_t value;
+		struct udevice *udev;
+
+		ret = i2c_get_chip_for_busnum(i2cbus, i2caddr, 1, &udev);
+		if (ret) {
+			printf("Cannot find PTN5150A - error=%x\n", ret);
+			break;
+		}
+
+		ret = dm_i2c_read(udev, PTN5150A_CTRL, &value, 1);
+		if (ret) {
+			printf("Cannot read %x:%x PTN5150A@%x:%x - error=%x\n",
+			       PTN5150A_CTRL, value,
+			       i2cbus, i2caddr, ret);
+			break;
+		}
+		value &= ~(PTN5150A_CTRL_RP_MASK|PTN5150A_CTRL_PORT_MASK);
+		value |= (0x1 << 3); /* set to 180 microA */
+		value |= (0x2 << 1); /* set to dual role */
+		ret = dm_i2c_write(udev, PTN5150A_CTRL, &value, 1);
+		if (ret) {
+			printf("Cannot write %x:%x PTN5150A@%x:%x - error=%x\n",
+			       PTN5150A_CTRL, value,
+			       i2cbus, i2caddr, ret);
+			break;
+		}
+		printf("Wrote %x:%x to PTN5150A@%x:%x\n",
+		       PTN5150A_CTRL, value, PTN5150A_BUS, PTN5150A_ADDR);
+	} while(0);
+
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	/* activate debug LED 4 to indicate we're about to jump to kernel */
+	dm_set_gpio("gpio1_8", "debug_led4", 1);
+#endif
 
 	return 0;
 }
