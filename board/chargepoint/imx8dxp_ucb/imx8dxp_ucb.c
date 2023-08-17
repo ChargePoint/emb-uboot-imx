@@ -77,13 +77,11 @@ printf("board_early_init_f() pre-uart\n");
 	ipcHndl = -1; //RMWgd->arch.ipc_channel_handle;
 
 	/* Determine the security state of the chip (OEM closed) */
-#ifdef RMW_INCLUDE
 	err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
 	if ((err == SC_ERR_NONE) && (lc == 0x80)) {
 		/* HAB is in OEM closed, so disable the serial console */
 		gd->flags |= (GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE);
 	}
-#endif
 
 	/* Power up UART0 */
 	err = sc_pm_set_resource_power_mode(ipcHndl, SC_R_UART_0,
