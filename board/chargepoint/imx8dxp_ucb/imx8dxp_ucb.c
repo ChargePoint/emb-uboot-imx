@@ -11,7 +11,6 @@
 #include <fsl_ifc.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
-//RMW in favor of env.h which is part of 2020 - #include <environment.h>
 #include <env.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
