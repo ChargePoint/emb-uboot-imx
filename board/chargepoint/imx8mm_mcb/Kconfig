@@ -9,6 +9,4 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "chargepoint_imx8mm_mcb"
 
-source "board/freescale/common/Kconfig"
-
 endif

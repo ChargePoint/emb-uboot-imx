@@ -251,12 +251,10 @@ int uclass_find_first_device(enum uclass_id id, struct udevice **devp)
 
 	*devp = NULL;
 	ret = uclass_get(id, &uc);
-	if (ret) {
+	if (ret)
 		return ret;
-	}
-	if (list_empty(&uc->dev_head)) {
+	if (list_empty(&uc->dev_head))
 		return 0;
-	}
 
 	*devp = list_first_entry(&uc->dev_head, struct udevice, uclass_node);
 
@@ -466,15 +464,13 @@ int uclass_get_device_by_driver(enum uclass_id id,
 
 int uclass_get_device_tail(struct udevice *dev, int ret, struct udevice **devp)
 {
-	if (ret) {
+	if (ret)
 		return ret;
-	}
 
 	assert(dev);
 	ret = device_probe(dev);
-	if (ret) {
+	if (ret)
 		return ret;
-	}
 
 	*devp = dev;
 
