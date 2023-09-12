@@ -328,8 +328,6 @@ int board_late_init(void)
 	sc_err_t err;
 	uint16_t lc;
 	sc_ipc_t ipcHndl = -1;
-	char *fdt_file;
-	bool m4_boot;
 
 	printf("board_late_init() entry here.\n");
 
@@ -338,20 +336,6 @@ int board_late_init(void)
 #else
 	env_set("sec_boot", "no");
 #endif
-
-#ifdef CONFIG_ENV_IS_IN_MMC
-	board_late_mmc_env_init();
-#endif
-
-	fdt_file = env_get("fdt_file");
-	m4_boot = check_m4_parts_boot();
-
-	if (fdt_file && !strcmp(fdt_file, "undefined")) {
-		if (m4_boot)
-			env_set("fdt_file", "imx8qxp-mek-rpmsg.dtb");
-		else
-			env_set("fdt_file", "imx8qxp-mek.dtb");
-	}
 
 	/*
 	 * Set the reason the system was reset by reading the watchdog
