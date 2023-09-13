@@ -287,7 +287,6 @@ static long lmb_add_region_flags_nonoverlap(struct lmb_region *rgn, phys_addr_t 
 		return coalesced;
 	if (rgn->cnt >= rgn->max)
 		return -1;
-	}
 
 	/* Couldn't coalesce the LMB, so add it to the sorted table. */
 	for (i = rgn->cnt-1; i >= 0; i--) {
@@ -492,18 +491,16 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phy
 				base = -1;
 			base = min(base, max_addr);
 			base = lmb_align_down(base - size, align);
-		} else {
+		} else
 			continue;
-		}
 
 		while (base && lmbbase <= base) {
 			rgn = lmb_overlaps_region(&lmb->reserved, base, size);
 			if (rgn < 0) {
 				/* This area isn't reserved, take it */
 				if (lmb_add_region(&lmb->reserved, base,
-						   size) < 0) {
+						   size) < 0)
 					return 0;
-				}
 				return base;
 			}
 			res_base = lmb->reserved.region[rgn].base;

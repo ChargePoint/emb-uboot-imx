@@ -126,7 +126,6 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 		int len;
 
 		uc_priv = dev_get_uclass_priv(dev);
-
 		if (numeric != -1) {
 			offset = numeric - uc_priv->gpio_base;
 			/* Allow GPIOs to be numbered from 0 */
