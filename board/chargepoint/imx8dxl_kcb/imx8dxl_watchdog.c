@@ -5,13 +5,10 @@
  *
  */
 
-//TODO RMW - what should header say re Copyright when based on prior work?
+//TODO RMW - what should header say re Copyright when based on NXP's prior work?
 
 #include <common.h>
-//#include <cpu_func.h>
 #include <dm.h>
-//#include <hang.h>
-//#include <asm/io.h>
 #include <wdt.h>
 #include <watchdog.h>
 #include <misc.h>
@@ -58,16 +55,15 @@ static int imx_sc_wdt_start(void)
 	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_START_WDOG,
 		      0, 0, 0, 0, 0, 0, &res);
     if (res.a0) {
-            printk(KERN_ALERT "  RMW DEBUG: uboot-wdt_start() Failed START_WDOG with %lu\n", res.a0);
+            printk(KERN_ALERT "  uboot imx_sc_wdt_start() Failed START_WDOG with %lu\n", res.a0);
             return -EACCES;
     }
 
-//TODO RMW
 	arm_smccc_smc(IMX_SIP_TIMER, IMX_SIP_TIMER_SET_WDOG_ACT,
 		      SC_TIMER_WDOG_ACTION_PARTITION,
 		      0, 0, 0, 0, 0, &res);
     if (res.a0) {
-            printk(KERN_ALERT "  RMW DEBUG: uboot-wdt_start() Failed SET_WDOG_ACT with %lu\n", res.a0);
+            printk(KERN_ALERT "  uboot imx_sc_wdt_start() Failed SET_WDOG_ACT with %lu\n", res.a0);
             return -EACCES;
     }
     else
@@ -134,15 +130,15 @@ static int imx8dxl_wdt_expire_now(struct udevice *dev, ulong flags)
 {
 	struct imx8dxl_wdt_priv *priv = dev_get_priv(dev);
 
-	printf("imx8dxl_wdt_expire_now() - Watchdog timeout=%u. Will need to wait that long.\n", priv->timeout);
+	printf("imx8dxl_wdt_expire_now() - Watchdog timeout=%u. Will need to wait that long...\n", priv->timeout);
 
 	// Stop the 'reset/ping' from executing any more.
 	priv->disableResetPings = true;
 
-//TODO RMW - If expire_now isn't supported for SCFW:
-	// Print that expiration will be delayed by "remaining"
+	// Because expire_now isn't supported for SCFW:
 	// Shut off the reset via priv->disableResetPings (no more pings given to FW)
-	// Spinloop - print once per 1000 decrement of 'remaining' as a countdown to zero.
+	// Print that expiration will be delayed by "remaining"
+	// Print an update once per 'period' decrement of 'remaining' as a countdown to zero.
 
 	const unsigned long period = 2 * 1000 * 1000;	// Two seconds in uSeconds
 	unsigned long tLastUSec = timer_get_us();
@@ -152,7 +148,7 @@ static int imx8dxl_wdt_expire_now(struct udevice *dev, ulong flags)
 		if (timer_get_us() > tLastUSec + period) {
 			tLastUSec = timer_get_us();
 			imx_sc_wdt_get_status(NULL, &remainingTime);
-			printf("Watchdog expiration/reboot in: %3u seconds.\n", remainingTime / (uint32_t)1000);
+			printf("  Watchdog expiration/reboot in: %3u seconds.\n", remainingTime / (uint32_t)1000);
 		}
 	}
 
@@ -170,12 +166,10 @@ static int imx8dxl_wdt_probe(struct udevice *dev)
 {
 	struct imx8dxl_wdt_priv *priv = dev_get_priv(dev);
 
-//TODO RMW - can I use 'dev' or must use dev_read_addr_ptr()
-	priv->baseDevice = dev;   //**WAS** dev_read_addr_ptr(dev);
+	priv->baseDevice = dev;
 	if (!priv->baseDevice)
 		return -ENOENT;
 
-//TODO RMW
 	priv->disableResetPings = false;
 
 #ifndef CONFIG_WATCHDOG_TIMEOUT_MSECS
@@ -193,13 +187,10 @@ static const struct wdt_ops imx8dxl_wdt_ops = {
 	.expire_now	= imx8dxl_wdt_expire_now,
 };
 
-// From kcb DTS file - "fsl,imx8dxl-kcb", "fsl,imx8dxl";
-// in wdt area of dtsi - fsl,imx8-wdt
 static const struct udevice_id imx8dxl_wdt_ids[] = {
 //TODO RMW
 	{ .compatible = "fsl,imx8-wdt" },		// Right way? Needs dtsi notations to match?
 //	{ .compatible = "fsl,imx-sc-wdt" },		// Right way? Needs dtsi notations to match?
-//	{ .compatible = "fsl,imx21-wdt" },
 	{}
 };
 
