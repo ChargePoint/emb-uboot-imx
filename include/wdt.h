@@ -143,9 +143,6 @@ static inline int initr_watchdog(void)
 	}
 	wdt_start(gd->watchdog_dev, timeout * 1000, 0);
 	gd->flags |= GD_FLG_WDT_READY;
-
-printf("WDT: Custom message: Name of device: %s (%s)\n", gd->watchdog_dev->name, gd->watchdog_dev->driver->name);
-
 	printf("WDT:   Started with%s servicing (%ds timeout)\n",
 	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out", timeout);
 
