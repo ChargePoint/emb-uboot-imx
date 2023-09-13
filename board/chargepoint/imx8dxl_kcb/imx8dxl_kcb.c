@@ -130,8 +130,6 @@ void enumerateWDT(void)
 
 int board_init(void)
 {
-	printf("RMW message from board_init()\n");
-
 	setup_fitimage_keys();
 
 	board_gpio_init();
