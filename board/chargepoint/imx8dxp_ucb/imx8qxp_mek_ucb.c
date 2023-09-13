@@ -329,8 +329,6 @@ int board_late_init(void)
 	uint16_t lc;
 	sc_ipc_t ipcHndl = -1;
 
-	printf("board_late_init() entry here.\n");
-
 #ifdef CONFIG_AHAB_BOOT
 	env_set("sec_boot", "yes");
 #else
