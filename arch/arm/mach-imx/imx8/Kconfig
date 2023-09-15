@@ -163,10 +163,9 @@ config TARGET_IMX8QM_MEK_A72_ONLY
         select IMX8QM
 
 # NOTE: select correct SoC variant when DXP is supported
-config TARGET_IMX8DXP_UCB
-	bool "Support i.MX8DXP UCB board"
+config TARGET_CHARGEPOINT_IMX8DXP_UCB
+	bool "Support i.MX8DXP chargepoint ucb"
 	select BOARD_LATE_INIT
-	select SUPPORT_SPL
 	select IMX8QXP
 
 config TARGET_IMX8QXP_LPDDR4_VAL

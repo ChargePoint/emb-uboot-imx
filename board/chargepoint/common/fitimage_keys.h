@@ -18,6 +18,7 @@
 #define SIGNATURE_PREFIX "prod:"
 #endif
 
+#include <image.h>
 
 static inline void setup_fitimage_keys(void)
 {
@@ -40,7 +41,7 @@ static inline void setup_fitimage_keys(void)
 	do {
 		sc_err_t err;
 		uint16_t lc;
-		sc_ipc_t ipcHndl = gd->arch.ipc_channel_handle;
+		sc_ipc_t ipcHndl = -1;
 
 		err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
 		if ((err == SC_ERR_NONE) && (lc == 0x80)) {
