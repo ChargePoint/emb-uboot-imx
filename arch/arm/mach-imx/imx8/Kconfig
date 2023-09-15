@@ -193,6 +193,18 @@ config TARGET_IMX8DXL_PHANTOM_MEK
 	select ARCH_MISC_INIT
 	select SPL_CRYPTO if SPL
 
+config TARGET_CHARGEPOINT_IMX8DXL_KCB
+	bool "Support i.MX8DXL chargepoint kcb"
+	select BOARD_LATE_INIT
+	select IMX8DXL
+
+# NOTE: select correct SoC variant when DXP is supported
+config TARGET_CHARGEPOINT_IMX8DXP_UCB
+	bool "Support i.MX8DXP chargepoint ucb"
+	select BOARD_LATE_INIT
+# Causes failures in imx_bootaux.c	select IMX8DXP
+	select IMX8QXP
+
 config TARGET_IMX8DX_MEK
 	bool "Support i.MX8DX MEK board"
 	select BOARD_LATE_INIT
@@ -245,7 +257,7 @@ source "board/toradex/apalis-imx8/Kconfig"
 source "board/toradex/colibri-imx8x/Kconfig"
 source "board/siemens/capricorn/Kconfig"
 
-# ChargePoint
+#source "board/chargepoint/imx8dxl_kcb/Kconfig"
 source "board/chargepoint/imx8dxp_ucb/Kconfig"
 
 config SKIP_RESOURCE_CHECKING
@@ -254,7 +266,7 @@ config SKIP_RESOURCE_CHECKING
 	  By default the kernel FDT nodes are checked if belong to current partition.
 	  Set the config to skip this checking.
 
-config IMX_SNVS_SEC_SC
+config SNVS_SEC_SC
 	bool "Support SNVS configuration"
 	help
 	  Allow to configure the SNVS via SCU API to configure tampers and secure

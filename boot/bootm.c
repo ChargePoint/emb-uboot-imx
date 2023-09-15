@@ -4,6 +4,8 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#define LOG_DEBUG
+
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <bootstage.h>
