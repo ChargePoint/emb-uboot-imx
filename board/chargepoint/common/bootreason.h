@@ -12,17 +12,40 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <misc.h>
+
 #ifndef _CHARGEPOINT_BOOTREASON_H_
 #define _CHARGEPOINT_BOOTREASON_H_
 
 #ifdef CONFIG_IMX8
+
+static inline int sc_pm_reset_reason(sc_ipc_t ipc, sc_pm_reset_reason_t *reason)
+{
+	struct udevice *dev = gd->arch.scu_dev;
+	struct sc_rpc_msg_s msg;
+	int size = sizeof(struct sc_rpc_msg_s);
+	int ret;
+
+	RPC_VER(&msg) = SC_RPC_VERSION;
+	RPC_SIZE(&msg) = 1U;
+	RPC_SVC(&msg) = (u8)(SC_RPC_SVC_PM);
+	RPC_FUNC(&msg) = (u8)(PM_FUNC_RESET_REASON);
+
+	ret = misc_call(dev, SC_FALSE, &msg, size, &msg, size);
+
+	if (reason != NULL) {
+		*reason = (sc_pm_reset_reason_t) RPC_U8(&msg, 0U);
+	}
+
+	return ret;
+}
 
 static inline const char *get_wdog_reset_reason(void)
 {
 	sc_err_t ret;
 	sc_pm_reset_reason_t reason;
 
-	ret = sc_pm_reset_reason(SC_IPC_CH, &reason);
+	ret = sc_pm_reset_reason(-1, &reason);
 	if (ret == SC_ERR_NONE) {
 		switch (reason) {
 		case SC_PM_RESET_REASON_POR:
@@ -78,6 +101,7 @@ static inline const char *get_wdog_reset_reason(void)
 #endif
 	switch (cause) {
 	case 0x00001:
+	case 0x00011:
 		return "POR";
 	case 0x00004:
 		return "CSU";
@@ -96,13 +120,6 @@ static inline const char *get_wdog_reset_reason(void)
 		}
 #endif
 		return "WDOG";
-#endif
-        case 0x00011:
-		/* In this case both POWER  and watchdog flag is set*/	
-#ifdef  CONFIG_MX7
-                return "POR + WDOG1";
-#else
-                return "POR + WDOG";
 #endif
 	case 0x00020:
 		return "JTAG_HIGH-Z";
