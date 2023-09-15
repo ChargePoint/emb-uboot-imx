@@ -4,12 +4,19 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += imx8dxp_ucb.o
+#obj-y += imx8dxp_ucb.o
+obj-y += imx8qxp_mek_ucb.o
+obj-y += imx8dxl_watchdog.o
 obj-y += ../../freescale/common/
 
-extra-y += ../../../arch/$(ARCH)/dts/imx8dxp-chargepoint-ucb.dts
-$(obj)/../../../arch/$(ARCH)/dts/imx8dxp-chargepoint-ucb.dts: \
-		$(src)/imx8dxp-chargepoint-ucb.dts
+#extra-y += ../../../arch/$(ARCH)/dts/imx8dxp-chargepoint-ucb.dts
+#$(obj)/../../../arch/$(ARCH)/dts/imx8dxp-chargepoint-ucb.dts: \
+#		$(src)/imx8dxp-chargepoint-ucb.dts
+#	ln -fsn $(abspath $<) $@
+
+extra-y += ../../../arch/$(ARCH)/dts/imx8qxp-ucb.dts
+$(obj)/../../../arch/$(ARCH)/dts/imx8qxp-ucb.dts: \
+		$(src)/imx8qxp-ucb.dts
 	ln -fsn $(abspath $<) $@
 
 extra-y += ../../../arch/$(ARCH)/dts/chargepoint-pubkey.dtsi
