@@ -11,6 +11,6 @@ config SYS_CONFIG_NAME
 
 # RMW Note PLAT-5675 didn't have this board/chargepoint/common/Kconfig
 source "board/chargepoint/common/Kconfig"
-source "board/freescale/common/Kconfig"
+# RMW no longer available - source "board/freescale/common/Kconfig"
 
 endif

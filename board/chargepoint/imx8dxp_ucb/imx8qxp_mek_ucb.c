@@ -164,13 +164,13 @@ void board_quiesce_devices(void)
 		"audio_ocram",
 	};
 
-	power_off_pd_devices(power_on_devices, ARRAY_SIZE(power_on_devices));
+	imx8_power_off_pd_devices(power_on_devices, ARRAY_SIZE(power_on_devices));
 }
 
 /*
  * Board specific reset that is system reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	sc_pm_reboot(-1, SC_PM_RESET_TYPE_COLD);
 	while(1);
@@ -436,7 +436,7 @@ static void realtek_phy_supp(void *blob)
 	return;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	uint32_t uid_high, uid_low;
 
@@ -599,7 +599,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 					      display);
 			if (r >= 0) {
 				fdt_set_status_by_alias(blob, "lvds0",
-							FDT_STATUS_OKAY, 0);
+							FDT_STATUS_OKAY);
 				debug("Enable lvds0 with %s...\n", display);
 				break;
 			}
