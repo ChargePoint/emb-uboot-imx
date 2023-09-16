@@ -17,15 +17,17 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 
 /* Flat Device Tree Definitions */
-#define CONFIG_OF_BOARD_SETUP
+// moved to defconfig - #define CONFIG_OF_BOARD_SETUP
 
-#define CONFIG_CMD_READ
-#undef CONFIG_CMD_CRC32
+// moved to defconfig - #define CONFIG_CMD_READ
+// moved to defconfig - #undef CONFIG_CMD_CRC32
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN           (40 * SZ_1M)
+// moved to defconfig #define CONFIG_SYS_MALLOC_LEN           (40 * SZ_1M)
 
-#define CONFIG_SYS_BOOTM_LEN            (64 << 20)
+// 64 << 20 is equal to 0x4000000
+// Compiler was complaining about redefinition despite them being the same.
+#define CONFIG_SYS_BOOTM_LEN            0x4000000
 #define CONFIG_SYS_XIMG_LEN CONFIG_SYS_BOOTM_LEN
 
 /* Physical Memory Map */
@@ -35,22 +37,24 @@
 #define PHYS_SDRAM_2                    0x880000000
 #define PHYS_SDRAM_2_SIZE               0x040000000	/* 1 GB */
 
+/* RMW - moved to defconfig but without the calculations
 #define CONFIG_SYS_MEMTEST_START        0xA0000000
 #define CONFIG_SYS_MEMTEST_END \
 	(CONFIG_SYS_MEMTEST_START + (PHYS_SDRAM_1_SIZE >> 2))
+*/
 
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 #define USDHC1_BASE_ADDR                0x5B010000
 #define USDHC2_BASE_ADDR                0x5B020000
 
 /* Link Definitions */
+// TODO RMW - do we still need LOADADDR? If so, should it be CONFIG_SYS_LOAD_ADDR instead of value?
 #define CONFIG_LOADADDR                 0x98000000
-#define CONFIG_SYS_LOAD_ADDR            CONFIG_LOADADDR
-#define CONFIG_SYS_INIT_SP_ADDR         0x80200000
+// went to defconfig as CUSTOM_SYS_INIT_SP_ADDR - #define CONFIG_SYS_INIT_SP_ADDR         0x80200000
 
 /* Environment organization */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+// moved to defconfig - #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #define CONFIG_PCIE_IMX
 #define CONFIG_CMD_PCI
@@ -67,12 +71,14 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Monitor Command Prompt */
+/* RMW Moved to defconfig
 #define CONFIG_SYS_PROMPT_HUSH_PS2      "UCB> "
 #define CONFIG_SYS_CBSIZE               2048
 #define CONFIG_SYS_MAXARGS              64
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE \
 	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+*/
+#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY               8000000	/* 8MHz */

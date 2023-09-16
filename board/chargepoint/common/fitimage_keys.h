@@ -12,6 +12,8 @@
 #ifndef _CHARGEPOINT_FITIMAGE_KEYS_H_
 #define _CHARGEPOINT_FITIMAGE_KEYS_H_
 
+#include "../../../include/image.h"
+
 static inline void setup_fitimage_keys(void)
 {
 #if CONFIG_IS_ENABLED(FIT_SIGNATURE)
