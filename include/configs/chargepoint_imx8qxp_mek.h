@@ -14,7 +14,7 @@
 #define CONFIG_SERIAL_TAG
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_BOARD_EARLY_INIT_F
+// Item moved to defconfig - #define CONFIG_BOARD_EARLY_INIT_F
 
 /* Flat Device Tree Definitions */
 // moved to defconfig - #define CONFIG_OF_BOARD_SETUP
@@ -31,7 +31,7 @@
 #define CONFIG_SYS_XIMG_LEN CONFIG_SYS_BOOTM_LEN
 
 /* Physical Memory Map */
-#define CONFIG_SYS_SDRAM_BASE           0x80000000
+#define CFG_SYS_SDRAM_BASE              0x080000000
 #define PHYS_SDRAM_1                    0x080000000
 #define PHYS_SDRAM_1_SIZE               0x080000000	/* 2 GB */
 #define PHYS_SDRAM_2                    0x880000000
@@ -43,26 +43,30 @@
 	(CONFIG_SYS_MEMTEST_START + (PHYS_SDRAM_1_SIZE >> 2))
 */
 
+/* RMW TODO - these items need reviewed with Charles. I think unnecessary items.
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 #define USDHC1_BASE_ADDR                0x5B010000
 #define USDHC2_BASE_ADDR                0x5B020000
+*/
 
 /* Link Definitions */
 // TODO RMW - do we still need LOADADDR? If so, should it be CONFIG_SYS_LOAD_ADDR instead of value?
-#define CONFIG_LOADADDR                 0x98000000
+// RMW removing - not used in u-boot - #define CONFIG_LOADADDR                 0x98000000
 // went to defconfig as CUSTOM_SYS_INIT_SP_ADDR - #define CONFIG_SYS_INIT_SP_ADDR         0x80200000
 
 /* Environment organization */
-#define CONFIG_ENV_OVERWRITE
+// moved to defconfig #define CONFIG_ENV_OVERWRITE
 // moved to defconfig - #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
+/* moved to defconfig
 #define CONFIG_PCIE_IMX
 #define CONFIG_CMD_PCI
 #define CONFIG_PCI_SCAN_SHOW
+*/
 
 /* Default environment is in mmcblk0boot1 */
-#define CONFIG_SYS_MMC_ENV_DEV          0   /* mmcblk0 */
-#define CONFIG_SYS_MMC_IMG_LOAD_PART    1
+// moved to defconfig #define CONFIG_SYS_MMC_ENV_DEV          0   /* mmcblk0 */
+// RMW TODO this isn't found in u-boot anymore. #define CONFIG_SYS_MMC_IMG_LOAD_PART    1
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
