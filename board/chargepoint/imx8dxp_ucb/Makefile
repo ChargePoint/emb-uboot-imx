@@ -6,7 +6,7 @@
 
 #obj-y += imx8dxp_ucb.o
 obj-y += imx8qxp_mek_ucb.o
-obj-y += imx8dxl_watchdog.o
+obj-$(CONFIG_WDT) += imx8dxl_watchdog.o
 obj-y += ../../freescale/common/
 
 #extra-y += ../../../arch/$(ARCH)/dts/imx8dxp-chargepoint-ucb.dts
