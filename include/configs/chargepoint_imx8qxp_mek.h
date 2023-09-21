@@ -122,7 +122,7 @@
 #define CONFIG_SYS_FSL_FSPI_AHB
 #endif
 
-#define CONFIG_MFG_ENV_SETTINGS \
+#define CFG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
 		"reboot=h earlyprintk=serial ignore_loglevel debug " \
 		"clk_ignore_unused root=/dev/ram " \
@@ -132,8 +132,8 @@
 		"\0" \
 
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	CONFIG_MFG_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
+	CFG_MFG_ENV_SETTINGS \
 	"console=" CONSOLE_DEV "\0" \
 	"bootenvpart=0:1\0" \
 	"bootenv=uboot.env\0" \
