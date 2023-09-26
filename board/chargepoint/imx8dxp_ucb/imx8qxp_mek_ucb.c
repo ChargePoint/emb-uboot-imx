@@ -76,7 +76,7 @@ int board_early_init_f(void)
 	uint16_t lc;
 	sc_ipc_t ipcHndl;
 
-	ipcHndl = -1; //RMW gd->arch.ipc_channel_handle;
+	ipcHndl = -1; // was gd->arch.ipc_channel_handle;
 
 	/* Determine the security state of the chip (OEM closed) */
 	err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
@@ -393,7 +393,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		uint32_t word;
 		sc_ipc_t ipcHndl;
 
-		ipcHndl = -1; //RMW gd->arch.ipc_channel_handle;
+		ipcHndl = -1; // was gd->arch.ipc_channel_handle;
 
 #define FUSE_UNIQUE_ID_LOW	16
 #define FUSE_UNIQUE_ID_HIGH	17

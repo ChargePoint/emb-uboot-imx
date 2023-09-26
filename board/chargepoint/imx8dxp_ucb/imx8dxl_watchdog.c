@@ -1,11 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright 2018-2019 NXP.
+ */
+
 /*
  * imx8dxl_watchdog.c - driver for i.mx SCFW timer-based watchdog
  *
  * Based on the imx_watchdog.c and the u-boot driver model docs.
  *
  */
-
-//TODO RMW - what should header say re Copyright when based on NXP's prior work?
 
 #include <common.h>
 #include <dm.h>
@@ -189,7 +192,6 @@ static const struct wdt_ops imx8dxl_wdt_ops = {
 };
 
 static const struct udevice_id imx8dxl_wdt_ids[] = {
-//TODO RMW
 	{ .compatible = "fsl,imx8-wdt" },		// Right way? Needs dtsi notations to match?
 //	{ .compatible = "fsl,imx-sc-wdt" },		// Right way? Needs dtsi notations to match?
 	{}

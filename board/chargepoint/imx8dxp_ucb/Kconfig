@@ -9,8 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "chargepoint_imx8qxp_mek"
 
-# RMW Note PLAT-5675 didn't have this board/chargepoint/common/Kconfig
 source "board/chargepoint/common/Kconfig"
-# RMW no longer available - source "board/freescale/common/Kconfig"
+# 2023 - no longer available - source "board/freescale/common/Kconfig"
 
 endif
