@@ -16,6 +16,6 @@ config SYS_TEXT_BASE
 	default 0x17800000
 
 source "board/chargepoint/common/Kconfig"
-source "board/freescale/common/Kconfig"
+# source "board/freescale/common/Kconfig"
 
 endif
