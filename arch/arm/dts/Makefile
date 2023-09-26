@@ -1094,8 +1094,7 @@ dtb-$(CONFIG_ARCH_IMX9) += \
 	imx91p-9x9-qsb-spinand.dtb
 
 dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8DXL_KCB) += imx8dxl-chargepoint-kcb.dtb
-#dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8DXP_UCB) += imx8dxp-chargepoint-ucb.dtb
-dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8DXP_UCB) += imx8qxp-ucb.dtb
+dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8DXP_UCB) += imx8dxp-chargepoint-ucb.dtb
 dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8MM_MCB) += imx8mm-chargepoint-mcb.dtb
 
 dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
