@@ -9,13 +9,6 @@
 	usbg2: usbg2 {
 		status = "disabled";
 	};
-
-	usbg1: usbg1 {
-		compatible = "fsl,imx27-usb-gadget";
-		dr_mode = "peripheral";
-		chipidea,usb = <&usbotg1>;
-		status = "okay";
-	};
 };
 
 &fec1 {

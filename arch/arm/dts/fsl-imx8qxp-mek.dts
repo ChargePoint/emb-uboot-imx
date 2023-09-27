@@ -8,16 +8,16 @@
 #include "fsl-imx8qxp.dtsi"
 
 / {
-	model = "ChargePoint i.MX8DXP UCB";
-	compatible = "fsl,imx8dxp-ucb", "fsl,imx8dxp", "fsl,imx8qxp";
-//	model = "NXP i.MX8QXP MEK";
-//	compatible = "fsl,imx8qxp-mek", "fsl,imx8qxp";
+	model = "NXP i.MX8QXP MEK";
+	compatible = "fsl,imx8qxp-mek", "fsl,imx8qxp";
 
 	aliases {
 		i2c4 = &bb_i2c1;
 		i2c5 = &mfi_i2c1;
 		i2c6 = &i2cexp1_i2c1;
 		i2c7 = &i2cexp2_i2c1;
+		gpio8 = &pca9557_a;
+		gpio9 = &pca9557_b;
 	};
 
 	chosen {
@@ -67,71 +67,13 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hog>;
 
-/*	iomuxc-imx8dxp-ucb { */
 	imx8qxp-mek {
-/* MEK hog group
 		pinctrl_hog: hoggrp {
 			fsl,pins = <
 				SC_P_MCLK_OUT0_ADMA_ACM_MCLK_OUT0	0x0600004c
 				SC_P_COMP_CTL_GPIO_1V8_3V3_GPIORHB_PAD	0x000514a0
 			>;
 		};
-*/
-		pinctrl_hog: hoggrp {
-		        fsl,pins = <
-			        SC_P_SPI3_SCK_LSIO_GPIO0_IO13                   0xC0000041 /* CSI0_GPIO1 */
-			        SC_P_SPI3_SDI_LSIO_GPIO0_IO15                   0xC0000041 /* CSI0_GPIO2 */
-			        SC_P_SPI3_SDO_LSIO_GPIO0_IO14                   0xC0000041 /* CSI0_GPIO3 */
-			        SC_P_SPI3_CS0_LSIO_GPIO0_IO16                   0xC0000041 /* CSI0_GPIO4 */
-			        SC_P_MIPI_CSI0_GPIO0_00_LSIO_GPIO3_IO08         0xC0000041 /* CSI_GPIO_5 */
-			        SC_P_MIPI_CSI0_GPIO0_01_LSIO_GPIO3_IO07         0xC0000041 /* CSI_GPIO_6 */
-			        SC_P_MIPI_CSI0_MCLK_OUT_MIPI_CSI0_ACM_MCLK_OUT  0xC0000041 /* CSI_XVCLK */
-
-			        SC_P_SAI1_RXD_LSIO_GPIO0_IO29                   0xC0000041 /* SER_PWR_EN */
-			        SC_P_SAI1_RXC_LSIO_GPIO0_IO30                   0xC0000041 /* MAG_INT_B */
-			        SC_P_SAI1_RXFS_LSIO_GPIO0_IO31                  0xC0000041 /* MAG_DRDY */
-			        SC_P_MIPI_DSI0_I2C0_SCL_LSIO_GPIO1_IO25         0xC0000041 /* RTC_IRQn */
-			        SC_P_MIPI_DSI0_I2C0_SDA_LSIO_GPIO1_IO26         0xC0000041 /* ACCEL_INT_B */
-			        SC_P_MIPI_DSI1_I2C0_SCL_LSIO_GPIO1_IO29         0xC0000041 /* CHG_CAPGOOD */
-			        SC_P_MIPI_DSI1_I2C0_SDA_LSIO_GPIO1_IO30         0xC0000041 /* CHGn_PFW */
-			        SC_P_QSPI0A_DQS_LSIO_GPIO3_IO13                 0xC0000041 /* CHG_ENABLE */
-			        SC_P_QSPI0A_SS0_B_LSIO_GPIO3_IO14               0xC0000041 /* Tamper_TEST */
-			        SC_P_QSPI0A_SS1_B_LSIO_GPIO3_IO15               0xC0000041 /* Tamper_RST_N */
-
-			        SC_P_CSI_EN_LSIO_GPIO3_IO02                     0xC0000041 /* UX_5V_OC */
-			        SC_P_CSI_RESET_LSIO_GPIO3_IO03                  0xC0000041 /* UX_GSTIC_RSTn */
-			        SC_P_CSI_MCLK_LSIO_GPIO3_IO01                   0xC0000041 /* UX_PWR_EN */
-			        SC_P_CSI_PCLK_LSIO_GPIO3_IO00                   0xC0000041 /* UX_GSTIC_TS */
-			        SC_P_MCLK_IN0_LSIO_GPIO0_IO19                   0xC0000041 /* RFID_PWR_EN */
-
-			        SC_P_MIPI_DSI0_GPIO0_00_MIPI_DSI0_PWM0_OUT      0x00000020 /* LCD_PWM */
-			        SC_P_MIPI_DSI0_GPIO0_01_LSIO_GPIO1_IO28         0xC0000041 /* LCD_SEL_10H_8L */
-			        SC_P_QSPI0A_DATA0_LSIO_GPIO3_IO09               0xC0000041 /* LCD_REV_SCAN */
-			        SC_P_QSPI0A_DATA1_LSIO_GPIO3_IO10               0xC0000041 /* LCD_3V3_EN */
-			        SC_P_QSPI0A_DATA2_LSIO_GPIO3_IO11               0xC0000041 /* LCD_BLU_EN */
-			        SC_P_QSPI0A_DATA3_LSIO_GPIO3_IO12               0xC0000041 /* SPK_PWREN */
-
-			        SC_P_QSPI0B_SS0_B_LSIO_GPIO3_IO23               0xC0000041 /* WIFI_WAKE_B */
-			        SC_P_QSPI0B_SS1_B_LSIO_GPIO3_IO24               0xC0000041 /* WIFI_PCIE_W_DISABLEn */
-			        SC_P_QSPI0B_SCLK_LSIO_GPIO3_IO17                0xC0000041 /* WIFI_EN */
-			        SC_P_QSPI0B_DATA0_LSIO_GPIO3_IO18               0xC0000041 /* ENET0_INT */
-			        SC_P_QSPI0B_DATA1_LSIO_GPIO3_IO19               0xC0000041 /* ENET0_PPS */
-			        SC_P_QSPI0B_DATA2_LSIO_GPIO3_IO20               0xC0000041 /* ENET1_INT */
-			        SC_P_QSPI0B_DATA3_LSIO_GPIO3_IO21               0xC0000041 /* ENET1_PPS */
-
-			        SC_P_USB_SS3_TC2_LSIO_GPIO4_IO05                0xC0000041 /* USBHUB_FLEXCMD */
-			        SC_P_SPI0_CS0_LSIO_GPIO1_IO08                   0xC0000041 /* GPIO2_0 / LED */
-			        SC_P_SPI0_CS1_LSIO_GPIO1_IO07                   0xC0000041 /* GPIO2_1 / LED */
-			        SC_P_SPI0_SCK_LSIO_GPIO1_IO04                   0xC0000041 /* GPIO2_2 / ETH0_RST_B */
-			        SC_P_SPI0_SDI_LSIO_GPIO1_IO05                   0xC0000041 /* GPIO2_3 / ETH1_RST_B */
-			        SC_P_SPI0_SDO_LSIO_GPIO1_IO06                   0xC0000041 /* GPIO2_4 / USB_RST_N */
-
-			        SC_P_SPI2_CS0_LSIO_GPIO1_IO00                   0xC0000041 /* GPIO2_5 / MOD_ENBL */
-			        SC_P_SPI2_SCK_LSIO_GPIO1_IO03                   0xC0000041 /* GPIO2_6 / MOD_eRST */
-			        SC_P_SPI2_SDI_LSIO_GPIO1_IO02                   0xC0000041 /* GPIO2_7 / MOD_IGT */
-			        SC_P_SPI2_SDO_LSIO_GPIO1_IO01                   0xC0000041 /* GPIO2_8 / MOD_STATUS_IO */
-		        >;
-	        };
 
 		pinctrl_fec1: fec1grp {
 			fsl,pins = <
@@ -218,6 +160,14 @@
 				SC_P_USDHC1_DATA2_CONN_USDHC1_DATA2	0x00000021
 				SC_P_USDHC1_DATA3_CONN_USDHC1_DATA3	0x00000021
 				SC_P_USDHC1_VSELECT_CONN_USDHC1_VSELECT	0x00000021
+			>;
+		};
+
+		pinctrl_pcieb: pcieagrp{
+			fsl,pins = <
+				SC_P_PCIE_CTRL0_PERST_B_LSIO_GPIO4_IO00		0x06000021
+				SC_P_PCIE_CTRL0_CLKREQ_B_LSIO_GPIO4_IO01	0x06000021
+				SC_P_PCIE_CTRL0_WAKE_B_LSIO_GPIO4_IO02		0x04000021
 			>;
 		};
 
@@ -448,6 +398,16 @@
 	phy-handle = <&ethphy1>;
 	fsl,ar8031-phy-fixup;
 	fsl,magic-packet;
+	status = "okay";
+};
+
+&usbotg1 {
+	vbus-supply = <&reg_usb_otg1_vbus>;
+	srp-disable;
+	hnp-disable;
+	adp-disable;
+	power-polarity-active-high;
+	disable-over-current;
 	status = "okay";
 };
 
