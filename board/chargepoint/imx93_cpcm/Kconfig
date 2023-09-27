@@ -1,0 +1,19 @@
+if  TARGET_CHARGEPOINT_IMX93_CPCM
+
+config SYS_BOARD
+	default "imx93_cpcm"
+
+config SYS_VENDOR
+	default "chargepoint"
+
+config SYS_CONFIG_NAME
+	default "chargepoint_imx93_cpcm"
+
+config IMX93_CPCM_LPDDR4X
+	bool "Using LPDDR4X Timing and PMIC voltage"
+	default y
+	select IMX9_LPDDR4X
+	help
+	  Select the LPDDR4X timing and 0.6V VDDQ
+
+endif
