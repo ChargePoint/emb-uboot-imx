@@ -112,6 +112,7 @@ int board_early_init_f(void)
 #define GPIO_DBG_LED11	IMX_GPIO_NR(3, 14)
 
 #define GPIO_USBH_RESET	IMX_GPIO_NR(1, 6)
+#define GPIO_UX_PWR_EN	IMX_GPIO_NR(3, 1)
 
 static void set_gpio(int gpio, const char *gpioname, int val)
 {
@@ -130,6 +131,7 @@ static void board_gpio_init(void)
 	set_gpio(GPIO_USBH_RESET, "usb5734_reset", 0);
 
 	set_gpio(GPIO_SER_PWR_EN, "ser_pwr_en", 1);
+	set_gpio(GPIO_UX_PWR_EN, "ux_pwr_en", 1);
 }
 #endif
 
@@ -652,6 +654,44 @@ static void realtek_phy_supp(void *blob)
 	return;
 }
 
+#define DT_PATH_I2C2 "/bus@5a000000/i2c@5a820000/"
+
+static void pcap_dt_update(void *blob)
+{
+	struct udevice *bus;
+	int err = uclass_get_device_by_seq(UCLASS_I2C, 2, &bus);
+	if (err) {
+		printf("PCAP: I2C bus not found\n");
+		return;
+	}
+
+	struct {
+		uint8_t i2c_addr;
+		const char *vendor;
+		const char *dt_path;
+	} pcap_info[] = {
+		{ 0x2a, "eeti",   DT_PATH_I2C2 "egalax_i2c@2a" },
+		{ 0x41, "ilitek", DT_PATH_I2C2 "ilitek@41" },
+		{ 0x4a, "atmel",  DT_PATH_I2C2 "atmel_mxt_ts@4a" }
+	};
+
+	for (size_t i = 0; i < ARRAY_SIZE(pcap_info); i++) {
+		struct udevice *udev;
+		err = dm_i2c_probe(bus, pcap_info[i].i2c_addr, 0, &udev);
+		if (!err) {
+			printf("PCAP Vendor: %s\n", pcap_info[i].vendor);
+
+			int offs = fdt_path_offset(blob, pcap_info[i].dt_path);
+			if (fdt_setprop_string(blob, offs, "status", "okay") < 0) {
+				printf("  Failed to set %s/status -> okay\n", pcap_info[i].dt_path);
+			}
+			return;
+		}
+	}
+
+	printf("PCAP Vendor: none found\n");
+}
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	uint32_t uid_high, uid_low;
@@ -704,6 +744,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 	if(phyType != PHY_VENDOR_QUALCOMM) {
 		realtek_phy_supp(blob);
 	}
+
+	pcap_dt_update(blob);
 
 	if (env_get_yesno("energystar") == 1) {
 		printf("Energy star mode\n");
