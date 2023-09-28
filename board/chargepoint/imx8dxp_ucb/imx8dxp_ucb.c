@@ -437,6 +437,27 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		disable_kernel_heartbeat(blob);
 	}
 
+	/*
+	 * incorporate the core of a pseudo random generator from xorshift32
+	 * that is derived from p. 4 of Marsaglia, "Xorshift RNGs"
+	 *
+	 * uint32_t xorshift32(struct xorshift32_state *state)
+	 * {
+	 *         uint32_t x = state->a;
+	 *         x ^= x << 13;
+	 *         x ^= x >> 17;
+	 *         x ^= x << 5;
+	 *         return state->a = x;
+	 * }
+	 *
+	 * The collision of 64-bit to 46-bit because of multicast and locally
+	 * derived bits is a concern, but the cpuid values are generated from
+	 * NXP as a consecutive sequence meaning a run from the same parts
+	 * lot may only differ in 1-bit which is a larger concern then the
+	 * collision domains. Because the seed is not really a random value
+	 * it is more important to use a PRNG generator to deal with small
+	 * bit differences instead of just hashing the cpuid for a value.
+	 */
 	if (!env_get("ethaddr") && !env_get("eth1addr")) {
 		u8 mac_addr[6];
 		uint32_t mac_seed;
