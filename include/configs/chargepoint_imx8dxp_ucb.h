@@ -11,13 +11,7 @@
 
 #include "imx_env.h"
 
-#define CONFIG_SERIAL_TAG
-#define CONFIG_REMAKE_ELF
-
-// 64 << 20 is equal to 0x4000000
-// Compiler was complaining about redefinition despite them being the same.
-#define CONFIG_SYS_BOOTM_LEN            0x4000000
-#define CONFIG_SYS_XIMG_LEN CONFIG_SYS_BOOTM_LEN
+#define CFG_SYS_FSL_ESDHC_ADDR       0
 
 /* Physical Memory Map */
 #define CFG_SYS_SDRAM_BASE              0x080000000
@@ -25,40 +19,15 @@
 #define PHYS_SDRAM_1_SIZE               0x080000000	/* 2 GB */
 #define PHYS_SDRAM_2                    0x880000000
 #define PHYS_SDRAM_2_SIZE               0x040000000	/* 1 GB */
-#define CONFIG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_USDHC_NUM	2
 
 /* Serial */
 #define CONSOLE_DEV	"ttyLP0"
-#define CONFIG_BAUDRATE			115200
-
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY               8000000	/* 8MHz */
-
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
-
-/* USB OTG controller configs */
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_MXC_USB_PORTSC           (PORT_PTS_UTMI | PORT_PTS_PTW)
-#endif
 
 /* Networking */
-#define CONFIG_FEC_ENET_DEV 0
-
-#if (CONFIG_FEC_ENET_DEV == 0)
 #define IMX_FEC_BASE                    0x5B040000
-#define CONFIG_FEC_MXC_PHYADDR          0x0
-#define CONFIG_ETHPRIME                 "eth0"
-#elif (CONFIG_FEC_ENET_DEV == 1)
-#define IMX_FEC_BASE                    0x5B050000
-#define CONFIG_FEC_MXC_PHYADDR          0x1
-#define CONFIG_ETHPRIME                 "eth1"
-#endif
+#define CFG_FEC_MXC_PHYADDR          0x0
 
-#define CONFIG_FEC_XCV_TYPE             RGMII
 #define FEC_QUIRK_ENET_MAC
 #define PHY_ANEG_TIMEOUT 20000
 
