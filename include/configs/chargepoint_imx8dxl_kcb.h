@@ -11,44 +11,6 @@
 
 #include "imx_env.h"
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SPL_MAX_SIZE				(128 * 1024)
-#define CONFIG_SYS_MONITOR_LEN				(1024 * 1024)
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0x1040 /* (32K + 2Mb)/sector_size */
-
-/*
- * 0x08081000 - 0x08180FFF is for m4_0 xip image,
-  * So 3rd container image may start from 0x8181000
- */
-#define CONFIG_SYS_UBOOT_BASE 0x08181000
-
-#define CONFIG_SYS_NAND_U_BOOT_OFFS     (0x8000000)  /*Put the FIT out of first 128MB boot area */
-#define CONFIG_SPL_NAND_BASE
-#define CONFIG_SPL_NAND_IDENT
-
-#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION		0
-
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
-/*
- * The memory layout on stack:  DATA section save + gd + early malloc
- * the idea is re-use the early malloc (CONFIG_SYS_MALLOC_F_LEN) with
- * CONFIG_SYS_SPL_MALLOC_START
- */
-#define CONFIG_SPL_STACK		0x822ffff0
-#define CONFIG_SPL_BSS_START_ADDR      0x82280000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x1000	/* 4 KB */
-#define CONFIG_SYS_SPL_MALLOC_START	0x82200000
-#define CONFIG_SYS_SPL_MALLOC_SIZE     0x80000	/* 512 KB */
-#define CONFIG_SERIAL_LPUART_BASE	0x5a060000
-#define CONFIG_MALLOC_F_ADDR		0x82200000
-
-#define CONFIG_SPL_RAW_IMAGE_ARM_TRUSTED_FIRMWARE
-
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
-
-#endif
-
 #define CONFIG_REMAKE_ELF
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -69,9 +31,9 @@
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* Link Definitions */
-#define CONFIG_LOADADDR			0xA8000000
+// RMW remove #define CONFIG_LOADADDR			0xA8000000
 
-#define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
+// RMW defconfig #define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
 
 #define CONFIG_SYS_INIT_SP_ADDR         0x80200000
 
@@ -102,7 +64,7 @@
 #define CONFIG_SYS_BOOTM_LEN            (64 << 24)
 #define CONFIG_SYS_XIMG_LEN             CONFIG_SYS_BOOTM_LEN
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+// RMW defconfig and CFG not CONFIG #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
 
@@ -201,7 +163,7 @@
 /* Serial */
 #define CONSOLE_DEV	"ttyLP0"
 
-#define CONFIG_MFG_ENV_SETTINGS \
+#define CFG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
 		"reboot=h earlyprintk=serial ignore_loglevel debug " \
 		"clk_ignore_unused root=/dev/ram " \
@@ -211,8 +173,8 @@
 		"\0" \
 
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	CONFIG_MFG_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
+	CFG_MFG_ENV_SETTINGS \
 	"console=" CONSOLE_DEV "\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"bootenvpart=0:1\0" \
