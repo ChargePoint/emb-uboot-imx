@@ -14,11 +14,6 @@
 #define CONFIG_SERIAL_TAG
 #define CONFIG_REMAKE_ELF
 
-// 64 << 20 is equal to 0x4000000
-// Compiler was complaining about redefinition despite them being the same.
-#define CONFIG_SYS_BOOTM_LEN            0x4000000
-#define CONFIG_SYS_XIMG_LEN CONFIG_SYS_BOOTM_LEN
-
 /* Physical Memory Map */
 #define CFG_SYS_SDRAM_BASE              0x080000000
 #define PHYS_SDRAM_1                    0x080000000
