@@ -200,7 +200,7 @@ U_BOOT_DRIVER(imx8dxl_wdt) = {
 	.of_match	= imx8dxl_wdt_ids,
 	.probe		= imx8dxl_wdt_probe,
 	.ops		= &imx8dxl_wdt_ops,
-	.priv_auto_alloc_size = sizeof(struct imx8dxl_wdt_priv),
+	.priv_auto = sizeof(struct imx8dxl_wdt_priv),
 	.flags		= DM_FLAG_PRE_RELOC,
 };
 #endif
