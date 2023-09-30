@@ -14,24 +14,26 @@
 #define CONFIG_SERIAL_TAG
 #define CONFIG_REMAKE_ELF
 
+// RMW CONFIG_SYS_FSL_ESDHC_ADDR changed to CFG_
+#define CFG_SYS_FSL_ESDHC_ADDR       0
+
 /* Physical Memory Map */
 #define CFG_SYS_SDRAM_BASE              0x080000000
 #define PHYS_SDRAM_1                    0x080000000
 #define PHYS_SDRAM_1_SIZE               0x080000000	/* 2 GB */
 #define PHYS_SDRAM_2                    0x880000000
 #define PHYS_SDRAM_2_SIZE               0x040000000	/* 1 GB */
-#define CONFIG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_USDHC_NUM	2
 
 /* Serial */
 #define CONSOLE_DEV	"ttyLP0"
-#define CONFIG_BAUDRATE			115200
 
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
 /* Generic Timer Definitions */
-#define COUNTER_FREQUENCY               8000000	/* 8MHz */
+// RMW defconfig #define COUNTER_FREQUENCY               8000000	/* 8MHz */
 
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
+// RMW went away #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 
 /* USB OTG controller configs */
 #ifdef CONFIG_USB_EHCI_HCD
