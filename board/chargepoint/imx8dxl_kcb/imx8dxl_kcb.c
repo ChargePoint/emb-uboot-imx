@@ -26,6 +26,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
+}
+
 #define ENET_INPUT_PAD_CTRL	((SC_PAD_CONFIG_OD_IN << PADRING_CONFIG_SHIFT) | (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) \
 						| (SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
 
@@ -107,27 +116,6 @@ int checkboard(void)
 	return 0;
 }
 
-void enumerateWDT(void)
-{
-	int ret;
-	struct udevice *dev;
-	struct uclass *uc;
-	
-	printf("enumerateWDT: Interrogating systemn for WDT devices.\n");
-
-	ret = uclass_get(UCLASS_WDT, &uc);
-	if (ret) {
-		printf("enumerateWDT: Unable to find Watchdog Driver Class UCLASS_WDT. Err=%d\n", ret);
-		return;
-	}
-	else {
-		printf("enumerateWDT: Watchdog class drivers list:\n");
-		uclass_foreach_dev(dev, uc) {
-			printf("    %s (%s)\n", dev->name, dev->driver->name);
-		}
-	}
-}
-
 int board_init(void)
 {
 	setup_fitimage_keys();
@@ -143,25 +131,21 @@ void board_quiesce_devices(void)
 		"dma_lpuart0",
 	};
 
-	power_off_pd_devices(power_on_devices, ARRAY_SIZE(power_on_devices));
+	imx8_power_off_pd_devices(power_on_devices, ARRAY_SIZE(power_on_devices));
 }
 
 /*
  * Board specific reset that is system reset.
  */
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	/* TODO */
 }
 
 int board_late_init(void)
 {
-	char *fdt_file;
-	bool __maybe_unused m4_boot;
 	sc_err_t err;
 	uint16_t lc;
-
-	enumerateWDT();
 
 	build_info();
 
@@ -171,20 +155,6 @@ int board_late_init(void)
 #endif
 
 	env_set("sec_boot", "no");
-
-	fdt_file = env_get("fdt_file");
-	m4_boot = check_m4_parts_boot();
-
-	if (fdt_file && !strcmp(fdt_file, "undefined")) {
-#if defined(CONFIG_TARGET_IMX8DXL_DDR3_EVK)
-		env_set("fdt_file", "imx8dxl-ddr3-evk.dtb");
-#else
-		if (m4_boot)
-			env_set("fdt_file", "imx8dxl-evk-rpmsg.dtb");
-		else
-			env_set("fdt_file", "imx8dxl-evk.dtb");
-#endif
-	}
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 	board_late_mmc_env_init();
@@ -222,7 +192,7 @@ int board_late_init(void)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	uint32_t uid_high, uid_low;
 

@@ -13,29 +13,29 @@
 
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_BOARD_EARLY_INIT_F
+// RMW defconfig #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_CMD_READ
+// RMW defconfig #define CONFIG_CMD_READ
 
-#define CONFIG_SYS_FSL_ESDHC_ADDR       0
-#define USDHC1_BASE_ADDR                0x5B010000
-#define USDHC2_BASE_ADDR                0x5B020000
+// RMW CONFIG_SYS_FSL_ESDHC_ADDR changed to CFG_
+#define CFG_SYS_FSL_ESDHC_ADDR       0
 
-#define CONFIG_ENV_OVERWRITE
+// RMW defconfig #define CONFIG_ENV_OVERWRITE
 
-
+/* RMW defconfig
 #define CONFIG_PCIE_IMX
 #define CONFIG_CMD_PCI
 #define CONFIG_PCI_SCAN_SHOW
+*/
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+// RMW defconfig #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* Link Definitions */
 // RMW remove #define CONFIG_LOADADDR			0xA8000000
 
 // RMW defconfig #define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
 
-#define CONFIG_SYS_INIT_SP_ADDR         0x80200000
+// RMW defconfig goes to CUSTOM_SYS_INIT_SP_ADDR and HAS_CUSTOM_SYS_INIT_SP_ADDR #define CONFIG_SYS_INIT_SP_ADDR         0x80200000
 
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_ENV_SECT_SIZE	(128 * 1024)
@@ -44,25 +44,23 @@
 #define CONFIG_ENV_SPI_MODE	CONFIG_SF_DEFAULT_MODE
 #define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
 #else
-#define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
+// RMW defconfig #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
 #endif
 
 /* Environment organization */
 // RMW - include/generated/autoconf.h:106 has it as 0x2000 (same thing)
 // #define CONFIG_ENV_SIZE                 (8 * SZ_1K)
-#define CONFIG_ENV_SIZE                 0x2000
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+// RMW defconfig #define CONFIG_ENV_SIZE                 0x2000
+// RMW defconfig #define CONFIG_ENV_OVERWRITE
+// RMW defconfig #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* Default environment is in mmcblk0boot1 */
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
+// RMW defconfig #define CFG_SYS_FSL_USDHC_NUM	2
+// RMW defconfig #define CONFIG_SYS_MMC_ENV_DEV		0
+// RMW REMOVED #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN           SZ_32M
-#define CONFIG_SYS_BOOTM_LEN            (64 << 24)
-#define CONFIG_SYS_XIMG_LEN             CONFIG_SYS_BOOTM_LEN
+// RMW defconfig #define CONFIG_SYS_MALLOC_LEN           SZ_32M
 
 // RMW defconfig and CFG not CONFIG #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
@@ -77,22 +75,21 @@
 
 #define PHYS_SDRAM_2_SIZE		0x00000000
 
-#define CONFIG_SYS_MEMTEST_START    0xA0000000
-#define CONFIG_SYS_MEMTEST_END      (CONFIG_SYS_MEMTEST_START + (PHYS_SDRAM_1_SIZE >> 2))
-
-/* Serial */
-#define CONFIG_BAUDRATE			115200
+// RMW defconfig #define CONFIG_SYS_MEMTEST_START    0xA0000000
+// RMW defconfig #define CONFIG_SYS_MEMTEST_END      (CONFIG_SYS_MEMTEST_START + (PHYS_SDRAM_1_SIZE >> 2))
 
 /* Monitor Command Prompt */
+/* RMW defconfig
 #define CONFIG_SYS_PROMPT_HUSH_PS2     "UBOOT_KCB> "
 #define CONFIG_SYS_CBSIZE              2048
 #define CONFIG_SYS_MAXARGS             64
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
+*/
 
 /* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		8000000	/* 8MHz */
+// RMW defconfig #define COUNTER_FREQUENCY		8000000	/* 8MHz */
 
 #ifndef CONFIG_DM_PCA953X
 #define CONFIG_PCA953X
@@ -108,7 +105,7 @@
 #define FSPI0_AMBA_BASE			0
 #endif
 
-#define CONFIG_SERIAL_TAG
+// RMW defconfig #define CONFIG_SERIAL_TAG
 
 #ifdef CONFIG_NAND_MXS
 #define CONFIG_CMD_NAND_TRIMFFS
@@ -123,15 +120,15 @@
 #endif
 
 /* USB Config */
-#define CONFIG_USBD_HS
+// RMW went away #define CONFIG_USBD_HS
 
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
+// RMW defconfig #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 
 /* USB OTG controller configs */
 #ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+// RMW defconfig #define CONFIG_USB_HOST_ETHER
+// RMW defconfig #define CONFIG_USB_ETHER_ASIX
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #endif
 
 /* Networking */
@@ -145,20 +142,6 @@
 #endif
 #define CONFIG_ETHPRIME                 "eth1"
 #define PHY_ANEG_TIMEOUT 20000
-
-#if defined(CONFIG_DM_VIDEO)
-#define CONFIG_VIDEO_MXS
-#define CONFIG_VIDEO_LINK
-#define CONFIG_VIDEO_LOGO
-#define CONFIG_SPLASH_SCREEN
-#define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_CMD_BMP
-#define CONFIG_BMP_16BPP
-#define CONFIG_BMP_24BPP
-#define CONFIG_BMP_32BPP
-#define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_VIDEO_BMP_LOGO
-#endif
 
 /* Serial */
 #define CONSOLE_DEV	"ttyLP0"
