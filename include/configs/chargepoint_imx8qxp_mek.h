@@ -11,10 +11,6 @@
 
 #include "imx_env.h"
 
-// RMW defconfig #define CONFIG_SERIAL_TAG
-// RMW defconfig #define CONFIG_REMAKE_ELF
-
-// RMW CONFIG_SYS_FSL_ESDHC_ADDR changed to CFG_
 #define CFG_SYS_FSL_ESDHC_ADDR       0
 
 /* Physical Memory Map */
@@ -28,19 +24,10 @@
 /* Serial */
 #define CONSOLE_DEV	"ttyLP0"
 
-// RMW defconfig #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
-/* Generic Timer Definitions */
-// RMW defconfig #define COUNTER_FREQUENCY               8000000	/* 8MHz */
-
-// RMW went away #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
-
 /* Networking */
 #define IMX_FEC_BASE                    0x5B040000
 #define CFG_FEC_MXC_PHYADDR          0x0
-// RMW defconfig #define CONFIG_ETHPRIME                 "eth0"
 
-// Remove - doesn't exist in u-boot anymore. #define CONFIG_FEC_XCV_TYPE             RGMII
 #define FEC_QUIRK_ENET_MAC
 #define PHY_ANEG_TIMEOUT 20000
 
