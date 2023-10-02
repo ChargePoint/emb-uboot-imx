@@ -3,15 +3,15 @@
  * Copyright 2020 NXP
  */
 
-#ifndef __IMX8DXL_EVK_H
-#define __IMX8DXL_EVK_H
+#ifndef __IMX8DXL_CHPT_H
+#define __IMX8DXL_CHPT_H
 
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 
 #include "imx_env.h"
 
-#define CONFIG_REMAKE_ELF
+// RMW defconfig #define CONFIG_REMAKE_ELF
 
 // RMW defconfig #define CONFIG_BOARD_EARLY_INIT_F
 
@@ -37,16 +37,6 @@
 
 // RMW defconfig goes to CUSTOM_SYS_INIT_SP_ADDR and HAS_CUSTOM_SYS_INIT_SP_ADDR #define CONFIG_SYS_INIT_SP_ADDR         0x80200000
 
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_ENV_SECT_SIZE	(128 * 1024)
-#define CONFIG_ENV_SPI_BUS	CONFIG_SF_DEFAULT_BUS
-#define CONFIG_ENV_SPI_CS	CONFIG_SF_DEFAULT_CS
-#define CONFIG_ENV_SPI_MODE	CONFIG_SF_DEFAULT_MODE
-#define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
-#else
-// RMW defconfig #define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
-#endif
-
 /* Environment organization */
 // RMW - include/generated/autoconf.h:106 has it as 0x2000 (same thing)
 // #define CONFIG_ENV_SIZE                 (8 * SZ_1K)
@@ -67,13 +57,7 @@
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
 
-/* total DDR is 1GB */
-#if defined(CONFIG_TARGET_IMX8DXL_DDR3_EVK)
-#define PHYS_SDRAM_1_SIZE		0x20000000
-#else
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1 GB */
-#endif
-
 #define PHYS_SDRAM_2_SIZE		0x00000000
 
 // RMW defconfig #define CONFIG_SYS_MEMTEST_START    0xA0000000
@@ -92,13 +76,17 @@
 /* Generic Timer Definitions */
 // RMW defconfig #define COUNTER_FREQUENCY		8000000	/* 8MHz */
 
+/* DM_PCA953X went to defconfig.
+   Others shouldn't be necessary and/or are deprecated.
 #ifndef CONFIG_DM_PCA953X
 #define CONFIG_PCA953X
 #define CONFIG_CMD_PCA953X
 #define CONFIG_CMD_PCA953X_INFO
 #endif
+*/
 
 /* MT35XU512ABA1G12 has only one Die, so QSPI0 B won't work */
+/* CONFIG_FSL_FSPI=y is in defconfig in 2023. ifdef remains here, ok. */
 #ifdef CONFIG_FSL_FSPI
 #define FSL_FSPI_FLASH_SIZE		SZ_64M
 #define FSL_FSPI_FLASH_NUM		1
@@ -107,18 +95,6 @@
 #endif
 
 // RMW defconfig #define CONFIG_SERIAL_TAG
-
-#ifdef CONFIG_NAND_MXS
-#define CONFIG_CMD_NAND_TRIMFFS
-
-/* NAND stuff */
-#define CONFIG_SYS_MAX_NAND_DEVICE     1
-#define CONFIG_SYS_NAND_BASE           0x40000000
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_SYS_NAND_USE_FLASH_BBT
-
-#endif
 
 /* USB Config */
 // RMW went away #define CONFIG_USBD_HS
@@ -133,15 +109,12 @@
 #endif
 
 /* Networking */
-#define CONFIG_FEC_XCV_TYPE		RGMII
+// Remove - doesn't exist in u-boot anymore. #define CONFIG_FEC_XCV_TYPE		RGMII
 #define FEC_QUIRK_ENET_MAC
-#define CONFIG_FEC_MXC_PHYADDR          0x1
+#define CFG_FEC_MXC_PHYADDR          0x1
 
-#define DWC_NET_PHYADDR			0
-#ifdef CONFIG_DWC_ETH_QOS
-#define CONFIG_SYS_NONCACHED_MEMORY     (1 * SZ_1M)     /* 1M */
-#endif
-#define CONFIG_ETHPRIME                 "eth1"
+// RMW removed - no longer in u-boot #define DWC_NET_PHYADDR			0
+// RMW defconfig #define CONFIG_ETHPRIME                 "eth1"
 #define PHY_ANEG_TIMEOUT 20000
 
 /* Serial */
@@ -251,4 +224,4 @@
 #define CONFIG_BOOTARGS \
 	"console=" CONSOLE_DEV ",115200 earlyprintk=serial ignore_loglevel"
 
-#endif /* __IMX8DXL_EVK_H */
+#endif /* __IMX8DXL_CHPT_H */
