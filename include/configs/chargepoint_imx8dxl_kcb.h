@@ -62,7 +62,8 @@
 /* Size of malloc() pool */
 // RMW defconfig #define CONFIG_SYS_MALLOC_LEN           SZ_32M
 
-// RMW defconfig and CFG not CONFIG #define CONFIG_SYS_SDRAM_BASE		0x80000000
+// RMW became CFG not CONFIG
+#define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
 
