@@ -843,6 +843,13 @@ config TARGET_O4_IMX6ULL_NANO
 	  Support for www.out4.ru O4-iMX6UL-NANO platform
 	  based on Freescale's i.MX6UL/i.MX6ULL SoC.
 
+config TARGET_ZC5601
+	bool "zc5601"
+	select BOARD_LATE_INIT
+	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
+
 endchoice
 
 config SYS_SOC

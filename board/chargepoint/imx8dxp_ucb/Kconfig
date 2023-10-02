@@ -1,0 +1,15 @@
+if TARGET_CHARGEPOINT_IMX8DXP_UCB
+
+config SYS_BOARD
+	default "imx8dxp_ucb"
+
+config SYS_VENDOR
+	default "chargepoint"
+
+config SYS_CONFIG_NAME
+	default "chargepoint_imx8qxp_mek"
+
+source "board/chargepoint/common/Kconfig"
+# 2023 - no longer available - source "board/freescale/common/Kconfig"
+
+endif

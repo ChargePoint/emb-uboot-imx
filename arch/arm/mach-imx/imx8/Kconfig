@@ -119,33 +119,14 @@ config TARGET_CONGA_QMX8
 	select SUPPORT_SPL
 	select IMX8QM
 
-config TARGET_IMX8QM_ROM7720_A1
-	bool "Support i.MX8QM ROM-7720-A1"
-	select BINMAN
+# NOTE: select correct SoC variant when DXP is supported
+config TARGET_IMX8DXP_UCB
+	bool "Support i.MX8DXP UCB board"
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
-	select IMX8QM
-
-config TARGET_IMX8QXP_MEK
-	bool "Support i.MX8QXP MEK board"
-	select BOARD_LATE_INIT
 	select IMX8QXP
-	select FSL_CAAM
-	select FSL_BLOB
-	select ARCH_MISC_INIT
-	select SPL_CRYPTO if SPL
 
-config TARGET_IMX8QM_MEK_A53_ONLY
-        bool "Support i.MX8QM MEK board, cluster A53 only"
-        select BOARD_LATE_INIT
-        select IMX8QM
-
-config TARGET_IMX8QM_MEK_A72_ONLY
-        bool "Support i.MX8QM MEK board, cluster A72 only"
-        select BOARD_LATE_INIT
-        select IMX8QM
-
-config TARGET_IMX8QXP_LPDDR4_VAL
+config TARGET_IMX8QXP_LPDDR4_ARM2
 	bool "Support i.MX8QXP lpddr4 validation board"
 	select BOARD_LATE_INIT
 	select IMX8QXP
@@ -168,6 +149,18 @@ config TARGET_IMX8DXL_PHANTOM_MEK
 	select FSL_BLOB
 	select ARCH_MISC_INIT
 	select SPL_CRYPTO if SPL
+
+config TARGET_CHARGEPOINT_IMX8DXL_KCB
+	bool "Support i.MX8DXL chargepoint kcb"
+	select BOARD_LATE_INIT
+	select IMX8DXL
+
+# NOTE: select correct SoC variant when DXP is supported
+config TARGET_CHARGEPOINT_IMX8DXP_UCB
+	bool "Support i.MX8DXP chargepoint ucb"
+	select BOARD_LATE_INIT
+# Causes failures in imx_bootaux.c	select IMX8DXP
+	select IMX8QXP
 
 config TARGET_IMX8DX_MEK
 	bool "Support i.MX8DX MEK board"
@@ -206,6 +199,18 @@ config TARGET_IMX8DXL_ORANGEBOX
 	select ARCH_MISC_INIT
 	select SPL_CRYPTO if SPL
 
+config TARGET_CHARGEPOINT_IMX8DXL_KCB
+	bool "Support i.MX8DXL chargepoint kcb"
+	select BOARD_LATE_INIT
+	select IMX8DXL
+
+# NOTE: select correct SoC variant when DXP is supported
+config TARGET_CHARGEPOINT_IMX8DXP_UCB
+	bool "Support i.MX8DXP chargepoint ucb"
+	select BOARD_LATE_INIT
+# Causes failures in imx_bootaux.c	select IMX8DXP
+	select IMX8QXP
+
 endchoice
 
 source "board/freescale/imx8qm_mek/Kconfig"
@@ -221,13 +226,16 @@ source "board/toradex/apalis-imx8/Kconfig"
 source "board/toradex/colibri-imx8x/Kconfig"
 source "board/siemens/capricorn/Kconfig"
 
+source "board/chargepoint/imx8dxl_kcb/Kconfig"
+source "board/chargepoint/imx8dxp_ucb/Kconfig"
+
 config SKIP_RESOURCE_CHECKING
 	bool "Skip resource owner checking to kernel FDT nodes"
 	help
 	  By default the kernel FDT nodes are checked if belong to current partition.
 	  Set the config to skip this checking.
 
-config IMX_SNVS_SEC_SC
+config SNVS_SEC_SC
 	bool "Support SNVS configuration"
 	help
 	  Allow to configure the SNVS via SCU API to configure tampers and secure
