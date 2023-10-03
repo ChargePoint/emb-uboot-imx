@@ -8,13 +8,6 @@ obj-y += imx8dxl_kcb.o
 obj-y += imx8dxl_watchdog.o
 obj-y += ../../freescale/common/
 
-ifdef CONFIG_SPL_BUILD
-obj-$(CONFIG_SPL_BUILD) += spl.o
-else
-
-# obj-y += ../common/cmd_watchdog.o
-# obj-y += ../common/watchdog_startup.o
-
 extra-y += ../../../arch/$(ARCH)/dts/imx8dxl-chargepoint-kcb.dts
 $(obj)/../../../arch/$(ARCH)/dts/imx8dxl-chargepoint-kcb.dts: \
 		$(src)/imx8dxl-chargepoint-kcb.dts
@@ -29,5 +22,3 @@ extra-y += ../../../arch/$(ARCH)/dts/prod-pubkey-kcb.dtsi
 $(obj)/../../../arch/$(ARCH)/dts/prod-pubkey-kcb.dtsi: \
 		$(src)/prod-pubkey-kcb.dtsi
 	ln -fsn $(abspath $<) $@
-
-endif
