@@ -20,9 +20,9 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
 #include <usb.h>
+#include <asm/setup.h>
+#include <asm/bootm.h>
 #include "../common/fitimage_keys.h"
-
-//#include "../../freescale/common/tcpc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -156,10 +156,6 @@ int board_late_init(void)
 
 	env_set("sec_boot", "no");
 
-#ifdef CONFIG_ENV_IS_IN_MMC
-	board_late_mmc_env_init();
-#endif
-
 	/* Determine the security state of the chip (OEM closed) */
 	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
 
@@ -194,50 +190,23 @@ int board_late_init(void)
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	uint32_t uid_high, uid_low;
+	struct tag_serialnr sn;
+	sn.low = sn.high = 0;
 
-	/*
-	 * i.MX8 Configuration and Manufacturing Info in OTP fuse array
-	 *   UNIQUE_ID LOW: 16
-	 *   UNIQUE_ID HI: 17
-	 */
 	do {
-		sc_err_t err;
-		uint32_t word;
-
-#define FUSE_UNIQUE_ID_LOW	16
-#define FUSE_UNIQUE_ID_HIGH	17
-
-		word = FUSE_UNIQUE_ID_LOW;
-		err = sc_misc_otp_fuse_read(-1, word, &uid_low);
-		if (err != SC_ERR_NONE) {
-			printf("%s fuse %d read error: %d\n",
-				__func__, word, err);
-			goto out;
-		}
-		word = FUSE_UNIQUE_ID_HIGH;
-		err = sc_misc_otp_fuse_read(-1, word, &uid_high);
-		if (err != SC_ERR_NONE) {
-			printf("%s fuse %d read error: %d\n",
-				__func__, word, err);
-			goto out;
-		}
-
-#undef FUSE_UNIQUE_ID_LOW
-#undef FUSE_UNIQUE_ID_HIGH
+		get_board_serial(&sn);
 	} while(0);
 
 	if (!env_get("serial#")) {
 		char serial_str[17];
 
 		snprintf(serial_str, sizeof(serial_str),
-			 "%08x%08x", uid_high, uid_low);
+			 "%08x%08x", sn.high, sn.low);
 		env_set("serial#", serial_str);
 
 		fdt_root(blob);
 	}
 
-out:
 	return 0;
 }
 #endif

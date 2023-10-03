@@ -7,7 +7,7 @@
 
 #include "fsl-imx8dxl.dtsi"
 
-#if !defined(CONFIG_FASTBOOT)
+#if defined(CONFIG_NOT_UUU_BUILD)
 #include "chargepoint-pubkey.dtsi"
 #include "prod-pubkey-kcb.dtsi"
 #endif
