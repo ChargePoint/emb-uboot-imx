@@ -11,79 +11,14 @@
 
 #include "imx_env.h"
 
-// RMW defconfig #define CONFIG_REMAKE_ELF
-
-// RMW defconfig #define CONFIG_BOARD_EARLY_INIT_F
-
-// RMW defconfig #define CONFIG_CMD_READ
-
-// RMW CONFIG_SYS_FSL_ESDHC_ADDR changed to CFG_
 #define CFG_SYS_FSL_ESDHC_ADDR       0
 
-// RMW defconfig #define CONFIG_ENV_OVERWRITE
-
-/* RMW defconfig
-#define CONFIG_PCIE_IMX
-#define CONFIG_CMD_PCI
-#define CONFIG_PCI_SCAN_SHOW
-*/
-
-// RMW defconfig #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
-/* Link Definitions */
-// RMW remove #define CONFIG_LOADADDR			0xA8000000
-
-// RMW defconfig #define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
-
-// RMW defconfig goes to CUSTOM_SYS_INIT_SP_ADDR and HAS_CUSTOM_SYS_INIT_SP_ADDR #define CONFIG_SYS_INIT_SP_ADDR         0x80200000
-
-/* Environment organization */
-// RMW - include/generated/autoconf.h:106 has it as 0x2000 (same thing)
-// #define CONFIG_ENV_SIZE                 (8 * SZ_1K)
-// RMW defconfig #define CONFIG_ENV_SIZE                 0x2000
-// RMW defconfig #define CONFIG_ENV_OVERWRITE
-// RMW defconfig #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
-/* Default environment is in mmcblk0boot1 */
-// RMW defconfig #define CFG_SYS_FSL_USDHC_NUM	2
-// RMW defconfig #define CONFIG_SYS_MMC_ENV_DEV		0
-// RMW REMOVED #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
-/* Size of malloc() pool */
-// RMW defconfig #define CONFIG_SYS_MALLOC_LEN           SZ_32M
-
-// RMW became CFG not CONFIG
 #define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
 
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1 GB */
 #define PHYS_SDRAM_2_SIZE		0x00000000
-
-// RMW defconfig #define CONFIG_SYS_MEMTEST_START    0xA0000000
-// RMW defconfig #define CONFIG_SYS_MEMTEST_END      (CONFIG_SYS_MEMTEST_START + (PHYS_SDRAM_1_SIZE >> 2))
-
-/* Monitor Command Prompt */
-/* RMW defconfig
-#define CONFIG_SYS_PROMPT_HUSH_PS2     "UBOOT_KCB> "
-#define CONFIG_SYS_CBSIZE              2048
-#define CONFIG_SYS_MAXARGS             64
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
-*/
-
-/* Generic Timer Definitions */
-// RMW defconfig #define COUNTER_FREQUENCY		8000000	/* 8MHz */
-
-/* DM_PCA953X went to defconfig.
-   Others shouldn't be necessary and/or are deprecated.
-#ifndef CONFIG_DM_PCA953X
-#define CONFIG_PCA953X
-#define CONFIG_CMD_PCA953X
-#define CONFIG_CMD_PCA953X_INFO
-#endif
-*/
 
 /* MT35XU512ABA1G12 has only one Die, so QSPI0 B won't work */
 /* CONFIG_FSL_FSPI=y is in defconfig in 2023. ifdef remains here, ok. */
@@ -94,27 +29,17 @@
 #define FSPI0_AMBA_BASE			0
 #endif
 
-// RMW defconfig #define CONFIG_SERIAL_TAG
-
 /* USB Config */
-// RMW went away #define CONFIG_USBD_HS
-
-// RMW defconfig #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 
 /* USB OTG controller configs */
 #ifdef CONFIG_USB_EHCI_HCD
-// RMW defconfig #define CONFIG_USB_HOST_ETHER
-// RMW defconfig #define CONFIG_USB_ETHER_ASIX
 #define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #endif
 
 /* Networking */
-// Remove - doesn't exist in u-boot anymore. #define CONFIG_FEC_XCV_TYPE		RGMII
 #define FEC_QUIRK_ENET_MAC
 #define CFG_FEC_MXC_PHYADDR          0x1
 
-// RMW removed - no longer in u-boot #define DWC_NET_PHYADDR			0
-// RMW defconfig #define CONFIG_ETHPRIME                 "eth1"
 #define PHY_ANEG_TIMEOUT 20000
 
 /* Serial */
