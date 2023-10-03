@@ -56,58 +56,6 @@ int ahab_auth_release(void)
 	return err;
 }
 
-int ahab_verify_cntr_image(struct boot_img_t *img, int image_index)
-{
-	sc_faddr_t start, end;
-	sc_rm_mr_t mr;
-	int err;
-	int ret = 0;
-
-	debug("img %d, dst 0x%llx, src 0x%x, size 0x%x\n",
-	      image_index, img->dst, img->offset, img->size);
-
-	/* Find the memreg and set permission for seco pt */
-	err = sc_rm_find_memreg(-1, &mr,
-				img->dst & ~(CONFIG_SYS_CACHELINE_SIZE - 1),
-				ALIGN(img->dst + img->size, CONFIG_SYS_CACHELINE_SIZE) - 1);
-
-	if (err) {
-		printf("Error: can't find memreg for image load address 0x%llx, error %d\n", img->dst, err);
-		return -ENOMEM;
-	}
-
-	err = sc_rm_get_memreg_info(-1, mr, &start, &end);
-	if (!err)
-		debug("memreg %u 0x%llx -- 0x%llx\n", mr, start, end);
-
-	err = sc_rm_set_memreg_permissions(-1, mr,
-					   SECO_PT, SC_RM_PERM_FULL);
-	if (err) {
-		printf("Set permission failed for img %d, error %d\n",
-		       image_index, err);
-		return -EPERM;
-	}
-
-	err = sc_seco_authenticate(-1, SC_SECO_VERIFY_IMAGE,
-				   1 << image_index);
-	if (err) {
-		printf("Authenticate img %d failed, return %d\n",
-		       image_index, err);
-		ret = -EIO;
-	}
-
-	err = sc_rm_set_memreg_permissions(-1, mr,
-					   SECO_PT, SC_RM_PERM_NONE);
-	if (err) {
-		printf("Remove permission failed for img %d, error %d\n",
-		       image_index, err);
-		ret = -EPERM;
-	}
-
-	return ret;
-}
-
-
 static inline bool check_in_dram(ulong addr)
 {
 	int i;
