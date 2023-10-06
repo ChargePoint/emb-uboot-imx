@@ -10,6 +10,5 @@ config SYS_CONFIG_NAME
 	default "chargepoint_imx8qxp_mek"
 
 source "board/chargepoint/common/Kconfig"
-# 2023 - no longer available - source "board/freescale/common/Kconfig"
 
 endif

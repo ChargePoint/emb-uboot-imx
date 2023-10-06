@@ -14,6 +14,12 @@
 
 #include "../../../include/image.h"
 
+#if CONFIG_IS_ENABLED(CHARGEPOINT_MFG)
+#define SIGNATURE_PREFIX "mfg:"
+#else
+#define SIGNATURE_PREFIX "prod:"
+#endif
+
 static inline void setup_fitimage_keys(void)
 {
 #if CONFIG_IS_ENABLED(FIT_SIGNATURE)
