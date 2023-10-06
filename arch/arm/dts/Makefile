@@ -1019,7 +1019,6 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 	fsl-imx8dxl-evk.dtb \
 	fsl-imx8dxl-evk-lcdif.dtb \
 	fsl-imx8dxl-ddr3-evk.dtb \
-	imx8dxl-chargepoint-kcb.dtb \
 	imx8-deneb.dtb \
 	imx8-giedi.dtb
 
@@ -1095,6 +1094,7 @@ dtb-$(CONFIG_ARCH_IMX9) += \
 	imx91p-9x9-qsb-spinand.dtb
 
 dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8DXP_UCB) += imx8dxp-chargepoint-ucb.dtb
+dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8DXL_KCB) += imx8dxl-chargepoint-kcb.dtb
 
 dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb \
