@@ -1088,7 +1088,12 @@ dtb-$(CONFIG_ARCH_IMX9) += \
 	imx93-11x11-evk.dtb \
 	imx93-14x14-evk.dtb \
 	imx93-9x9-qsb.dtb \
-	imx93-9x9-qsb-ontat-wvga-panel.dts
+	imx93-9x9-qsb-ontat-wvga-panel.dtb \
+	imx91p-11x11-evk.dtb \
+	imx91p-9x9-qsb-ontat-wvga-panel.dtb \
+	imx91p-9x9-qsb-spinand.dtb
+
+dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8DXP_UCB) += imx8dxp-chargepoint-ucb.dtb
 
 dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX93_CPCM) += imx93-chargepoint-cpcm.dtb
 dtb-$(CONFIG_TARGET_CHARGEPOINT_IMX8DXL_KCB) += imx8dxl-chargepoint-kcb.dtb

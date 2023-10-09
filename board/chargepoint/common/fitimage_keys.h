@@ -12,7 +12,13 @@
 #ifndef _CHARGEPOINT_FITIMAGE_KEYS_H_
 #define _CHARGEPOINT_FITIMAGE_KEYS_H_
 
-#include "../../../include/image.h"
+#if CONFIG_IS_ENABLED(CHARGEPOINT_MFG)
+#define SIGNATURE_PREFIX "mfg:"
+#else
+#define SIGNATURE_PREFIX "prod:"
+#endif
+
+#include <image.h>
 
 static inline void setup_fitimage_keys(void)
 {
@@ -39,13 +45,13 @@ static inline void setup_fitimage_keys(void)
 
 		err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
 		if ((err == SC_ERR_NONE) && (lc == 0x80)) {
-			sig_prefix = "prod:";
+			sig_prefix = SIGNATURE_PREFIX;
 		} else {
 			sig_prefix = "dev:";
 		}
 	} while(0);
 #else
-	sig_prefix = hab_is_enabled() ? "prod:" : "dev:";
+	sig_prefix = imx_hab_is_enabled() ? SIGNATURE_PREFIX : "dev:";
 #endif
 	sig_blob = (void *)(uintptr_t)gd->fdt_blob;
 

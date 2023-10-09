@@ -64,6 +64,23 @@ config PSCI_BOARD_REBOOT
 	help
 	  This is a optional command used to trigger system board reboot on imx8.
 
+config SECURE_HEAP_BASE
+	hex "secure heap base addr"
+	default 0xe0000000
+
+config SECURE_HEAP_SIZE
+	hex "secure heap base size"
+	default 0x10000000
+
+config VPU_BOOT_BASE
+	hex "vpu boot memory addr"
+	default 0x96000000
+
+config VPU_BOOT_SIZE
+	hex "vpu boot memory size"
+	default 0x2000000
+
+
 choice
 	prompt "i.MX8 board select"
 	optional
@@ -126,7 +143,18 @@ config TARGET_IMX8DXP_UCB
 	select SUPPORT_SPL
 	select IMX8QXP
 
-config TARGET_IMX8QXP_LPDDR4_ARM2
+config TARGET_IMX8QM_MEK_A72_ONLY
+  bool "Support i.MX8QM MEK board, cluster A72 only"
+  select BOARD_LATE_INIT
+  select IMX8QM
+
+# NOTE: select correct SoC variant when DXP is supported
+config TARGET_CHARGEPOINT_IMX8DXP_UCB
+	bool "Support i.MX8DXP chargepoint ucb"
+	select BOARD_LATE_INIT
+	select IMX8QXP
+
+config TARGET_IMX8QXP_LPDDR4_VAL
 	bool "Support i.MX8QXP lpddr4 validation board"
 	select BOARD_LATE_INIT
 	select IMX8QXP
@@ -225,7 +253,6 @@ source "board/advantech/imx8qm_rom7720_a1/Kconfig"
 source "board/toradex/apalis-imx8/Kconfig"
 source "board/toradex/colibri-imx8x/Kconfig"
 source "board/siemens/capricorn/Kconfig"
-
 source "board/chargepoint/imx8dxl_kcb/Kconfig"
 source "board/chargepoint/imx8dxp_ucb/Kconfig"
 
