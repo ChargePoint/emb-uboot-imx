@@ -66,7 +66,9 @@ void spl_board_init(void)
 
 void spl_dram_init(void)
 {
-	ddr_init(&dram_timing);
+	struct dram_timing_info *ptiming = &dram_timing;
+	printf("DDR: %uMTS\n", ptiming->fsp_msg[0].drate);
+	ddr_init(ptiming);
 }
 
 #if CONFIG_IS_ENABLED(DM_PMIC_PCA9450)
@@ -109,6 +111,7 @@ int power_init_board(void)
 	} else {
 		/* 0.9v for Over drive mode
 		 */
+		printf("PMIC: Over Drive Voltage Mode\n");
 		if (val & PCA9450_REG_PWRCTRL_TOFF_DEB) {
 			pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS0, 0x14);
 			pmic_reg_write(dev, PCA9450_BUCK3OUT_DVS0, 0x14);

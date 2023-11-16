@@ -16,4 +16,6 @@ config IMX93_CPCM_LPDDR4X
 	help
 	  Select the LPDDR4X timing and 0.6V VDDQ
 
+source "board/chargepoint/common/Kconfig"
+
 endif
