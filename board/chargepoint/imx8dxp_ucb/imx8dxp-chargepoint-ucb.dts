@@ -17,7 +17,7 @@
 /* Refer to fsl-imx8qxp-mek.dts and imx6qp-cpnk.dts */
 #include "fsl-imx8qxp.dtsi"
 
-#if defined(CONFIG_NOT_UUU_BUILD)
+#if !defined(CONFIG_FASTBOOT_UUU_SUPPORT)
 #include "chargepoint-pubkey.dtsi"
 #include "prod-pubkey-ucb.dtsi"
 #endif
