@@ -66,6 +66,80 @@ static iomux_cfg_t uart0_pads[] = {
 	SC_P_UART0_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
+#define BD_ID_0 IMX_GPIO_NR(4, 3)
+#define BD_ID_1 IMX_GPIO_NR(4, 5)
+
+struct gpio_ni {
+	const char	*name;
+	unsigned	id;
+};
+
+static struct gpio_ni gpios_input[] = {
+#define NI(_x)	{ .name = #_x,  .id = _x }
+	NI(BD_ID_0),
+	NI(BD_ID_1),
+#undef NI
+};
+
+static void setup_gpios(const struct gpio_ni *nip, unsigned int cnt)
+{
+	int i;
+
+	debug("%s >>>>>>>>\n", __func__);
+	for (i = 0; i < cnt; i++) {
+		gpio_request(nip[i].id, nip[i].name);
+		gpio_direction_input(nip[i].id);
+		debug("\t%d: %s[%u] <- (input)\n", i, nip[i].name, nip[i].id);
+	}
+}
+
+static int get_board_id(void)
+{
+	return 0x03 & gpio_get_value(BD_ID_1) << 1 | gpio_get_value(BD_ID_0);
+}
+
+#define WM8940_PATH "/bus@5a000000/i2c@5a810000/wm8940@1a/"
+#define WM8974_PATH "/bus@5a000000/i2c@5a810000/wm8974@1a/"
+
+#define PRQ2 0b01
+#define PRQ3 0b10
+
+static void audio_codec_select(void *blob)
+{
+	int offs;
+
+	switch (get_board_id()) {
+		case PRQ2:
+			printf("Audio Codec: wm8974\n");
+
+			offs = fdt_path_offset(blob, WM8974_PATH);
+			if (fdt_setprop_string(blob, offs, "status", "okay") < 0) {
+				printf("  Failed to set %s/status -> okay\n", WM8974_PATH);
+			}
+
+			offs = fdt_path_offset(blob, "/sound-wm8974");
+			if (fdt_setprop_string(blob, offs, "status", "okay") < 0) {
+				printf("  Failed to set sound-wm8974/status -> okay\n");
+			}
+
+			break;
+		case PRQ3:
+			printf("Audio Codec: wm8940\n");
+
+			offs = fdt_path_offset(blob, WM8940_PATH);
+			if (fdt_setprop_string(blob, offs, "status", "okay") < 0) {
+				printf("  Failed to set %s/status -> okay\n", WM8940_PATH);
+			}
+
+			offs = fdt_path_offset(blob, "/sound-wm8940");
+			if (fdt_setprop_string(blob, offs, "status", "okay") < 0) {
+				printf("  Failed to set sound-wm8940/status -> okay\n");
+			}
+		default:
+			printf("Unsupported Board id");
+	}
+}
+
 int board_early_init_f(void)
 {
 	sc_err_t err;
@@ -745,6 +819,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 		realtek_phy_supp(blob);
 	}
 
+	setup_gpios(gpios_input, ARRAY_SIZE(gpios_input));
+	audio_codec_select(blob);
 	pcap_dt_update(blob);
 
 	if (env_get_yesno("energystar") == 1) {
