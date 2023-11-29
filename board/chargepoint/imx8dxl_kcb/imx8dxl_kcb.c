@@ -54,6 +54,12 @@ int overwrite_console(void)
 			 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
 			 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
 
+typedef enum {
+	KESTREL_BOARDID1=0x1, /* Obsolete and not supported */
+	KESTREL_BOARDID2=0x2, /* KCBv3 and KCBv4 */
+	KESTREL_BOARDID3=0x3, /* KCBv5 and up */
+} bd_type_t;
+
 static iomux_cfg_t uart0_pads[] = {
 	SC_P_UART0_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
 	SC_P_UART0_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
@@ -63,6 +69,53 @@ static void setup_iomux_uart(void)
 {
 	imx8_iomux_setup_multiple_pads(uart0_pads, ARRAY_SIZE(uart0_pads));
 }
+
+static int read_board_gpio(const char *name, const char *label)
+{
+        struct gpio_desc desc;
+        int ret = 0;
+
+	ret = dm_gpio_lookup_name(name,&desc);
+	if (ret) {
+		printf("%s lookup %s failed ret = %d\n", __func__, name, ret);
+		return -1;
+	}
+	ret = dm_gpio_request(&desc, label);
+	if (ret) {
+		printf("%s dm_gpio_request for %s failed ret = %d\n", __func__, label, ret);
+		return -1;
+	}
+	return dm_gpio_get_value(&desc);
+}
+
+static int get_boardid(void)
+{
+	int bd_id;
+	int val;
+
+	if ((val=read_board_gpio("gpio2_5","bd_id_0")) < 0) {
+		return -1;
+	}
+	bd_id = val<<3;
+
+	if ((val=read_board_gpio("gpio2_6","bd_id_1")) < 0) {
+		return -1;
+	}
+	bd_id |= val<<2;
+
+	if ((val=read_board_gpio("gpio2_7","bd_id_2")) < 0) {
+		return -1;
+	}
+	bd_id |= val<<1;
+
+	if ((val=read_board_gpio("gpio2_8","bd_id_3")) < 0) {
+		return -1;
+	}
+	bd_id |= val;
+
+	return bd_id;
+}
+
 
 int board_early_init_f(void)
 {
@@ -151,6 +204,19 @@ int board_late_init(void)
 	env_set("board_name", "KCB");
 	env_set("board_rev", "iMX8DXL");
 #endif
+	{
+		bd_type_t bd_id;
+		bd_id = get_boardid();
+		switch (bd_id) {
+		case KESTREL_BOARDID2:
+			env_set("board_name", "KCB_BOARDID2");
+			break;
+		default:
+		case KESTREL_BOARDID3:
+			env_set("board_name", "KCB_BOARDID3");
+			break;
+		}
+	}
 
 	env_set("sec_boot", "no");
 
