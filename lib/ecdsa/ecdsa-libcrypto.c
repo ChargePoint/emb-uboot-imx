@@ -9,11 +9,10 @@
  *  - Verification uses private key. This is not technically required, but a
  *    limitation on how clumsy the openssl API is to use.
  *  - Handling of keys and key paths:
- *    - The '-K' key directory option must contain path to the key file,
- *      instead of the key directory.
- *    - No assumptions are made about the file extension of the key
- *    - The 'key-name-hint' property is only used for naming devicetree nodes,
- *      but is not used for looking up keys on the filesystem.
+ *    - The '-k' key directory option works as rsa does.
+ *    - Keyfile (generated from hint) is now `key-name-hint`.key instead of .pem
+ *      This is now the same as rsa.
+ *    - The 'key-name-hint' property is also used for naming devicetree nodes.
  *
  * Copyright (c) 2020,2021, Alexandru Gagniuc <mr.nuke.me@gmail.com>
  */
@@ -150,7 +149,7 @@ static int prepare_ctx(struct signer *ctx, const struct image_sign_info *info)
 	if (info->keyfile) {
 		snprintf(kname,  sizeof(kname), "%s", info->keyfile);
 	} else if (info->keydir && info->keyname) {
-		snprintf(kname, sizeof(kname), "%s/%s.pem", info->keydir,
+		snprintf(kname, sizeof(kname), "%s/%s.key", info->keydir,
 			 info->keyname);
 	} else {
 		fprintf(stderr, "keyfile, keyname, or key-name-hint missing\n");
@@ -258,26 +257,45 @@ int ecdsa_verify(struct image_sign_info *info,
 	return ret;
 }
 
-static int do_add(struct signer *ctx, void *fdt, const char *key_node_name)
+static int do_add(struct signer *ctx, void *fdt, const char *key_node_name,
+	const char *algo_name, const char *require_keys)
 {
 	int signature_node, key_node, ret, key_bits;
 	const char *curve_name;
 	const EC_GROUP *group;
 	const EC_POINT *point;
 	BIGNUM *x, *y;
+	char name[100];
 
 	signature_node = fdt_subnode_offset(fdt, 0, FIT_SIG_NODENAME);
-	if (signature_node < 0) {
-		fprintf(stderr, "Could not find 'signature node: %s\n",
-			fdt_strerror(signature_node));
-		return signature_node;
+	/* It's valid to have no signature node, yet, in `-K` creation scenarios. */
+	if (signature_node == -FDT_ERR_NOTFOUND) {
+		signature_node = fdt_add_subnode(fdt, 0, FIT_SIG_NODENAME);
+		if (signature_node < 0) {
+			fprintf(stderr, "Could not create '%s' node: %s\n",
+				FIT_SIG_NODENAME, fdt_strerror(signature_node));
+			return signature_node;
+		}
+	}
+	else if (signature_node < 0) {
+		/* fdt_subnode_offset() currenly ONLY has -FDT_ERR_NOTFOUND so this is defensive only */
+	 	fprintf(stderr, "Could not find 'signature' node in fdt: Err: %s\n",
+	 		fdt_strerror(signature_node));
+	 	return signature_node;
 	}
 
-	key_node = fdt_add_subnode(fdt, signature_node, key_node_name);
-	if (key_node < 0) {
-		fprintf(stderr, "Could not create '%s' node: %s\n",
-			key_node_name, fdt_strerror(key_node));
-		return key_node;
+	/* To mimick RSA behavior, node name should be prepended with `key-` */
+	snprintf(name, sizeof(name), "key-%s", key_node_name);
+
+	/* Either create or overwrite the named key node */
+	key_node = fdt_subnode_offset(fdt, signature_node, name);
+	if (key_node == -FDT_ERR_NOTFOUND) {
+		key_node = fdt_add_subnode(fdt, signature_node, name);
+		if (key_node < 0) {
+			fprintf(stderr, "Could not create '%s' node: %s\n",
+				name, fdt_strerror(key_node));
+			return key_node;
+		}
 	}
 
 	group = EC_KEY_get0_group(ctx->ecdsa_key);
@@ -288,6 +306,23 @@ static int do_add(struct signer *ctx, void *fdt, const char *key_node_name)
 	y = BN_new();
 	point = EC_KEY_get0_public_key(ctx->ecdsa_key);
 	EC_POINT_get_affine_coordinates(group, point, x, y, NULL);
+
+	ret = fdt_setprop_string(fdt, key_node, FIT_KEY_HINT,
+				 key_node_name);
+	if (ret < 0)
+		return ret;
+
+	ret = fdt_setprop_string(fdt, key_node, FIT_ALGO_PROP,
+				 algo_name);
+	if (ret < 0)
+		return ret;
+
+	if (require_keys) {
+		ret = fdt_setprop_string(fdt, key_node, FIT_KEY_REQUIRED,
+					 require_keys);
+	}
+	if (ret < 0)
+		return ret;
 
 	ret = fdt_setprop_string(fdt, key_node, "ecdsa,curve", curve_name);
 	if (ret < 0)
@@ -313,7 +348,7 @@ int ecdsa_add_verify_data(struct image_sign_info *info, void *fdt)
 	fdt_key_name = info->keyname ? info->keyname : "default-key";
 	ret = prepare_ctx(&ctx, info);
 	if (ret >= 0)
-		ret = do_add(&ctx, fdt, fdt_key_name);
+		ret = do_add(&ctx, fdt, fdt_key_name, info->name, info->require_keys);
 
 	free_ctx(&ctx);
 	return ret;
