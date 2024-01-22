@@ -71,7 +71,7 @@ static void setup_iomux_uart(void)
 	imx8_iomux_setup_multiple_pads(uart0_pads, ARRAY_SIZE(uart0_pads));
 }
 
-static int read_board_gpio(const char *name, const char *label)
+static int dm_get_gpio(const char *name, const char *label)
 {
 	struct gpio_desc desc;
 	int ret;
@@ -90,36 +90,14 @@ static int read_board_gpio(const char *name, const char *label)
 	return dm_gpio_get_value(&desc);
 }
 
+static inline void board_gpio_init(void) {}
+
 static int get_boardid(void)
 {
-	int bd_id;
-	int val;
-
-	val = read_board_gpio("gpio2_5","bd_id_0");
-	if (val < 0) {
-		return -1;
-	}
-	bd_id = val << 3;
-
-	val = read_board_gpio("gpio2_6","bd_id_1");
-	if (val < 0) {
-		return -1;
-	}
-	bd_id |= val << 2;
-
-	val = read_board_gpio("gpio2_7","bd_id_2");
-	if (val < 0) {
-		return -1;
-	}
-	bd_id |= val << 1;
-
-	val = read_board_gpio("gpio2_8","bd_id_3");
-	if (val < 0) {
-		return -1;
-	}
-	bd_id |= val;
-
-	return bd_id;
+	return ((dm_get_gpio("gpio2_5","bd_id_3") << 3) |
+		(dm_get_gpio("gpio2_6","bd_id_2") << 2) |
+		(dm_get_gpio("gpio2_7","bd_id_1") << 1) |
+		(dm_get_gpio("gpio2_8","bd_id_0") << 0));
 }
 
 
@@ -127,6 +105,18 @@ int board_early_init_f(void)
 {
 	sc_pm_clock_rate_t rate = SC_80MHZ;
 	int ret;
+
+	do {
+		sc_err_t err;
+		uint16_t lc;
+
+		/* Determine the security state of the chip (OEM closed) */
+		err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
+		if ((err == SC_ERR_NONE) && (lc == 0x80)) {
+			/* OEM closed, so disable the serial console */
+			gd->flags |= (GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE);
+		}
+	} while(0);
 
 	/* Set UART0 clock root to 80 MHz */
 	ret = sc_pm_setup_uart(SC_R_UART_0, rate);
@@ -137,8 +127,6 @@ int board_early_init_f(void)
 
 	return 0;
 }
-
-static inline void board_gpio_init(void) {}
 
 #if IS_ENABLED(CONFIG_NET)
 #include <miiphy.h>
@@ -221,6 +209,12 @@ int board_late_init(void)
 	}
 #endif
 
+#ifdef CONFIG_AHAB_BOOT
+	env_set("sec_boot", "yes");
+#else
+	env_set("sec_boot", "no");
+#endif
+
 	/* Determine the security state of the chip (OEM closed) */
 	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
 	if (err == SC_ERR_NONE) {
@@ -232,18 +226,15 @@ int board_late_init(void)
 		case 0x20:  /* NXP closed */
 		case 0x100: /* Partial field return */
 		case 0x200: /* Full field return */
-			env_set("sec_boot", "no");
 			break;
 
 		case 0x80:  /* OEM closed */
 			/* set an environment that this is a secure boot */
 			env_set("bootargs_secureboot", "uboot-secureboot");
-			env_set("sec_boot", "yes");
 			break;
 		}
 	} else {
 		printf("%s: sc_seco_chip_info error %d\n", __func__, err);
-		env_set("sec_boot", "no");
 	}
 
 	return 0;

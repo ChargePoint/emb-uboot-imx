@@ -37,6 +37,11 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 
+enum {
+	UCB_BOARDID1 = 0x1, /* UCBv4 to UCBv6 */
+	UCB_BOARDID2 = 0x2, /* UCBv7 and up */
+};
+
 /*
  * Do not overwrite the console
  * Use always serial for U-Boot console
@@ -74,20 +79,20 @@ static iomux_cfg_t uart0_pads[] = {
 int board_early_init_f(void)
 {
 	sc_pm_clock_rate_t rate = SC_80MHZ;
-	sc_err_t err;
-	uint16_t lc;
-	sc_ipc_t ipcHndl;
-
-	ipcHndl = -1; // was gd->arch.ipc_channel_handle;
-
-	/* Determine the security state of the chip (OEM closed) */
-	err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
-	if ((err == SC_ERR_NONE) && (lc == 0x80)) {
-		/* HAB is in OEM closed, so disable the serial console */
-		gd->flags |= (GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE);
-	}
-
 	int ret;
+
+	do {
+		sc_err_t err;
+		uint16_t lc;
+
+		/* Determine the security state of the chip (OEM closed) */
+		err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
+		if ((err == SC_ERR_NONE) && (lc == 0x80)) {
+			/* OEM closed, so disable the serial console */
+			gd->flags |= (GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE);
+		}
+	} while(0);
+
 	/* Set UART0 clock root to 80 MHz */
 	ret = sc_pm_setup_uart(SC_R_UART_0, rate);
 	if (ret)
@@ -99,15 +104,37 @@ int board_early_init_f(void)
 }
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
-static void dm_set_gpio(const char *dtsName, const char *gpioname, int val)
+static int dm_get_gpio(const char *name, const char *label)
 {
 	struct gpio_desc desc;
 	int ret;
-	ret = dm_gpio_lookup_name(dtsName, &desc);
+
+	ret = dm_gpio_lookup_name(name, &desc);
+	if (ret) {
+		printf("%s lookup %s failed ret = %d\n", __func__, name, ret);
+		return -1;
+	}
+
+	ret = dm_gpio_request(&desc, label);
+	if (ret) {
+		printf("%s dm_gpio_request for %s failed ret = %d\n",
+		       __func__, label, ret);
+		return -1;
+	}
+
+	return dm_gpio_get_value(&desc);
+}
+
+static void dm_set_gpio(const char *name, const char *label, int val)
+{
+	struct gpio_desc desc;
+	int ret;
+
+	ret = dm_gpio_lookup_name(name, &desc);
 	if (ret)
 		return;
 
-	ret = dm_gpio_request(&desc, gpioname);
+	ret = dm_gpio_request(&desc, label);
 	if (ret)
 		return;
 
@@ -129,6 +156,12 @@ static void board_gpio_init(void)
 	dm_set_gpio("gpio1_6", "usb5734_reset", 0);
 
 	dm_set_gpio("gpio0_29", "ser_pwr_en", 1);
+}
+
+static int get_boardid(void)
+{
+	return ((dm_get_gpio("gpio4_5", "bd_id_1") << 1) |
+		(dm_get_gpio("gpio4_3", "bd_id_0") << 0));
 }
 #endif // IS_ENABLED(DM_GPIO)
 
@@ -190,6 +223,23 @@ int board_late_init(void)
 	uint16_t lc;
 	sc_ipc_t ipcHndl = -1;
 
+	build_info();
+
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	env_set("board_name", "UCB");
+	env_set("board_rev", "iMX8DXP");
+
+	switch (get_boardid()) {
+	case UCB_BOARDID1:
+		env_set("boardid_name", "UCB_BOARDID1");
+		break;
+	default:
+	case UCB_BOARDID2:
+		env_set("boardid_name", "UCB_BOARDID2");
+		break;
+	}
+#endif
+
 #ifdef CONFIG_AHAB_BOOT
 	env_set("sec_boot", "yes");
 #else
@@ -225,6 +275,8 @@ int board_late_init(void)
 			env_set("bootargs_secureboot", "uboot-secureboot");
 			break;
 		}
+	} else {
+		printf("%s: sc_seco_chip_info error %d\n", __func__, err);
 	}
 
 	/*
