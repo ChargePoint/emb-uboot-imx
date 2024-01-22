@@ -26,6 +26,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+
+enum {
+	KESTREL_BOARDID1=0x1, /* Obsolete and not supported */
+	KESTREL_BOARDID2=0x2, /* KCBv3 and KCBv4 */
+	KESTREL_BOARDID3=0x3, /* KCBv5 and up */
+};
+
 /*
  * Do not overwrite the console
  * Use always serial for U-Boot console
@@ -54,12 +61,6 @@ int overwrite_console(void)
 			 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
 			 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
 
-typedef enum {
-	KESTREL_BOARDID1=0x1, /* Obsolete and not supported */
-	KESTREL_BOARDID2=0x2, /* KCBv3 and KCBv4 */
-	KESTREL_BOARDID3=0x3, /* KCBv5 and up */
-} bd_type_t;
-
 static iomux_cfg_t uart0_pads[] = {
 	SC_P_UART0_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
 	SC_P_UART0_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
@@ -72,8 +73,8 @@ static void setup_iomux_uart(void)
 
 static int read_board_gpio(const char *name, const char *label)
 {
-        struct gpio_desc desc;
-        int ret = 0;
+	struct gpio_desc desc;
+	int ret;
 
 	ret = dm_gpio_lookup_name(name,&desc);
 	if (ret) {
@@ -82,7 +83,8 @@ static int read_board_gpio(const char *name, const char *label)
 	}
 	ret = dm_gpio_request(&desc, label);
 	if (ret) {
-		printf("%s dm_gpio_request for %s failed ret = %d\n", __func__, label, ret);
+		printf("%s dm_gpio_request for %s failed ret = %d\n",
+		       __func__, label, ret);
 		return -1;
 	}
 	return dm_gpio_get_value(&desc);
@@ -93,22 +95,26 @@ static int get_boardid(void)
 	int bd_id;
 	int val;
 
-	if ((val=read_board_gpio("gpio2_5","bd_id_0")) < 0) {
+	val = read_board_gpio("gpio2_5","bd_id_0");
+	if (val < 0) {
 		return -1;
 	}
-	bd_id = val<<3;
+	bd_id = val << 3;
 
-	if ((val=read_board_gpio("gpio2_6","bd_id_1")) < 0) {
+	val = read_board_gpio("gpio2_6","bd_id_1");
+	if (val < 0) {
 		return -1;
 	}
-	bd_id |= val<<2;
+	bd_id |= val << 2;
 
-	if ((val=read_board_gpio("gpio2_7","bd_id_2")) < 0) {
+	val = read_board_gpio("gpio2_7","bd_id_2");
+	if (val < 0) {
 		return -1;
 	}
-	bd_id |= val<<1;
+	bd_id |= val << 1;
 
-	if ((val=read_board_gpio("gpio2_8","bd_id_3")) < 0) {
+	val = read_board_gpio("gpio2_8","bd_id_3");
+	if (val < 0) {
 		return -1;
 	}
 	bd_id |= val;
@@ -203,50 +209,42 @@ int board_late_init(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	env_set("board_name", "KCB");
 	env_set("board_rev", "iMX8DXL");
-#endif
-	{
-		bd_type_t bd_id;
-		bd_id = get_boardid();
-		switch (bd_id) {
-		case KESTREL_BOARDID2:
-			env_set("board_name", "KCB_BOARDID2");
-			break;
-		default:
-		case KESTREL_BOARDID3:
-			env_set("board_name", "KCB_BOARDID3");
-			break;
-		}
-	}
 
-	env_set("sec_boot", "no");
+	switch (get_boardid()) {
+	case KESTREL_BOARDID2:
+		env_set("boardid_name", "KCB_BOARDID2");
+		break;
+	default:
+	case KESTREL_BOARDID3:
+		env_set("boardid_name", "KCB_BOARDID3");
+		break;
+	}
+#endif
 
 	/* Determine the security state of the chip (OEM closed) */
 	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
-
 	if (err == SC_ERR_NONE) {
 		switch (lc) {
 		default:
-		case 0x1: 	/* Pristine */
-		case 0x2: 	/* Fab */
-		case 0x8: 	/* Open */
-		case 0x20: 	/* NXP closed */
+		case 0x1:   /* Pristine */
+		case 0x2:   /* Fab */
+		case 0x8:   /* Open */
+		case 0x20:  /* NXP closed */
 		case 0x100: /* Partial field return */
 		case 0x200: /* Full field return */
+			env_set("sec_boot", "no");
 			break;
 
-		case 0x80: /* OEM closed */
+		case 0x80:  /* OEM closed */
 			/* set an environment that this is a secure boot */
 			env_set("bootargs_secureboot", "uboot-secureboot");
 			env_set("sec_boot", "yes");
 			break;
 		}
+	} else {
+		printf("%s: sc_seco_chip_info error %d\n", __func__, err);
+		env_set("sec_boot", "no");
 	}
-
-#if defined(CONFIG_NOT_UUU_BUILD)
-	/* set an environment that this is a secure boot */
-		env_set("bootargs_secureboot", "uboot-secureboot");
-		env_set("sec_boot", "yes");
-#endif
 
 	return 0;
 }

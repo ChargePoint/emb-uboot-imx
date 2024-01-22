@@ -110,12 +110,12 @@
 	"\0" \
 	"mmcboot=setenv -f _bootpart ${bootparta}; " \
 		"run importbootenv; " \
-		"if test ${board_name} = \"KCB_BOARDID2\"; then " \
+		"if test ${boardid_name} = \"KCB_BOARDID2\"; then " \
 			"setenv -f fitconfig \"kcb_boardid2\"; " \
-		"elif test ${board_name} = \"KCB_BOARDID3\"; then " \
+		"elif test ${boardid_name} = \"KCB_BOARDID3\"; then " \
 			"setenv -f fitconfig \"kcb_boardid3\"; " \
 		"fi; " \
-		"setenv -f bootmarg ${loadaddr};"  \
+		"setenv -f bootmarg ${loadaddr}; "  \
 		"if test -n ${fitconfig}; then " \
 			"setenv -f bootmarg ${loadaddr}#${fitconfig}; " \
 		"fi; " \
