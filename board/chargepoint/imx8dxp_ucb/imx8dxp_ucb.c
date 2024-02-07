@@ -42,6 +42,7 @@ enum {
 	UCB_BOARDID2 = 0x2, /* UCBv7 and up */
 };
 
+static int board_id = 0x2;
 /*
  * Do not overwrite the console
  * Use always serial for U-Boot console
@@ -229,7 +230,8 @@ int board_late_init(void)
 	env_set("board_name", "UCB");
 	env_set("board_rev", "iMX8DXP");
 
-	switch (get_boardid()) {
+	board_id = get_boardid();
+	switch (board_id) {
 	case UCB_BOARDID1:
 		env_set("boardid_name", "UCB_BOARDID1");
 		break;
@@ -392,6 +394,37 @@ static void disable_kernel_heartbeat(void *blob)
 #define MDIO_ETH_PATH "/mdio/ethernet-phy@/"
 #define ETHPHY0_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@0/"
 #define ETHPHY1_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@1/"
+#define GET_CODEC_INDEX(x) (((int)x) - 1)
+
+typedef struct {
+	const char *name;
+	const char *path;
+	const char *codec;
+}codec_list_t;
+
+/*
+ * codec_list index is tied to board id. Any alteration to
+ * this list will cause issue, the order needs to maintained.
+ * If new codec added to the list it must be associated with
+ * a boardid.
+ */
+static const codec_list_t codec_list[] = {
+	{"wm8974", "/bus@5a000000/i2c@5a810000/wm8974@1a/", "/sound-wm8974"},
+	{"wm8940", "/bus@5a000000/i2c@5a810000/wm8940@1a/", "/sound-wm8940"}
+};
+
+static void set_audio_codec(void *blob,int cid)
+{
+	if (cid >= 0 && cid < ARRAY_SIZE(codec_list)) {
+		printf("Audio Codec: %s\n", codec_list[cid].name);
+		if (fdt_setprop_string(blob, fdt_path_offset(blob, codec_list[cid].path), "status", "okay") < 0) {
+			printf("  Failed to set %s/status -> okay\n", codec_list[cid].path);
+		}
+		if (fdt_setprop_string(blob, fdt_path_offset(blob, codec_list[cid].codec), "status", "okay") < 0) {
+			printf("  Failed to set %s/status -> okay\n", codec_list[cid].codec);
+		}
+	}
+}
 
 static void realtek_phy_supp(void *blob)
 {
@@ -483,6 +516,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	if(phyType != PHY_VENDOR_QUALCOMM) {
 		realtek_phy_supp(blob);
 	}
+
+	set_audio_codec(blob, GET_CODEC_INDEX(board_id));
 
 	if (env_get_yesno("energystar") == 1) {
 		printf("Energy star mode\n");
