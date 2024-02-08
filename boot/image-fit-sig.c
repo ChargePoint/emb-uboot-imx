@@ -18,6 +18,43 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <u-boot/rsa.h>
 #include <u-boot/hash-checksum.h>
 
+#include <ctype.h>
+
+static void hexdump(const char* message, const uint8_t *p, int len)
+{
+	int i;
+	int offset = 0;
+	const int linelen = 16;
+
+	printf("Hexdump: *** %s *** @ Addr=%p\n", message, (void*)p);
+
+	while (offset < len) {
+		// Print addr offset
+		printf("%04x: ", offset);
+
+		// Print hex representations up to linelen
+		for (i = 0; i<linelen; i++) {
+			if (offset + i < len)
+				printf("%02x ", p[offset+i]);
+			else
+				printf("   ");
+		}
+
+		printf(" : ");
+
+		// Print ASCII rep of the same locations
+		for (i = 0; i<linelen; i++) {
+			if (offset + i < len) {
+				char topr = (char)p[offset+i];
+				printf("%c", isprint(topr) ? topr : '.');
+			}
+		}
+
+		printf("\n");
+		offset += linelen;
+	}
+}
+
 #define IMAGE_MAX_HASHED_NODES		100
 
 /**
@@ -410,8 +447,11 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
  * @key_blob: Blob containing the keys to check against
  * @key_offset: Offset of the key to check within @key_blob
  * @return 0 if OK, -EPERM if any signatures did not verify, or the
- *	configuration node has an invalid name
+ *	configuration node has an invalid name. If signature key-name-hint
+ *  does not match the key's key-name-hint, return -ENOMSG as 'skipped'
  */
+#if 1
+
 static int fit_config_verify_key(const void *fit, int conf_noffset,
 				 const void *key_blob, int key_offset)
 {
@@ -423,9 +463,11 @@ static int fit_config_verify_key(const void *fit, int conf_noffset,
 	/* Process all hash subnodes of the component conf node */
 	fdt_for_each_subnode(noffset, fit, conf_noffset) {
 		const char *name = fit_get_name(fit, noffset, NULL);
+		printf("RMW: fit_config_verify_key: checking node: %s\n", name ? name:"null");
 
 		if (!strncmp(name, FIT_SIG_NODENAME,
 			     strlen(FIT_SIG_NODENAME))) {
+			printf("  RMW: %s: found a signature node. Checking %s\n", __func__, name);
 			ret = fit_config_check_sig(fit, noffset, conf_noffset,
 						   key_blob, key_offset,
 						   &err_msg);
@@ -453,6 +495,80 @@ error:
 	       fit_get_name(fit, conf_noffset, NULL));
 	return -EPERM;
 }
+
+#else
+
+static int fit_config_verify_key(const void *fit, int conf_noffset,
+				 const void *key_blob, int key_offset)
+{
+	int noffset;
+	char *err_msg = "No 'signature' subnode found";
+	int verified = 0;
+	int ret;
+	const char *hint_conf=NULL;
+	const char *hint_key=NULL;
+	bool hint_mismatch=false;
+
+	hint_key = fdt_getprop(key_blob, key_offset, FIT_KEY_HINT, NULL);
+	printf("%s: Prior to sig iteration, key hint for key is: %s\n", __func__, hint_key?hint_key:"null");
+
+	/* Process all hash subnodes of the component conf node */
+	fdt_for_each_subnode(noffset, fit, conf_noffset) {
+		const char *name = fit_get_name(fit, noffset, NULL);
+		printf("RMW: fit_config_verify_key: checking node: %s\n", name ? name:"null");
+
+		if (!strncmp(name, FIT_SIG_NODENAME,
+			     strlen(FIT_SIG_NODENAME))) {
+			// We will only process keys that have a matching key hint
+			hint_conf = fdt_getprop(fit, noffset, FIT_KEY_HINT, NULL);
+			printf("%s: While iterating signatures, key hint for config '%s' is: %s\n", 
+					__func__, name?name:"null", hint_conf?hint_conf:"null");
+
+			if (hint_conf && hint_key) {
+				// Make sure the hints are identical. If not, skip out and continue loop.
+				if (strcmp(hint_conf, hint_key)) {
+					printf("%s: key-name-hint mis-match. Skipping this key/signature.\n", __func__);
+					hint_mismatch = true;
+					// We'll have to account for this situation after the loop.
+					// We want a successful verify to still be seen as valid above this soft error.
+					continue;
+				}
+			}
+			printf("  RMW: %s: found a signature node. Checking %s\n", __func__, name);
+			ret = fit_config_check_sig(fit, noffset, conf_noffset,
+						   key_blob, key_offset,
+						   &err_msg);
+			if (ret) {
+				puts("- ");
+			} else {
+				puts("+ ");
+				verified = 1;
+				break;
+			}
+		}
+	}
+
+	if (noffset == -FDT_ERR_TRUNCATED || noffset == -FDT_ERR_BADSTRUCTURE) {
+		err_msg = "Corrupted or truncated tree";
+		goto error;
+	}
+
+	if (verified)
+		return 0;
+
+	// When there are no matches, but there was a key hint mismatch, report it.
+	if (!verified && hint_mismatch) {
+		err_msg = "key-name-hint does not match sig vs key.";
+		return -ENOMSG;
+	}
+
+error:
+	printf(" error!\n%s for '%s' hash node in '%s' config node\n",
+	       err_msg, fit_get_name(fit, noffset, NULL),
+	       fit_get_name(fit, conf_noffset, NULL));
+	return -EPERM;
+}
+#endif
 
 /**
  * fit_config_verify_required_keys() - verify any required signatures for config
@@ -516,13 +632,24 @@ static int fit_config_verify_required_keys(const void *fit, int conf_noffset,
 
 		required = fdt_getprop(key_blob, noffset, FIT_KEY_REQUIRED,
 				       NULL);
-		if (!required || strcmp(required, "conf"))
+		printf("RMW: %s: fdt_getprop found required=%s\n", __func__, required);
+		if (!required || strcmp(required, "conf")) {
+			printf("RMW: %s: !required or required!=conf. Doing a continue;\n", __func__);
 			continue;
+		}
 
 		reqd_sigs++;
 
 		ret = fit_config_verify_key(fit, conf_noffset, key_blob,
 					    noffset);
+
+		// If key hint is mis-matched to signature, don't count it as 'required' - skip it.
+		if (ret == -ENOMSG) {
+			printf("key-name-hint does not match. Skipping key.\n");
+			reqd_sigs--;		// Roll back count by one.
+			continue;
+		}
+
 		if (ret) {
 			if (reqd_policy_all) {
 				printf("Failed to verify required signature '%s'\n",
@@ -531,6 +658,7 @@ static int fit_config_verify_required_keys(const void *fit, int conf_noffset,
 			}
 		} else {
 			verified++;
+			printf("RMW: %s: verfied at least once. verified=%d\n", __func__, verified);
 			if (!reqd_policy_all)
 				break;
 		}

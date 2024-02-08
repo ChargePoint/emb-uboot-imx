@@ -25,6 +25,43 @@
 #include <openssl/ec.h>
 #include <openssl/bn.h>
 
+#include <ctype.h>
+
+void hexdump(const char* message, const uint8_t *p, int len)
+{
+	int i;
+	int offset = 0;
+	const int linelen = 16;
+
+	printf("Hexdump: *** %s ***\n", message);
+
+	while (offset < len) {
+		// Print addr offset
+		printf("%04x: ", offset);
+
+		// Print hex representations up to linelen
+		for (i = 0; i<linelen; i++) {
+			if (offset + i < len)
+				printf("%02x ", p[offset+i]);
+			else
+				printf("   ");
+		}
+
+		printf(" : ");
+
+		// Print ASCII rep of the same locations
+		for (i = 0; i<linelen; i++) {
+			if (offset + i < len) {
+				char topr = (char)p[offset+i];
+				printf("%c", isprint(topr) ? topr : '.');
+			}
+		}
+
+		printf("\n");
+		offset += linelen;
+	}
+}
+
 /* Image signing context for openssl-libcrypto */
 struct signer {
 	EVP_PKEY *evp_key;	/* Pointer to EVP_PKEY object */
@@ -193,9 +230,13 @@ static int ecdsa_check_signature(struct signer *ctx, struct image_sign_info *inf
 	ECDSA_SIG *sig;
 	int okay;
 
+printf("RMW: CHECK_SIGNATURE INFO: key_len=%d. checksum_len=%d\n", info->crypto->key_len, info->checksum->checksum_len);
+hexdump("raw signature Dump", (uint8_t*)ctx->signature, info->crypto->key_len*2);
 	sig = ecdsa_sig_from_raw(ctx->signature, info->crypto->key_len);
 	if (!sig)
 		return -ENOMEM;
+
+hexdump("Hash Dump", (uint8_t*)ctx->hash, info->checksum->checksum_len);
 
 	okay = ECDSA_do_verify(ctx->hash, info->checksum->checksum_len,
 			       sig, ctx->ecdsa_key);

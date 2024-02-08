@@ -6,6 +6,9 @@
 
 obj-y += imx8dxp_ucb.o
 obj-$(CONFIG_WDT) += ../common/imx8x_watchdog.o
+obj-$(CONFIG_ECDSA_VERIFY) += ../common/chpt_ecdsa.o
+obj-$(CONFIG_ECDSA_VERIFY) += ../common/ecc.o
+obj-$(CONFIG_ECDSA_VERIFY) += ../common/ecc_dsa.o
 obj-y += ../../freescale/common/
 
 extra-y += ../../../arch/$(ARCH)/dts/imx8dxp-chargepoint-ucb.dts

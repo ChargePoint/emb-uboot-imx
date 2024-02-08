@@ -75,6 +75,11 @@
 			"MICN", "Mic";
 	};
 
+	ecdsa: ecdsa {
+		compatible = "chpt,ecdsa256";
+		status = "okay";
+	};
+
 };
 
 &iomuxc {

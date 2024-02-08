@@ -31,6 +31,11 @@ static int fdt_get_key(struct ecdsa_public_key *key, const void *fdt, int node)
 	int x_len, y_len;
 
 	key->curve_name = fdt_getprop(fdt, node, "ecdsa,curve", NULL);
+	if (key->curve_name==NULL) {
+		printf("%s: Error: ecdsa cannot get 'ecdsa,curve' property from key. Likely not an ecdsa key.\n", __func__);
+		return -ENOMSG;
+	}
+
 	key->size_bits = ecdsa_key_size(key->curve_name);
 	if (key->size_bits == 0) {
 		debug("Unknown ECDSA curve '%s'", key->curve_name);
@@ -65,6 +70,7 @@ static int ecdsa_verify_hash(struct udevice *dev,
 		return -ENODEV;
 
 	if (info->required_keynode > 0) {
+		printf("RMW: in if() for required_keynode.\n");
 		ret = fdt_get_key(&key, info->fdt_blob, info->required_keynode);
 		if (ret < 0)
 			return ret;
@@ -80,11 +86,13 @@ static int ecdsa_verify_hash(struct udevice *dev,
 	/* Try all possible keys under the "/signature" node */
 	fdt_for_each_subnode(key_node, info->fdt_blob, sig_node) {
 		ret = fdt_get_key(&key, info->fdt_blob, key_node);
+		printf("RMW: %s: iteration: ret=%d.\n", __func__, ret);
 		if (ret < 0)
 			continue;
 
 		ret = ops->verify(dev, &key, hash, algo->checksum_len,
 				  sig, sig_len);
+		printf("RMW: %s: iteration post ops-verify ret=%d.\n", __func__, ret);
 
 		/* On success, don't worry about remaining keys */
 		if (!ret)
