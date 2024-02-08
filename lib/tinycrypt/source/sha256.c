@@ -30,6 +30,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+#include <stdint.h>
+
 #include <tinycrypt/sha256.h>
 #include <tinycrypt/constants.h>
 #include <tinycrypt/utils.h>

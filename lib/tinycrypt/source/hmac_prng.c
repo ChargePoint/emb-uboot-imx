@@ -30,10 +30,17 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+#include <stdint.h>
+
 #include <tinycrypt/hmac_prng.h>
 #include <tinycrypt/hmac.h>
 #include <tinycrypt/constants.h>
 #include <tinycrypt/utils.h>
+
+#ifndef UINT32_MAX
+#define UINT32_MAX (0x7fffffffU * 2UL + 1UL)
+#endif
 
 /*
  * min bytes in the seed string.
