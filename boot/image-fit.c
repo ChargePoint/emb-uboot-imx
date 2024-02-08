@@ -2491,10 +2491,10 @@ out:
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 	free(ovcopy);
 #endif
-printf("RMW: checkpoint out-3: ptr=%p\n", fit_uname_config_copy?(void*)fit_uname_config_copy:(void*)0);
-	printf("RMW: checking what is in fit_uname_config_copy dup=%s\n", fit_uname_config_copy);
-	free(fit_uname_config_copy);
-printf("RMW: checkpoint out returning\n");
+// printf("RMW: checkpoint out-3: ptr=%p\n", fit_uname_config_copy?(void*)fit_uname_config_copy:(void*)0);
+// 	printf("RMW: checking what is in fit_uname_config_copy dup=%s\n", fit_uname_config_copy);
+// 	free(fit_uname_config_copy);
+// printf("RMW: checkpoint out returning\n");
 	return fdt_noffset;
 }
 #endif

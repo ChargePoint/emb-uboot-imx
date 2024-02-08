@@ -18,43 +18,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <u-boot/rsa.h>
 #include <u-boot/hash-checksum.h>
 
-#include <ctype.h>
-
-static void hexdump(const char* message, const uint8_t *p, int len)
-{
-	int i;
-	int offset = 0;
-	const int linelen = 16;
-
-	printf("Hexdump: *** %s *** @ Addr=%p\n", message, (void*)p);
-
-	while (offset < len) {
-		// Print addr offset
-		printf("%04x: ", offset);
-
-		// Print hex representations up to linelen
-		for (i = 0; i<linelen; i++) {
-			if (offset + i < len)
-				printf("%02x ", p[offset+i]);
-			else
-				printf("   ");
-		}
-
-		printf(" : ");
-
-		// Print ASCII rep of the same locations
-		for (i = 0; i<linelen; i++) {
-			if (offset + i < len) {
-				char topr = (char)p[offset+i];
-				printf("%c", isprint(topr) ? topr : '.');
-			}
-		}
-
-		printf("\n");
-		offset += linelen;
-	}
-}
-
 #define IMAGE_MAX_HASHED_NODES		100
 
 /**
@@ -450,7 +413,7 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
  *	configuration node has an invalid name. If signature key-name-hint
  *  does not match the key's key-name-hint, return -ENOMSG as 'skipped'
  */
-#if 1
+#if 0
 
 static int fit_config_verify_key(const void *fit, int conf_noffset,
 				 const void *key_blob, int key_offset)
