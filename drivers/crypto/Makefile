@@ -9,3 +9,6 @@ obj-y += fsl/
 obj-y += hash/
 obj-y += aspeed/
 obj-y += nuvoton/
+obj-$(CONFIG_ECDSA_VERIFY_TINYCRYPT) += ecdsa_tinycrypt.o
+
+ccflags-y := -I$(srctree)/lib/tinycrypt/include

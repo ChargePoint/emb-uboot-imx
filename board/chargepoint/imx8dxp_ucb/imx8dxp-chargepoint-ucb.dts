@@ -76,7 +76,7 @@
 	};
 
 	ecdsa: ecdsa {
-		compatible = "chpt,ecdsa256";
+		compatible = "tinycrypt,ecdsa256";
 		status = "okay";
 	};
 

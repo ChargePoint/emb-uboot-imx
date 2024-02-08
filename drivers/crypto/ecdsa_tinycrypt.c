@@ -20,7 +20,7 @@
 
 #include <malloc.h>
 
-int chpt_ecdsa_verify(struct udevice *dev, const struct ecdsa_public_key *pubkey,
+int tc_ecdsa_verify(struct udevice *dev, const struct ecdsa_public_key *pubkey,
 		      const void *hash, size_t hash_len,
 		      const void *signature, size_t sig_len)
 {
@@ -49,16 +49,16 @@ int chpt_ecdsa_verify(struct udevice *dev, const struct ecdsa_public_key *pubkey
 }
 
 static const struct ecdsa_ops ecdsa_ops = {
-        .verify      = chpt_ecdsa_verify,
+        .verify      = tc_ecdsa_verify,
 };
 
 static const struct udevice_id ecdsa_ids[] = {
-        { .compatible = "chpt,ecdsa256" },
+        { .compatible = "tinycrypt,ecdsa256" },
         { }
 };
 
-U_BOOT_DRIVER(chpt_ecdsa256) = {
-        .name   = "chpt_ecdsa",
+U_BOOT_DRIVER(ecdsa256_tinycrypt) = {
+        .name   = "ecdsa_tinycrypt",
         .id     = UCLASS_ECDSA,
         .of_match = ecdsa_ids,
         .ops    = &ecdsa_ops,

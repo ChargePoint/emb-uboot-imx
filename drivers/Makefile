@@ -6,6 +6,7 @@ obj-$(CONFIG_$(SPL_TPL_)BUTTON) += button/
 obj-$(CONFIG_$(SPL_TPL_)CACHE) += cache/
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk/
 obj-$(CONFIG_$(SPL_TPL_)DM) += core/
+obj-$(CONFIG_ECDSA_VERIFY_TINYCRYPT) += crypto/
 obj-$(CONFIG_$(SPL_TPL_)DMA) += dma/
 obj-$(CONFIG_$(SPL_TPL_)DMA_LEGACY) += dma/
 obj-$(CONFIG_$(SPL_TPL_)DFU) += dfu/
