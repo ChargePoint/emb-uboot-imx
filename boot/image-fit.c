@@ -2344,12 +2344,12 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
 
 	if (fit_uname_configp && *fit_uname_configp) {
-		printf("RMW: Allocating fit_uname_config_copy now with src=%s\n", *fit_uname_configp);
+//		printf("RMW: Allocating fit_uname_config_copy now with src=%s\n", *fit_uname_configp);
 		fit_uname_config_copy = strdup(*fit_uname_configp);
 		if (!fit_uname_config_copy)
 			return -ENOMEM;
-		printf("RMW: Post-Allocation fit_uname_config_copy dup=%s\n", fit_uname_config_copy);
-printf("RMW: strdup allocated ptr=%p\n", fit_uname_config_copy?(void*)fit_uname_config_copy:(void*)0);
+		// printf("RMW: Post-Allocation fit_uname_config_copy dup=%s\n", fit_uname_config_copy);
+		// printf("RMW: strdup allocated ptr=%p\n", fit_uname_config_copy?(void*)fit_uname_config_copy:(void*)0);
 
 		next_config = strchr(fit_uname_config_copy, '#');
 		if (next_config)
@@ -2372,15 +2372,15 @@ printf("RMW: strdup allocated ptr=%p\n", fit_uname_config_copy?(void*)fit_uname_
 			fit_uname_config ? fit_uname_config : "<NULL>");
 
 	fit = map_sysmem(addr, 0);
-printf("RMW: checkpoint 1\n");
+//printf("RMW: checkpoint 1\n");
 	cfg_noffset = fit_conf_get_node(fit, fit_uname_config);
-printf("RMW: checkpoint 2\n");
+//printf("RMW: checkpoint 2\n");
 
 	/* single blob, or error just return as well */
 	count = fit_conf_get_prop_node_count(fit, cfg_noffset, FIT_FDT_PROP);
 	if (count <= 1 && !next_config)
 		goto out;
-printf("RMW: checkpoint 3\n");
+//printf("RMW: checkpoint 3\n");
 
 	/* we need to apply overlays */
 
@@ -2494,7 +2494,7 @@ out:
 // printf("RMW: checkpoint out-3: ptr=%p\n", fit_uname_config_copy?(void*)fit_uname_config_copy:(void*)0);
 // 	printf("RMW: checking what is in fit_uname_config_copy dup=%s\n", fit_uname_config_copy);
 // 	free(fit_uname_config_copy);
-// printf("RMW: checkpoint out returning\n");
+//printf("RMW: checkpoint out returning\n");
 	return fdt_noffset;
 }
 #endif

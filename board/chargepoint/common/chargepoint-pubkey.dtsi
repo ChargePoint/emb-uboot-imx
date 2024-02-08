@@ -30,7 +30,7 @@
 			algo = "sha256,ecdsa256";
 			key-name-hint = "fit-dev-ec";
 		};
-
+/*
 		key-fit-dev {
 			required = "dev:conf";
 			algo = "sha256,rsa4096";
@@ -41,6 +41,6 @@
 			rsa,num-bits = <0x1000>;
 			key-name-hint = "fit-dev";
 		};
-		
+*/
 	};
 };

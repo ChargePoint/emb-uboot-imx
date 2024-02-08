@@ -413,7 +413,7 @@ static int fit_config_check_sig(const void *fit, int noffset, int conf_noffset,
  *	configuration node has an invalid name. If signature key-name-hint
  *  does not match the key's key-name-hint, return -ENOMSG as 'skipped'
  */
-#if 0
+#if 1
 
 static int fit_config_verify_key(const void *fit, int conf_noffset,
 				 const void *key_blob, int key_offset)
@@ -426,11 +426,9 @@ static int fit_config_verify_key(const void *fit, int conf_noffset,
 	/* Process all hash subnodes of the component conf node */
 	fdt_for_each_subnode(noffset, fit, conf_noffset) {
 		const char *name = fit_get_name(fit, noffset, NULL);
-		printf("RMW: fit_config_verify_key: checking node: %s\n", name ? name:"null");
 
 		if (!strncmp(name, FIT_SIG_NODENAME,
 			     strlen(FIT_SIG_NODENAME))) {
-			printf("  RMW: %s: found a signature node. Checking %s\n", __func__, name);
 			ret = fit_config_check_sig(fit, noffset, conf_noffset,
 						   key_blob, key_offset,
 						   &err_msg);
@@ -595,9 +593,8 @@ static int fit_config_verify_required_keys(const void *fit, int conf_noffset,
 
 		required = fdt_getprop(key_blob, noffset, FIT_KEY_REQUIRED,
 				       NULL);
-		printf("RMW: %s: fdt_getprop found required=%s\n", __func__, required);
 		if (!required || strcmp(required, "conf")) {
-			printf("RMW: %s: !required or required!=conf. Doing a continue;\n", __func__);
+			printf("%s: not required or required not 'conf'. Skipping.\n", __func__);
 			continue;
 		}
 
@@ -621,7 +618,6 @@ static int fit_config_verify_required_keys(const void *fit, int conf_noffset,
 			}
 		} else {
 			verified++;
-			printf("RMW: %s: verfied at least once. verified=%d\n", __func__, verified);
 			if (!reqd_policy_all)
 				break;
 		}
