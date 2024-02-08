@@ -21,4 +21,10 @@ config SPL_ECDSA_VERIFY
 	help
 	  Allow ECDSA signatures to be recognized and verified in SPL.
 
+config ECDSA_VERIFY_TINYCRYPT
+	bool "Enable Tinycrypt implementation of ECDSA verification"
+	depends on ECDSA_VERIFY
+	help
+	  Implements the crypto driver to support ECDSA verification in software.
+
 endif
