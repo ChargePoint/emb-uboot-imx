@@ -37,14 +37,12 @@ int tc_ecdsa_verify(struct udevice *dev, const struct ecdsa_public_key *pubkey,
 	}
 
 	memcpy(pubkey_bits, pubkey->x, pubkey->size_bits/8);
-	memcpy(pubkey_bits + pubkey->size_bits/8, pubkey->y, 2*pubkey->size_bits/8);
+	memcpy(pubkey_bits + pubkey->size_bits/8, pubkey->y, pubkey->size_bits/8);
 
 	int success = uECC_verify((const uint8_t*)pubkey_bits, (const uint8_t*)hash,
 		(unsigned int)hash_len, (const uint8_t*)signature, uECC_secp256r1());
 
-//printf("%s: before free() operation.\n", __func__);
-//	free(pubkey_bits);
-//printf("%s: before returning.\n", __func__);
+	free(pubkey_bits);
 	return success==1 ? 0 : -ENOMSG;
 }
 

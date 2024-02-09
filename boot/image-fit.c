@@ -2344,12 +2344,9 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
 
 	if (fit_uname_configp && *fit_uname_configp) {
-//		printf("RMW: Allocating fit_uname_config_copy now with src=%s\n", *fit_uname_configp);
 		fit_uname_config_copy = strdup(*fit_uname_configp);
 		if (!fit_uname_config_copy)
 			return -ENOMEM;
-		// printf("RMW: Post-Allocation fit_uname_config_copy dup=%s\n", fit_uname_config_copy);
-		// printf("RMW: strdup allocated ptr=%p\n", fit_uname_config_copy?(void*)fit_uname_config_copy:(void*)0);
 
 		next_config = strchr(fit_uname_config_copy, '#');
 		if (next_config)
@@ -2491,10 +2488,7 @@ out:
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 	free(ovcopy);
 #endif
-// printf("RMW: checkpoint out-3: ptr=%p\n", fit_uname_config_copy?(void*)fit_uname_config_copy:(void*)0);
-// 	printf("RMW: checking what is in fit_uname_config_copy dup=%s\n", fit_uname_config_copy);
-// 	free(fit_uname_config_copy);
-//printf("RMW: checkpoint out returning\n");
+	free(fit_uname_config_copy);
 	return fdt_noffset;
 }
 #endif
