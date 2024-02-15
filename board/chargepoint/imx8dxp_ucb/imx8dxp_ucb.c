@@ -42,7 +42,6 @@ enum {
 	UCB_BOARDID2 = 0x2, /* UCBv7 and up */
 };
 
-static int board_id = 0x2;
 /*
  * Do not overwrite the console
  * Use always serial for U-Boot console
@@ -123,7 +122,9 @@ static int dm_get_gpio(const char *name, const char *label)
 		return -1;
 	}
 
-	return dm_gpio_get_value(&desc);
+	ret = dm_gpio_get_value(&desc);
+	dm_gpio_free(desc.dev, &desc);
+	return ret;
 }
 
 static void dm_set_gpio(const char *name, const char *label, int val)
@@ -132,20 +133,35 @@ static void dm_set_gpio(const char *name, const char *label, int val)
 	int ret;
 
 	ret = dm_gpio_lookup_name(name, &desc);
-	if (ret)
+	if (ret) {
+		printf("%s lookup %s failed ret = %d\n", __func__, name, ret);
 		return;
+	}
 
 	ret = dm_gpio_request(&desc, label);
-	if (ret)
+	if (ret) {
+		printf("%s dm_gpio_request for %s failed ret = %d\n",
+		       __func__, label, ret);
 		return;
+	}
 
 	ret = dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
-	if (ret)
-		return;
+	if (ret) {
+		printf("%s dm_gpio_set_dir_flags for %s failed ret = %d\n",
+		       __func__, label, ret);
+		goto out;
+	}
 
 	ret = dm_gpio_set_value(&desc, val);
-	if (ret)
-		return;
+	if (ret) {
+		printf("%s dm_gpio_set_value for %s failed ret = %d\n",
+		       __func__, label, ret);
+		goto out;
+	}
+
+out:
+	dm_gpio_free(desc.dev, &desc);
+	return;
 }
 
 static void board_gpio_init(void)
@@ -230,8 +246,7 @@ int board_late_init(void)
 	env_set("board_name", "UCB");
 	env_set("board_rev", "iMX8DXP");
 
-	board_id = get_boardid();
-	switch (board_id) {
+	switch (get_boardid()) {
 	case UCB_BOARDID1:
 		env_set("boardid_name", "UCB_BOARDID1");
 		break;
@@ -379,12 +394,49 @@ int checkboard(void)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
-#define KERNEL_HEARTBEAT_LED_PATH "/leds/DBG_LED_5"
-static void disable_kernel_heartbeat(void *blob)
+struct codec {
+	const char *name;
+	const char *i2c_path;
+	const char *sound_path;
+};
+
+/*
+ * codec_list index is tied to board id. Any alteration to
+ * this list will cause issue, the order needs to maintained.
+ * If new codec added to the list it must be associated with
+ * a boardid.
+ */
+static const struct codec codec_list[] = {
+	{"wm8974", "/bus@5a000000/i2c@5a810000/wm8974@1a/", "/sound-wm8974"},
+	{"wm8940", "/bus@5a000000/i2c@5a810000/wm8940@1a/", "/sound-wm8940"}
+};
+
+static void set_audio_codec(void *blob)
 {
-	int offs = fdt_path_offset(blob, KERNEL_HEARTBEAT_LED_PATH);
-	if (fdt_setprop_string(blob, offs, "status", "disabled") < 0) {
-		printf("Failed to set " KERNEL_HEARTBEAT_LED_PATH "/status\n");
+	int cid;
+	int offs;
+
+	switch (get_boardid()) {
+	case UCB_BOARDID1:
+		cid = 0;
+		break;
+	default:
+	case UCB_BOARDID2:
+		cid = 1;
+		break;
+	}
+
+	printf("Audio Codec: %s\n", codec_list[cid].name);
+
+	offs = fdt_path_offset(blob, codec_list[cid].i2c_path);
+	if (fdt_setprop_string(blob, offs, "status", "okay") < 0) {
+		printf("  Failed to set %s/status -> okay\n",
+		       codec_list[cid].i2c_path);
+	}
+	offs = fdt_path_offset(blob, codec_list[cid].sound_path);
+	if (fdt_setprop_string(blob, offs, "status", "okay") < 0) {
+		printf("  Failed to set %s/status -> okay\n",
+		       codec_list[cid].sound_path);
 	}
 }
 
@@ -394,50 +446,19 @@ static void disable_kernel_heartbeat(void *blob)
 #define MDIO_ETH_PATH "/mdio/ethernet-phy@/"
 #define ETHPHY0_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@0/"
 #define ETHPHY1_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@1/"
-#define GET_CODEC_INDEX(x) (((int)x) - 1)
-
-typedef struct {
-	const char *name;
-	const char *path;
-	const char *codec;
-}codec_list_t;
-
-/*
- * codec_list index is tied to board id. Any alteration to
- * this list will cause issue, the order needs to maintained.
- * If new codec added to the list it must be associated with
- * a boardid.
- */
-static const codec_list_t codec_list[] = {
-	{"wm8974", "/bus@5a000000/i2c@5a810000/wm8974@1a/", "/sound-wm8974"},
-	{"wm8940", "/bus@5a000000/i2c@5a810000/wm8940@1a/", "/sound-wm8940"}
-};
-
-static void set_audio_codec(void *blob,int cid)
-{
-	if (cid >= 0 && cid < ARRAY_SIZE(codec_list)) {
-		printf("Audio Codec: %s\n", codec_list[cid].name);
-		if (fdt_setprop_string(blob, fdt_path_offset(blob, codec_list[cid].path), "status", "okay") < 0) {
-			printf("  Failed to set %s/status -> okay\n", codec_list[cid].path);
-		}
-		if (fdt_setprop_string(blob, fdt_path_offset(blob, codec_list[cid].codec), "status", "okay") < 0) {
-			printf("  Failed to set %s/status -> okay\n", codec_list[cid].codec);
-		}
-	}
-}
 
 static void realtek_phy_supp(void *blob)
 {
-	int offs = -1;
+	int offs;
 
 	offs = fdt_path_offset(blob,ETHPHY0_PATH);
 	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
 		printf("fdt eth0 phy-mode FDT_ERR_NOTFOUND\n");
 	}
-	if (fdt_delprop(blob, offs,"fsl,rgmii_rxc_dly") < 0) {
+	if (fdt_delprop(blob, offs, "fsl,rgmii_rxc_dly") < 0) {
 		printf("fdt eth0 rgmii_rxc_dly FDT_ERR_NOTFOUND\n");
 	}
-	if (fdt_delprop(blob, offs,"fsl,ar8031-phy-fixup") < 0) {
+	if (fdt_delprop(blob, offs, "fsl,ar8031-phy-fixup") < 0) {
 		printf("fdt eth0 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
 	}
 
@@ -445,10 +466,10 @@ static void realtek_phy_supp(void *blob)
 	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
 		printf("fdt eth1 phy-mode FDT_ERR_NOTFOUND\n");
 	}
-	if (fdt_delprop(blob, offs,"fsl,rgmii_rxc_dly") < 0) {
+	if (fdt_delprop(blob, offs, "fsl,rgmii_rxc_dly") < 0) {
 		printf("fdt eth1 rgmii_rxc_dly FDT_ERR_NOTFOUND\n");
 	}
-	if (fdt_delprop(blob, offs,"fsl,ar8031-phy-fixup") < 0) {
+	if (fdt_delprop(blob, offs, "fsl,ar8031-phy-fixup") < 0) {
 		printf("fdt eth1 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
 	}
 
@@ -512,16 +533,12 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		fdt_root(blob);
 	}
 
+	/* TODO - replace with a dtb overlay based on boardid */
+	set_audio_codec(blob);
+
 	printf("Phy vendor: %d\n", phyType);
-	if(phyType != PHY_VENDOR_QUALCOMM) {
+	if (phyType != PHY_VENDOR_QUALCOMM) {
 		realtek_phy_supp(blob);
-	}
-
-	set_audio_codec(blob, GET_CODEC_INDEX(board_id));
-
-	if (env_get_yesno("energystar") == 1) {
-		printf("Energy star mode\n");
-		disable_kernel_heartbeat(blob);
 	}
 
 	/*
