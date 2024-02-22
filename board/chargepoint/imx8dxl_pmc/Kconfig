@@ -1,0 +1,12 @@
+if  TARGET_CHARGEPOINT_IMX8DXL_PMC
+
+config SYS_BOARD
+	default "imx8dxl_pmc"
+
+config SYS_VENDOR
+	default "chargepoint"
+
+config SYS_CONFIG_NAME
+	default "chargepoint_imx8dxl_pmc"
+
+endif

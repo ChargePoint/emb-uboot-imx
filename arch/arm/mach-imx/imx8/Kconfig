@@ -188,6 +188,11 @@ config TARGET_CHARGEPOINT_IMX8DXL_KCB
 	select BOARD_LATE_INIT
 	select IMX8DXL
 
+config TARGET_CHARGEPOINT_IMX8DXL_PMC
+        bool "Support i.MX8DXL board(evk)"
+        select BOARD_LATE_INIT
+        select IMX8DXL
+
 config TARGET_IMX8DXL_PHANTOM_MEK
 	bool "Support i.MX8DXL PHANTOM MEK board"
 	select BOARD_LATE_INIT
@@ -251,6 +256,7 @@ source "board/siemens/capricorn/Kconfig"
 
 # ChargePoint
 source "board/chargepoint/imx8dxl_kcb/Kconfig"
+source "board/chargepoint/imx8dxl_pmc/Kconfig"
 source "board/chargepoint/imx8dxp_ucb/Kconfig"
 
 config SKIP_RESOURCE_CHECKING
