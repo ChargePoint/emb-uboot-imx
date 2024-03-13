@@ -138,7 +138,7 @@ int checkboard(void)
 #if defined(CONFIG_TARGET_IMX8DXL_DDR3_EVK)
 	puts("Board: iMX8DXL DDR3 EVK\n");
 #else
-	puts("Board: iMX8DXL KCB\n");
+	puts("Board: iMX8DXL PMC\n");
 #endif
 
 	print_bootinfo();
