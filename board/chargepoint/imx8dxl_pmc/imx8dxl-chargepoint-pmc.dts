@@ -26,35 +26,6 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		reg_fec1: regfec1 {
-			compatible = "regulator-fixed";
-			regulator-name = "fec1_supply";
-			regulator-min-microvolt = <3000000>;
-			regulator-max-microvolt = <3000000>;
-			enable-active-high;
-		};
-
-		reg_usb_otg1_vbus: regulator@0 {
-			compatible = "regulator-fixed";
-			reg = <0>;
-			regulator-name = "usb_otg1_vbus";
-			regulator-min-microvolt = <5000000>;
-			regulator-max-microvolt = <5000000>;
-			gpio = <&gpio4 3 GPIO_ACTIVE_HIGH>;
-			enable-active-high;
-		};
-
-		reg_usb_otg2_vbus: regulator@1 {
-			compatible = "regulator-fixed";
-			reg = <1>;
-			regulator-name = "usb_otg2_vbus";
-			regulator-min-microvolt = <5000000>;
-			regulator-max-microvolt = <5000000>;
-			gpio = <&gpio4 4 GPIO_ACTIVE_HIGH>;
-			enable-active-high;
-		};
-
-
 		/* for RS485 and CAN transceiver */
 		reg_ser_pwr: regulator-serial-power {
 			compatible = "regulator-fixed";
@@ -73,266 +44,288 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hog>;
 
-	imx8dxl-evk {
-		pinctrl_hog: hoggrp {
-			fsl,pins = <
-				SC_P_COMP_CTL_GPIO_1V8_3V3_GPIORHB_PAD		0x000514a0
-				SC_P_USB_SS3_TC0_LSIO_GPIO4_IO03				0x00000021
-				SC_P_USB_SS3_TC1_LSIO_GPIO4_IO04				0x00000021
+	pinctrl_hog: hoggrp {
+		fsl,pins = <
+			SC_P_PCIE_CTRL0_WAKE_B_LSIO_GPIO4_IO02		0x04000021/* ACCEL_INT_B */
+			SC_P_PCIE_CTRL0_PERST_B_LSIO_GPIO4_IO00		0x06000021/* INT_B */
+			SC_P_PCIE_CTRL0_CLKREQ_B_LSIO_GPIO4_IO01	0x06000021/* SHOCK_SHUNT_TRIP */
 
-			>;
-		};
+			SC_P_SNVS_TAMPER_OUT1_LSIO_GPIO2_IO05_IN	0x20000040/* SOC_SURGE_DET1 */
+			SC_P_SNVS_TAMPER_OUT2_LSIO_GPIO2_IO06_IN	0x20000060 /* SOC_SURGE_DET2 */
+			SC_P_SNVS_TAMPER_OUT3_LSIO_GPIO2_IO07_IN	0x20000060 /* SOC_SURGE_DET3 */
+			SC_P_SNVS_TAMPER_OUT4_LSIO_GPIO2_IO08_IN	0x20000060 /* SOC_SURGE_DET4 */
+			SC_P_SPI1_SDI_LSIO_GPIO3_IO02			0x20000020 /* SOC_SURGE_DET5 */
 
-		pinctrl_lpuart0: lpuart0grp {
-			fsl,pins = <
-				SC_P_UART0_RX_ADMA_UART0_RX	0x06000020
-				SC_P_UART0_TX_ADMA_UART0_TX	0x06000020
-			>;
-		};
+			SC_P_USB_SS3_TC1_LSIO_GPIO4_IO04		0x20000040 /* PM_RESET_N */
+			SC_P_USB_SS3_TC3_LSIO_GPIO4_IO06		0x20000020 /* PM_INT_IN */
+			SC_P_SPI3_SCK_LSIO_GPIO0_IO13			0x20000040 /* SOC_THER_SW1 */
+			SC_P_SPI3_SDI_LSIO_GPIO0_IO15 			0x20000040 /* SOC_THER_SW2 */
+			SC_P_SPI3_SDO_LSIO_GPIO0_IO14			0x24000060 /* SOC_THER_SW3 */
+			SC_P_MCLK_IN0_LSIO_GPIO0_IO19			0x20000040 /* SOC_THER_SW4 */
+			/*SC_P_PMIC_INT_B_SCU_DSC_PMIC_INT_B		0x1b0b0 /* PMIC_INT_B */
 
-		pinctrl_lpi2c2: lpi2c2grp {
-			fsl,pins = <
-				SC_P_SPI1_SDO_ADMA_I2C2_SCL	0x06000021
-				SC_P_SPI1_SCK_ADMA_I2C2_SDA	0x06000021
-			>;
-		};
+			SC_P_MCLK_IN0_LSIO_GPIO0_IO19			0x20000040 /* FAN_TACH_DSP0 */
+			SC_P_MCLK_OUT0_LSIO_GPIO0_IO20			0x00000040 /* FAN_TACH_DSP1 */
 
-		pinctrl_lpi2c3: lpi2c3grp {
-			fsl,pins = <
-				SC_P_SPI1_SDI_ADMA_I2C3_SCL	0x06000021
-				SC_P_SPI1_CS0_ADMA_I2C3_SDA	0x06000021
-			>;
-		};
+			SC_P_ADC_IN0_M40_GPIO0_IO00			0x00000040 /* FAN_CURRENT_1_a */
+			SC_P_ADC_IN1_M40_GPIO0_IO01			0x00000040 /* FAN_CURRENT_2_a */
+			SC_P_ADC_IN2_M40_GPIO0_IO02			0x00000040 /* VIN_0 */
+			SC_P_ADC_IN3_M40_GPIO0_IO03			0x00000040 /* TEMP1_OUT */
+			SC_P_ADC_IN4_M40_GPIO0_IO04			0x00000040 /* TEMP2_OUT*/
+			SC_P_ADC_IN5_M40_GPIO0_IO05			0x00000040 /* V48_DET_ADC*/
 
-		pinctrl_lpspi3: lpspi3grp {
-			fsl,pins = <
-				SC_P_SPI3_SCK_ADMA_SPI3_SCK	0x0600004c
-				SC_P_SPI3_SDO_ADMA_SPI3_SDO	0x0600004c
-				SC_P_SPI3_SDI_ADMA_SPI3_SDI	0x0600004c
-				SC_P_SPI3_CS1_ADMA_SPI3_CS1	0x0600004c
-				SC_P_SPI3_CS0_LSIO_GPIO0_IO16	0x21
-			>;
-		};
+			SC_P_QSPI0B_SS0_B_LSIO_GPIO3_IO23		0x20000020 /* PWR_GOOD */
+			SC_P_QSPI0B_SCLK_LSIO_GPIO3_IO17		0x20000040 /* PWR_LOSS_INT */
+			SC_P_QSPI0A_SS0_B_LSIO_GPIO3_IO14		0x20000020 /* LED0 */
+			SC_P_QSPI0A_SCLK_LSIO_GPIO3_IO16		0x20000040 /* SOC_SPAREIO1 */
+			SC_P_QSPI0A_DQS_LSIO_GPIO3_IO13			0x20000040 /* SOC_HEATER_ON */
+			SC_P_QSPI0B_DATA0_LSIO_GPIO3_IO18		0x20000040 /* ETH_PWR_EN */
+			SC_P_QSPI0A_DATA0_LSIO_GPIO3_IO09 		0x20000040 /* SOC_FLOAT_TRIP1 */
+			SC_P_QSPI0A_DATA1_LSIO_GPIO3_IO10		0x20000040 /* SOC_FLOAT_TRIP2 */
+			SC_P_QSPI0B_DATA1_LSIO_GPIO3_IO19		0x20000040 /* SER_PWR_EN */
+			SC_P_USDHC1_CD_B_LSIO_GPIO4_IO22		0x20000020 /* SOC_REED5 */
+			SC_P_USDHC1_RESET_B_LSIO_GPIO4_IO19		0x20000020 /* SOC_REED6 */
+			SC_P_UART1_CTS_B_LSIO_GPIO0_IO24		0x20000040 /* FAN1_ON */
+			SC_P_SPI3_CS0_LSIO_GPIO0_IO16			0x20000040 /* FAN2_ON */
 
-		pinctrl_usdhc1: usdhc1grp {
-			fsl,pins = <
-				SC_P_EMMC0_CLK_CONN_EMMC0_CLK		0x06000041
-				SC_P_EMMC0_CMD_CONN_EMMC0_CMD		0x00000021
-				SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
-				SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
-				SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
-				SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
-				SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
-				SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
-				SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
-				SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
-				SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE	0x00000041
-				SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B	0x00000021
-			>;
-		};
-
-		pinctrl_usdhc1_100mhz: usdhc1grp100mhz {
-			fsl,pins = <
-				SC_P_EMMC0_CLK_CONN_EMMC0_CLK		0x06000041
-				SC_P_EMMC0_CMD_CONN_EMMC0_CMD		0x00000021
-				SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
-				SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
-				SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
-				SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
-				SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
-				SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
-				SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
-				SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
-				SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE	0x00000041
-				SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B	0x00000021
-			>;
-		};
-
-		pinctrl_usdhc1_200mhz: usdhc1grp200mhz {
-			fsl,pins = <
-				SC_P_EMMC0_CLK_CONN_EMMC0_CLK		0x06000041
-				SC_P_EMMC0_CMD_CONN_EMMC0_CMD		0x00000021
-				SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
-				SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
-				SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
-				SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
-				SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
-				SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
-				SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
-				SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
-				SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE	0x00000041
-				SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B	0x00000021
-			>;
-		};
-
-
-		pinctrl_flexspi0: flexspi0grp {
-			fsl,pins = <
-				SC_P_QSPI0A_DATA0_LSIO_QSPI0A_DATA0	0x06000021
-				SC_P_QSPI0A_DATA1_LSIO_QSPI0A_DATA1	0x06000021
-				SC_P_QSPI0A_DATA2_LSIO_QSPI0A_DATA2	0x06000021
-				SC_P_QSPI0A_DATA3_LSIO_QSPI0A_DATA3	0x06000021
-				SC_P_QSPI0A_DQS_LSIO_QSPI0A_DQS		0x06000021
-				SC_P_QSPI0A_SS0_B_LSIO_QSPI0A_SS0_B	0x06000021
-				SC_P_QSPI0A_SCLK_LSIO_QSPI0A_SCLK	0x06000021
-				SC_P_QSPI0B_DATA0_LSIO_QSPI0B_DATA0	0x06000021
-				SC_P_QSPI0B_DATA1_LSIO_QSPI0B_DATA1	0x06000021
-				SC_P_QSPI0B_DATA2_LSIO_QSPI0B_DATA2	0x06000021
-				SC_P_QSPI0B_DATA3_LSIO_QSPI0B_DATA3	0x06000021
-			>;
-		};
-
+			/*MX6QDL_PAD_DISP0_DAT18__GPIO5_IO12		0x1b0b0 /* I2C PMIC ENABLE */
+			SC_P_QSPI0A_DATA2_LSIO_GPIO3_IO11		0x20000040 /* SOC_LED2 */
+			SC_P_QSPI0A_DATA3_LSIO_GPIO3_IO12		0x20000040 /* SOC_LED1 */
+			SC_P_QSPI0B_DQS_LSIO_GPIO3_IO22			0x20000040 /* MCU_RSTn */
+			SC_P_QSPI0B_DATA3_LSIO_GPIO3_IO21		0x24000040 /* SW_PMSHDOWN: Emergency Stop Button */
+			SC_P_USDHC1_VSELECT_LSIO_GPIO4_IO20		0x20000040 /* PHY_INTn */
+			SC_P_UART1_TX_LSIO_PWM0_OUT			0x08000040 /* FAN1_SP_CTRL */
+			SC_P_UART1_RX_LSIO_PWM1_OUT			0x08000040 /* FAN2_SP_CTRL */
+			SC_P_QSPI0B_DATA2_LSIO_GPIO3_IO20		0x24000060 /* PHY_RSTn */
+		>;
 	};
+
+	pinctrl_fec1: fec1grp {
+		fsl,pins = <
+			SC_P_ENET0_MDC_CONN_ENET0_MDC				0x00000040
+			SC_P_ENET0_MDIO_CONN_ENET0_MDIO				0x00000020
+
+			SC_P_ENET0_RGMII_TXC_CONN_ENET0_RGMII_TXC		0x00000040
+			SC_P_ENET0_RGMII_TXD0_CONN_ENET0_RGMII_TXD0		0x00000040
+			SC_P_ENET0_RGMII_TXD1_CONN_ENET0_RGMII_TXD1		0x00000040
+			SC_P_ENET0_RGMII_TXD2_CONN_ENET0_RGMII_TXD2		0x00000040
+			SC_P_ENET0_RGMII_TXD3_CONN_ENET0_RGMII_TXD3		0x00000040
+			SC_P_ENET0_RGMII_TX_CTL_CONN_ENET0_RGMII_TX_CTL 	0x00000040
+			SC_P_ENET0_RGMII_RXC_CONN_ENET0_RGMII_RXC		0x00000040
+			SC_P_ENET0_RGMII_RXD0_CONN_ENET0_RGMII_RXD0		0x00000040
+			SC_P_ENET0_RGMII_RXD1_CONN_ENET0_RGMII_RXD1		0x00000040
+			SC_P_ENET0_RGMII_RXD2_CONN_ENET0_RGMII_RXD2		0x00000040
+			SC_P_ENET0_RGMII_RXD3_CONN_ENET0_RGMII_RXD3		0x00000040
+			SC_P_ENET0_RGMII_RX_CTL_CONN_ENET0_RGMII_RX_CTL 	0x00000040 
+		>;
+	};
+
+	pinctrl_flexcan1: flexcan1grp {
+		fsl,pins = <
+			SC_P_FLEXCAN0_TX_ADMA_FLEXCAN0_TX	0x00000040
+			SC_P_FLEXCAN0_RX_ADMA_FLEXCAN0_RX	0x00000040
+		>;
+	};
+
+	pinctrl_flexcan2: flexcan2grp {
+		fsl,pins = <
+			SC_P_FLEXCAN1_TX_ADMA_FLEXCAN1_TX	0x00000040
+			SC_P_FLEXCAN1_RX_ADMA_FLEXCAN1_RX	0x00000040
+		>;
+	};
+
+	pinctrl_flexcan3: flexcan3grp {
+		fsl,pins = <
+			SC_P_FLEXCAN2_RX_ADMA_FLEXCAN2_RX	0x00000040
+			SC_P_FLEXCAN2_RX_ADMA_FLEXCAN2_RX	0x00000040
+		>;
+	};
+
+	pinctrl_i2c1: i2c1grp {
+		fsl,pins = <
+			SC_P_USB_SS3_TC0_ADMA_I2C1_SCL	0x00000020
+			SC_P_USB_SS3_TC2_ADMA_I2C1_SDA	0x00000020
+		>;
+	};
+
+	pinctrl_i2c2: i2c2grp {
+		fsl,pins = <
+			SC_P_SPI1_SDO_ADMA_I2C2_SCL		0x10000040
+			SC_P_SPI1_SCK_ADMA_I2C2_SDA		0x10000040
+		>;
+	};
+
+	pinctrl_rtc: rtc {
+		fsl,pins = <
+			SC_P_QSPI0A_SCLK_LSIO_GPIO3_IO16	0x20000040 /* RTC_IRQn */
+		>;
+	};
+
+	pinctrl_lpuart0: lpuart0grp { /* DBG Console */
+		fsl,pins = <
+			SC_P_UART0_TX_ADMA_UART0_TX		0x00000040
+			SC_P_UART0_RX_ADMA_UART0_RX		0x00000040
+		>;
+	};
+
+	pinctrl_lpuart2: lpuart2grp { /* RS485 */
+		fsl,pins = <
+			SC_P_USDHC1_WP_LSIO_GPIO4_IO21		0x20000040 /* RS485_DE */
+			SC_P_SPI1_CS0_LSIO_GPIO3_IO03		0x20000040 /* RS485_REn */
+			SC_P_UART2_TX_ADMA_UART2_TX		0x08000040 /* RS485_D */
+			SC_P_UART2_RX_ADMA_UART2_RX		0x00000040 /* RS485_R */
+		>;
+	};
+
+	pinctrl_usdhc1: usdhc1grp { /* eMMC */
+		fsl,pins = <
+			SC_P_EMMC0_CLK_CONN_EMMC0_CLK		0x06000041
+			SC_P_EMMC0_CMD_CONN_EMMC0_CMD		0x00000021
+			SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
+			SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
+			SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
+			SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
+			SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
+			SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
+			SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
+			SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
+			SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE	0x00000041
+			SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B	0x00000021
+
+		>;
+	};
+
+	pinctrl_usdhc1_100mhz: usdhc1grp100mhz  { /* eMMC */
+		fsl,pins = <
+			SC_P_EMMC0_CLK_CONN_EMMC0_CLK		0x06000041
+			SC_P_EMMC0_CMD_CONN_EMMC0_CMD		0x00000021
+			SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
+			SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
+			SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
+			SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
+			SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
+			SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
+			SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
+			SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
+			SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE	0x00000041
+			SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B	0x00000021
+
+		>;
+	};
+
+	pinctrl_usdhc1_200mhz: usdhc1grp200mhz { /* eMMC */
+		fsl,pins = <
+			SC_P_EMMC0_CLK_CONN_EMMC0_CLK		0x06000041
+			SC_P_EMMC0_CMD_CONN_EMMC0_CMD		0x00000021
+			SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
+			SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
+			SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
+			SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
+			SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
+			SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
+			SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
+			SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
+			SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE	0x00000041
+			SC_P_EMMC0_RESET_B_CONN_EMMC0_RESET_B	0x00000021
+
+		>;
+	};
+
 };
 
-&A35_0 {
-	u-boot,dm-pre-reloc;
-};
-
-&lpuart0 {
+&i2c1 {
+	clock-frequency = <100000>;
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_lpuart0>;
+	pinctrl-0 = <&pinctrl_i2c1>;
 	status = "okay";
-};
 
-&gpio0 {
-	status = "okay";
-};
+	/* power module interface */
+	pca9539_ioexp: ioexp@77{
+		compatible = "nxp,pca9539";
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x77>;
+	};
 
-&gpio4 {
-	status = "okay";
-};
+	temp_sensor: tc74a5@4d {
+		compatible = "tc74a5";
+		reg = <0x4d>;
+	};
 
-&gpio5 {
-	status = "okay";
-};
+	eeprom: eeprom@50 {
+		compatible = "microchip,24lc16";
+		reg = <0x50>;
+		pagesize = <16>;
+	};
 
-&lpspi3 {
-	#address-cells = <1>;
-	#size-cells = <0>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_lpspi3>;
-	cs-gpios = <&gpio0 16 GPIO_ACTIVE_LOW>, <0>, <0>, <0>;
-	spi-max-frequency = <1000000>;
-	status = "okay";
+	/* humidity sensor */
+	hpp845e031r4@40 {
+		compatible = "microchip,24lc16";
+		reg = <0x40>;
+	};
+
+	/* tilt sensor */
+	lis3dh_acc@31 { /* Accelerometer */
+		compatible = "st,lis3dh";
+		reg = <0x31>;
+	};
+
+	ads7828@48 { /* ADC */
+		compatible = "ti,ads7828";
+		reg = <0x48>;
+		st,drdy-int-pin = <1>;
+	};
+
+	rtc@51 {/* RTC */
+		compatible = "nxp,pcf85363";
+		reg = <0x51>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_rtc>;
+		interrupt-parent = <&gpio3>;
+		interrupts = <8 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-names = "rtc_irqn";
+	};
+
 };
 
 &i2c2 {
 	clock-frequency = <100000>;
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_lpi2c2>;
+	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
 
-	i2cswitch@70 {
-		compatible = "nxp,pca9646";
-		reg = <0x70>;
-		u-boot,i2c-offset-len = <0>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		v2x_i2c2: i2c@0 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x0>;
-		};
-
-		audio_codec1_i2c2: i2c@1 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x1>;
-		};
-
-		audio_codec2_i2c2: i2c@2 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x2>;
-		};
-
-		audio_codec3_i2c2: i2c@3 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x3>;
-		};
-
-		m2_i2c2: i2c@4 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x4>;
-		};
-
-		pcie_i2c2: i2c@5 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x5>;
-		};
-
-		lcd_i2c2: i2c@6 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x6>;
-		};
-	};
-
-};
-
-&i2c3 {
-	clock-frequency = <100000>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_lpi2c3>;
-	status = "disabled";
-
-	i2cswitch@70 {
-		compatible = "nxp,pca9646";
-		reg = <0x70>;
-		u-boot,i2c-offset-len = <0>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		alt_audio_codec1_i2c3: i2c@0 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x0>;
-		};
-
-		alt_audio_codec2_i2c3: i2c@1 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x1>;
-		};
-
-		alt_audio_codec3_i2c3: i2c@2 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x2>;
-		};
-
-		usb1_i2c3: i2c@3 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x3>;
-		};
-
-		usb2_i2c3: i2c@4 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0x4>;
-		};
+	/* power module interface */
+	pca9539_extctrl: extctrl@77 {
+		compatible = "nxp,pca9539";
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x77>;
 	};
 };
 
-&flexspi0 {
+&lpuart0 { /* console */
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_flexspi0>;
+	pinctrl-0 = <&pinctrl_lpuart0>;
 	status = "okay";
+};
 
-	flash0: mt35xu512aba@0 {
-		reg = <0>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		compatible = "spi-flash";
-		spi-max-frequency = <29000000>;
-		spi-nor,ddr-quad-read-dummy = <8>;
-	};
+&lpuart2 { /* RS485 */
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lpuart2>;
+	rts-gpios = <&gpio4 21 GPIO_ACTIVE_HIGH>; /* RS485_DE */
+	/* RS485_REn is set to low in uboot i.e we are always receive ready */
+	linux,rs485-enabled-at-boot-time;
+	rs485-rx-during-tx;
+	status = "okay";
+};
+
+&usbotg1 {
+	srp-disable;
+	hnp-disable;
+	adp-disable;
+	power-active-high;
+	disable-over-current;
+	status = "okay";
 };
 
 &usdhc1 {
@@ -345,22 +338,4 @@
 	status = "okay";
 };
 
-&usbotg1 {
-	vbus-supply = <&reg_usb_otg1_vbus>;
-	srp-disable;
-	hnp-disable;
-	adp-disable;
-	power-polarity-active-high;
-	disable-over-current;
-	status = "okay";
-};
 
-&usbotg2 {
-	vbus-supply = <&reg_usb_otg2_vbus>;
-	srp-disable;
-	hnp-disable;
-	adp-disable;
-	power-polarity-active-high;
-	disable-over-current;
-	status = "okay";
-};
