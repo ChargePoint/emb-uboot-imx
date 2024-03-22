@@ -27,7 +27,9 @@ static inline void setup_fitimage_keys(void)
 	int noffset;
 	int sig_node;
 	void *sig_blob;
-	const char *sig_prefix;
+	int allowdev;
+	const char sig_prefix[] = SIGNATURE_PREFIX;
+	const char sig_devel[] = "dev:";
 
 	/*
 	 * This will change the "u-boot" fdt required keys that
@@ -46,13 +48,13 @@ static inline void setup_fitimage_keys(void)
 
 		err = sc_seco_chip_info(ipcHndl, &lc, NULL, NULL, NULL);
 		if ((err == SC_ERR_NONE) && (lc == 0x80)) {
-			sig_prefix = SIGNATURE_PREFIX;
+			allowdev = 0;
 		} else {
-			sig_prefix = "dev:";
+			allowdev = 1;
 		}
 	} while(0);
 #else
-	sig_prefix = imx_hab_is_enabled() ? SIGNATURE_PREFIX : "dev:";
+	allowdev = imx_hab_is_enabled() ? 0 : 1;
 #endif
 	sig_blob = (void *)(uintptr_t)gd->fdt_blob;
 
@@ -69,21 +71,37 @@ static inline void setup_fitimage_keys(void)
 		int ret;
 
 		required = fdt_getprop(sig_blob, noffset, "required", NULL);
-		if ((required == NULL) ||
-		    (strncmp(required, sig_prefix, strlen(sig_prefix)) != 0))
+		if (required == NULL) {
 			continue;
-
-		/*
-		 * Copy string suffix to stack buffer before calling
-		 * ftd_setprop_string().  Otherwise the string may be truncated while
-		 * being set.
-		 */
-		memset(buf, 0, sizeof(buf));
-		strncpy(buf, &required[strlen(sig_prefix)], sizeof(buf));
-		ret = fdt_setprop_string(sig_blob, noffset, "required", buf);
-		if (ret) {
-			printf("Failed to update required signature '%s'\n",
-			       fit_get_name(sig_blob, noffset, NULL));
+		}
+		if (strncmp(required, sig_prefix, strlen(sig_prefix)) == 0) {
+			/*
+			 * Copy string suffix to stack buffer before calling
+			 * ftd_setprop_string().  Otherwise the string may be
+			 * truncated while being set.
+			 */
+			memset(buf, 0, sizeof(buf));
+			strncpy(buf, &required[strlen(sig_prefix)],
+				sizeof(buf));
+			ret = fdt_setprop_string(sig_blob, noffset,
+						 "required", buf);
+			if (ret) {
+				printf("Failed to update signature '%s'\n",
+				       fit_get_name(sig_blob, noffset, NULL));
+			}
+		}
+		if ((allowdev == 1) &&
+		    (strncmp(required, sig_devel, strlen(sig_devel)) == 0)) {
+			/* same copy reason as above */
+			memset(buf, 0, sizeof(buf));
+			strncpy(buf, &required[strlen(sig_devel)],
+				sizeof(buf));
+			ret = fdt_setprop_string(sig_blob, noffset,
+						 "required", buf);
+			if (ret) {
+				printf("Failed to update signature '%s'\n",
+				       fit_get_name(sig_blob, noffset, NULL));
+			}
 		}
 	}
 #endif
