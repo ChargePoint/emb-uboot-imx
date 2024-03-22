@@ -22,6 +22,7 @@
  */
 / {
 	signature {
+		required-mode = "any";
 		key-fit-dev {
 			required = "dev:conf";
 			algo = "sha256,rsa4096";
