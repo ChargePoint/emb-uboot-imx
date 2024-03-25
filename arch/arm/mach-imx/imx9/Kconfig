@@ -46,7 +46,11 @@ config TARGET_IMX91P_9X9_QSB
 	select IMX9_LPDDR4X
 
 config TARGET_CHARGEPOINT_IMX93_CPCM
-	bool "imx93_cpcm"	
+	bool "imx93_cpcm"
+	select IMX93
+
+config TARGET_CHARGEPOINT_IMX93_CPCM_EVK
+	bool "chargepoint_imx93_cpcm_evk"
 	select IMX93
 
 endchoice
@@ -54,6 +58,7 @@ endchoice
 source "board/freescale/imx93_evk/Kconfig"
 source "board/freescale/imx93_qsb/Kconfig"
 source "board/chargepoint/imx93_cpcm/Kconfig"
+source "board/chargepoint/imx93_cpcm_evk/Kconfig"
 
 endif
 

@@ -1,15 +1,15 @@
-if TARGET_CHARGEPOINT_IMX93_CPCM
+if TARGET_CHARGEPOINT_IMX93_CPCM_EVK
 
 config SYS_BOARD
-	default "imx93_cpcm"
+	default "imx93_cpcm_evk"
 
 config SYS_VENDOR
 	default "chargepoint"
 
 config SYS_CONFIG_NAME
-	default "chargepoint_imx93_cpcm"
+	default "chargepoint_imx93_cpcm_evk"
 
-config IMX93_CPCM_LPDDR4X
+config CHARGEPOINT_IMX93_CPCM_EVK_LPDDR4X
 	bool "Using LPDDR4X Timing and PMIC voltage"
 	default y
 	select IMX9_LPDDR4X
