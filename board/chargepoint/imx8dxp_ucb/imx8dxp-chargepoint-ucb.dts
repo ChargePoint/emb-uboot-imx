@@ -328,7 +328,10 @@
 	pinctrl-0 = <&pinctrl_fec1>;
 	phy-mode = "rgmii-txid";
 	phy-handle = <&ethphy0>;
-	/* TODO: phy-reset? */
+	phy-reset-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+	phy-reset-active-high = <1>;
+	phy-reset-duration = <10>;
+	phy-reset-post-delay = <200>;
 	fsl,magic-packet;
 	fsl,rgmii_rxc_dly;
 	status = "okay";
@@ -359,7 +362,10 @@
 	pinctrl-0 = <&pinctrl_fec2>;
 	phy-mode = "rgmii-txid";
 	phy-handle = <&ethphy1>;
-	/* TODO: phy-reset? */
+	phy-reset-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+	phy-reset-active-high = <1>;
+	phy-reset-duration = <10>;
+	phy-reset-post-delay = <200>;
 	fsl,magic-packet;
 	fsl,rgmii_rxc_dly;
 	status = "okay";
