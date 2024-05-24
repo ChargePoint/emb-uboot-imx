@@ -19,7 +19,7 @@
 
 #if !defined(CONFIG_FASTBOOT_UUU_SUPPORT)
 #include "chargepoint-pubkey.dtsi"
-#include "prod-pubkey-ucb.dtsi"
+#include "ucb-pubkey.dtsi"
 #endif
 
 / {

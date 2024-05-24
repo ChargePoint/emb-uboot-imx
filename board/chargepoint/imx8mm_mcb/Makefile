@@ -29,9 +29,9 @@ $(obj)/../../../arch/$(ARCH)/dts/chargepoint-pubkey.dtsi: \
 		$(src)/../common/chargepoint-pubkey.dtsi
 	ln -fsn $(abspath $<) $@
 
-extra-y += ../../../arch/$(ARCH)/dts/prod-pubkey-mcb.dtsi
-$(obj)/../../../arch/$(ARCH)/dts/prod-pubkey-mcb.dtsi: \
-		$(src)/prod-pubkey-mcb.dtsi
+extra-y += ../../../arch/$(ARCH)/dts/mcb-pubkey.dtsi
+$(obj)/../../../arch/$(ARCH)/dts/mcb-pubkey.dtsi: \
+		$(src)/mcb-pubkey.dtsi
 	ln -fsn $(abspath $<) $@
 
 endif

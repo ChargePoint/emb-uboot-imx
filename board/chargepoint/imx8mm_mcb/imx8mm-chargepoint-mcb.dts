@@ -10,7 +10,7 @@
 
 #if !defined(CONFIG_FASTBOOT)
 #include "chargepoint-pubkey.dtsi"
-#include "prod-pubkey-mcb.dtsi"
+#include "mcb-pubkey.dtsi"
 #endif
 
 / {
