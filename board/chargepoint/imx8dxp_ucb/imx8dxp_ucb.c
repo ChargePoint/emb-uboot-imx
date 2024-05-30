@@ -455,8 +455,8 @@ static void realtek_phy_supp(void *blob)
 	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
 		printf("fdt eth0 phy-mode FDT_ERR_NOTFOUND\n");
 	}
-	if (fdt_delprop(blob, offs, "fsl,rgmii_rxc_dly") < 0) {
-		printf("fdt eth0 rgmii_rxc_dly FDT_ERR_NOTFOUND\n");
+	if (fdt_delprop(blob, offs, "rx-internal-delay-ps") < 0) {
+		printf("fdt eth0 rx-internal-delay-ps FDT_ERR_NOTFOUND\n");
 	}
 	if (fdt_delprop(blob, offs, "fsl,ar8031-phy-fixup") < 0) {
 		printf("fdt eth0 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
@@ -466,8 +466,8 @@ static void realtek_phy_supp(void *blob)
 	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
 		printf("fdt eth1 phy-mode FDT_ERR_NOTFOUND\n");
 	}
-	if (fdt_delprop(blob, offs, "fsl,rgmii_rxc_dly") < 0) {
-		printf("fdt eth1 rgmii_rxc_dly FDT_ERR_NOTFOUND\n");
+	if (fdt_delprop(blob, offs, "rx-internal-delay-ps") < 0) {
+		printf("fdt eth1 rx-internal-delay-ps FDT_ERR_NOTFOUND\n");
 	}
 	if (fdt_delprop(blob, offs, "fsl,ar8031-phy-fixup") < 0) {
 		printf("fdt eth1 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
