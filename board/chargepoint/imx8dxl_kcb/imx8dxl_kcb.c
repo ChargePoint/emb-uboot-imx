@@ -28,7 +28,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 
 enum {
-	KESTREL_BOARDID1=0x1, /* Obsolete and not supported */
+	KESTREL_BOARDID0=0x0, /* EVT */
+	KESTREL_BOARDID1=0x1, /* DVT */
 	KESTREL_BOARDID2=0x2, /* KCBv3 and KCBv4 */
 	KESTREL_BOARDID3=0x3, /* KCBv5 and up */
 };
@@ -199,6 +200,8 @@ int board_late_init(void)
 	env_set("board_rev", "iMX8DXL");
 
 	switch (get_boardid()) {
+	case KESTREL_BOARDID0:
+	case KESTREL_BOARDID1:
 	case KESTREL_BOARDID2:
 		env_set("boardid_name", "KCB_BOARDID2");
 		break;
