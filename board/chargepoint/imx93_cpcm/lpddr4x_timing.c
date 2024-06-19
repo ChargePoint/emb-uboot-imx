@@ -1,16 +1,16 @@
 /*
- * Copyright 2023 NXP
+ * Copyright 2024 NXP
  *
  * SPDX-License-Identifier: GPL-2.0+
  *
- * Code generated with DDR Tool v2.0.0_6.1.
+ * Code generated with DDR Tool v3.1.0_7.5.
  */
 
 #include <linux/kernel.h>
 #include <asm/arch/ddr.h>
 
-struct dram_cfg_param ddr_ddrc_cfg[] = {
-    /** Initialize DDRC registers **/
+/* Initialize DDRC registers */
+static struct dram_cfg_param ddr_ddrc_cfg[] = {
     {0x4e300110, 0x44100001},
     {0x4e300000, 0x8000ff},
     {0x4e300008, 0x0},
@@ -30,7 +30,6 @@ struct dram_cfg_param ddr_ddrc_cfg[] = {
     {0x4e301254, 0x0},
     {0x4e301258, 0x0},
     {0x4e30125c, 0x0},
-
 };
 
 /* dram fsp cfg */
@@ -68,23 +67,23 @@ static struct dram_fsp_cfg ddr_dram_fsp_cfg[] = {
 };
 
 /* PHY Initialize Configuration */
-struct dram_cfg_param ddr_ddrphy_cfg[] = {
-    {0x100a0, 0x0},
-    {0x100a1, 0x1},
-    {0x100a2, 0x2},
-    {0x100a3, 0x3},
-    {0x100a4, 0x4},
-    {0x100a5, 0x5},
-    {0x100a6, 0x6},
-    {0x100a7, 0x7},
-    {0x110a0, 0x0},
-    {0x110a1, 0x1},
-    {0x110a2, 0x2},
-    {0x110a3, 0x3},
-    {0x110a4, 0x4},
-    {0x110a5, 0x5},
-    {0x110a6, 0x6},
-    {0x110a7, 0x7},
+static struct dram_cfg_param ddr_ddrphy_cfg[] = {
+    {0x100a0, 0x4},
+    {0x100a1, 0x5},
+    {0x100a2, 0x6},
+    {0x100a3, 0x7},
+    {0x100a4, 0x0},
+    {0x100a5, 0x1},
+    {0x100a6, 0x2},
+    {0x100a7, 0x3},
+    {0x110a0, 0x3},
+    {0x110a1, 0x2},
+    {0x110a2, 0x0},
+    {0x110a3, 0x1},
+    {0x110a4, 0x7},
+    {0x110a5, 0x6},
+    {0x110a6, 0x4},
+    {0x110a7, 0x5},
     {0x1005f, 0x5ff},
     {0x1015f, 0x5ff},
     {0x1105f, 0x5ff},
@@ -142,12 +141,10 @@ struct dram_cfg_param ddr_ddrphy_cfg[] = {
     {0x1200c7, 0x21},
     {0x200ca, 0x24},
     {0x1200ca, 0x24},
-
 };
 
-
-/* ddr phy trained csr */
-struct dram_cfg_param ddr_ddrphy_trained_csr[] = {
+/* PHY trained csr */
+static struct dram_cfg_param ddr_ddrphy_trained_csr[] = {
     {0x1005f, 0x0},
     {0x1015f, 0x0},
     {0x1105f, 0x0},
@@ -892,11 +889,10 @@ struct dram_cfg_param ddr_ddrphy_trained_csr[] = {
     {0x11640, 0x0},
     {0x11740, 0x0},
     {0x11840, 0x0},
-
 };
 
 /* P0 message block parameter for training firmware */
-struct dram_cfg_param ddr_fsp0_cfg[] = {
+static struct dram_cfg_param ddr_fsp0_cfg[] = {
     {0xd0000, 0x0},
     {0x54003, 0xe94},
     {0x54004, 0x4},
@@ -933,9 +929,8 @@ struct dram_cfg_param ddr_fsp0_cfg[] = {
 };
 
 
-
 /* P0 2D message block parameter for training firmware */
-struct dram_cfg_param ddr_fsp0_2d_cfg[] = {
+static struct dram_cfg_param ddr_fsp0_2d_cfg[] = {
     {0xd0000, 0x0},
     {0x54003, 0xe94},
     {0x54004, 0x4},
@@ -972,9 +967,8 @@ struct dram_cfg_param ddr_fsp0_2d_cfg[] = {
     {0xd0000, 0x1}
 };
 
-
 /* DRAM PHY init engine image */
-struct dram_cfg_param ddr_phy_pie[] = {
+static struct dram_cfg_param ddr_phy_pie[] = {
     {0xd0000, 0x0},
     {0x90000, 0x10},
     {0x90001, 0x400},
@@ -1512,20 +1506,16 @@ struct dram_cfg_param ddr_phy_pie[] = {
     {0x20088, 0x19},
     {0xc0080, 0x0},
     {0xd0000, 0x1},
-
 };
 
-
-struct dram_fsp_msg ddr_dram_fsp_msg[] = {
+static struct dram_fsp_msg ddr_dram_fsp_msg[] = {
     {
         /* P0 3733mts 1D */
         .drate = 3733,
         .fw_type = FW_1D_IMAGE,
         .fsp_cfg = ddr_fsp0_cfg,
         .fsp_cfg_num = ARRAY_SIZE(ddr_fsp0_cfg),
-
     },
-
     {
         /* P0 3733mts 2D */
         .drate = 3733,
@@ -1533,9 +1523,7 @@ struct dram_fsp_msg ddr_dram_fsp_msg[] = {
         .fsp_cfg = ddr_fsp0_2d_cfg,
         .fsp_cfg_num = ARRAY_SIZE(ddr_fsp0_2d_cfg),
     },
-
 };
-
 
 /* ddr timing config params */
 struct dram_timing_info dram_timing = {
@@ -1553,3 +1541,4 @@ struct dram_timing_info dram_timing = {
     .fsp_cfg = ddr_dram_fsp_cfg,
     .fsp_cfg_num = ARRAY_SIZE(ddr_dram_fsp_cfg),
 };
+
