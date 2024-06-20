@@ -33,11 +33,11 @@
 /* Initial environment variables */
 #define CFG_EXTRA_ENV_SETTINGS		\
 	CFG_MFG_ENV_SETTINGS \
-	"bootenvpart=2:1\0" \
+	"bootenvpart=0:1\0" \
 	"bootenv=uboot.env\0" \
 	"bootfile=fitImage\0" \
-	"bootparta=2:2\0" \
-	"bootpartb=2:3\0" \
+	"bootparta=0:2\0" \
+	"bootpartb=0:3\0" \
 	"importbootenv=echo Importing env from mmc ${bootenvpart} ...; " \
 		"part uuid mmc ${bootenvpart} bootenvuuid; " \
 		"if ext4load mmc ${bootenvpart} " \
