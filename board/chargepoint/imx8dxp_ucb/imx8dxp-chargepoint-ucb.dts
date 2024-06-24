@@ -323,52 +323,42 @@
 	status = "okay";
 };
 
+/*
+ * This is a specific "hack" to make phy detection work in u-boot
+ * because the addresses are different between atheros and realtek.
+ *
+ * So, the shared mdio bus has this
+ *  Qualcomm: PHYAD 0 and 1
+ *  Realtek: PHYAD 1 and 2
+ *
+ * In this MDIO bus we just look for a phyad 1 and use that to
+ * determine what phy is there.
+ *
+ * As a result this has a side effect that the reset gpios and other
+ * setup has to be done in the board specific code for this to work.
+ */
 &fec1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_fec1>;
-	phy-mode = "rgmii-txid";
-	phy-handle = <&ethphy0>;
-	phy-reset-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
-	phy-reset-active-high = <1>;
-	phy-reset-duration = <10>;
-	phy-reset-post-delay = <200>;
+	phy-mode = "rgmii";
+	phy-handle = <&ethphy>;
 	fsl,magic-packet;
-	fsl,rgmii_rxc_dly;
 	status = "okay";
 
 	mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		ethphy0: ethernet-phy@0 {
-			compatible = "ethernet-phy-ieee802.3-c22";
-			reg = <0>;
-			at803x,eee-disabled;
-			at803x,vddio-1p8v;
-		};
-
-		ethphy1: ethernet-phy@1 {
+		ethphy: ethernet-phy@1 {
 			compatible = "ethernet-phy-ieee802.3-c22";
 			reg = <1>;
-			at803x,eee-disabled;
-			at803x,vddio-1p8v;
 			status = "okay";
 		};
 	};
 };
 
 &fec2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_fec2>;
-	phy-mode = "rgmii-txid";
-	phy-handle = <&ethphy1>;
-	phy-reset-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
-	phy-reset-active-high = <1>;
-	phy-reset-duration = <10>;
-	phy-reset-post-delay = <200>;
-	fsl,magic-packet;
-	fsl,rgmii_rxc_dly;
-	status = "okay";
+	status = "disabled";
 };
 
 &pcieb {

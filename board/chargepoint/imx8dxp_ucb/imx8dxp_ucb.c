@@ -9,9 +9,12 @@
 #include <cpu_func.h>
 #include <errno.h>
 #include <init.h>
+#include <malloc.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
+#include <linux/delay.h>
 #include <env.h>
+#include <extension_board.h>
 #include <i2c.h>
 #include <fsl_esdhc_imx.h>
 #include <asm/io.h>
@@ -26,10 +29,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/imx8qxp_lpcg.h>
 #include <asm/arch/lpcg.h>
-
-#if CONFIG_IS_ENABLED(FEC_MXC)
-#include <miiphy.h>
-#endif
 
 #include "../common/bootreason.h"
 #include "../common/fitimage_keys.h"
@@ -170,6 +169,8 @@ static void board_gpio_init(void)
 	dm_set_gpio("gpio1_7", "debug_led5", 0);
 	dm_set_gpio("gpio3_14", "debug_led11", 0);
 
+	dm_set_gpio("gpio1_4", "ethphy0_reset", 0);
+	dm_set_gpio("gpio1_5", "ethphy1_reset", 0);
 	dm_set_gpio("gpio1_6", "usb5734_reset", 0);
 
 	dm_set_gpio("gpio0_29", "ser_pwr_en", 1);
@@ -245,16 +246,6 @@ int board_late_init(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	env_set("board_name", "UCB");
 	env_set("board_rev", "iMX8DXP");
-
-	switch (get_boardid()) {
-	case UCB_BOARDID1:
-		env_set("boardid_name", "UCB_BOARDID1");
-		break;
-	default:
-	case UCB_BOARDID2:
-		env_set("boardid_name", "UCB_BOARDID2");
-		break;
-	}
 #endif
 
 #ifdef CONFIG_AHAB_BOOT
@@ -357,11 +348,13 @@ int board_late_init(void)
 }
 
 #if CONFIG_IS_ENABLED(FEC_MXC)
+#include <miiphy.h>
+
 static enum phy_vtype_e {
 	PHY_VENDOR_QUALCOMM = 1,
-	PHY_VENDOR_REALTEK,
-	PHY_VENDOR_MAX
-} phyType;
+	PHY_VENDOR_REALTEK = 2,
+	PHY_VENDOR_UNKNOWN = 0
+} phy_vendor;
 
 int board_phy_config(struct phy_device *phydev)
 {
@@ -371,14 +364,22 @@ int board_phy_config(struct phy_device *phydev)
 	 * assume the phy vendor is qualcomm - this can be verified by
 	 * the phyid as needed
 	 */
-	phyType = PHY_VENDOR_QUALCOMM;
+	phy_vendor = PHY_VENDOR_QUALCOMM;
 
 	/* check for realtek phy id based on datasheet */
 	id1 = phy_read(phydev, MDIO_DEVAD_NONE, 2);
 	id2 = phy_read(phydev, MDIO_DEVAD_NONE, 3);
 	if ((id1 == 0x001c) && (id2 == 0xc916)) {
-		phyType = PHY_VENDOR_REALTEK;
+		phy_vendor = PHY_VENDOR_REALTEK;
 	}
+	printf("Phy identifier: %x/%x\n", id1, id2);
+
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
+
+	dm_set_gpio("gpio1_4", "ethphy0_reset", 1);
+	dm_set_gpio("gpio1_5", "ethphy1_reset", 1);
+	mdelay(10);
 
 	return 0;
 }
@@ -399,91 +400,6 @@ struct codec {
 	const char *i2c_path;
 	const char *sound_path;
 };
-
-/*
- * codec_list index is tied to board id. Any alteration to
- * this list will cause issue, the order needs to maintained.
- * If new codec added to the list it must be associated with
- * a boardid.
- */
-static const struct codec codec_list[] = {
-	{"wm8974", "/bus@5a000000/i2c@5a810000/wm8974@1a/", "/sound-wm8974"},
-	{"wm8940", "/bus@5a000000/i2c@5a810000/wm8940@1a/", "/sound-wm8940"}
-};
-
-static void set_audio_codec(void *blob)
-{
-	int cid;
-	int offs;
-
-	switch (get_boardid()) {
-	case UCB_BOARDID1:
-		cid = 0;
-		break;
-	default:
-	case UCB_BOARDID2:
-		cid = 1;
-		break;
-	}
-
-	printf("Audio Codec: %s\n", codec_list[cid].name);
-
-	offs = fdt_path_offset(blob, codec_list[cid].i2c_path);
-	if (fdt_setprop_string(blob, offs, "status", "okay") < 0) {
-		printf("  Failed to set %s/status -> okay\n",
-		       codec_list[cid].i2c_path);
-	}
-	offs = fdt_path_offset(blob, codec_list[cid].sound_path);
-	if (fdt_setprop_string(blob, offs, "status", "okay") < 0) {
-		printf("  Failed to set %s/status -> okay\n",
-		       codec_list[cid].sound_path);
-	}
-}
-
-/* update device tree to support realtek specific parameters */
-#define ETHPHY0_PATH "/bus@5b000000/ethernet@5b040000"
-#define ETHPHY1_PATH "/bus@5b000000/ethernet@5b050000"
-#define MDIO_ETH_PATH "/mdio/ethernet-phy@/"
-#define ETHPHY0_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@0/"
-#define ETHPHY1_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@1/"
-
-static void realtek_phy_supp(void *blob)
-{
-	int offs;
-
-	offs = fdt_path_offset(blob,ETHPHY0_PATH);
-	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
-		printf("fdt eth0 phy-mode FDT_ERR_NOTFOUND\n");
-	}
-	if (fdt_delprop(blob, offs, "rx-internal-delay-ps") < 0) {
-		printf("fdt eth0 rx-internal-delay-ps FDT_ERR_NOTFOUND\n");
-	}
-	if (fdt_delprop(blob, offs, "fsl,ar8031-phy-fixup") < 0) {
-		printf("fdt eth0 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
-	}
-
-	offs = fdt_path_offset(blob,ETHPHY1_PATH);
-	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
-		printf("fdt eth1 phy-mode FDT_ERR_NOTFOUND\n");
-	}
-	if (fdt_delprop(blob, offs, "rx-internal-delay-ps") < 0) {
-		printf("fdt eth1 rx-internal-delay-ps FDT_ERR_NOTFOUND\n");
-	}
-	if (fdt_delprop(blob, offs, "fsl,ar8031-phy-fixup") < 0) {
-		printf("fdt eth1 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
-	}
-
-	offs = fdt_path_offset(blob,ETHPHY0_MDIO_PATH);
-	if (fdt_setprop_u32(blob, offs, "reg",1) < 0) {
-		printf("fdt eth0 reg FDT_ERR_NOTFOUND\n");
-	}
-
-	offs = fdt_path_offset(blob,ETHPHY1_MDIO_PATH);
-	if (fdt_setprop_u32(blob, offs, "reg",2) < 0) {
-		printf("fdt eth0 reg FDT_ERR_NOTFOUND\n");
-	}
-	return;
-}
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
@@ -531,14 +447,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		env_set("serial#", serial_str);
 
 		fdt_root(blob);
-	}
-
-	/* TODO - replace with a dtb overlay based on boardid */
-	set_audio_codec(blob);
-
-	printf("Phy vendor: %d\n", phyType);
-	if (phyType != PHY_VENDOR_QUALCOMM) {
-		realtek_phy_supp(blob);
 	}
 
 	/*
@@ -676,5 +584,92 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 out:
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_CMD_EXTENSION
+/*
+ * Order of the list matters - the head of the list needs to be the
+ * base configuration followed by the overlays. The interface should
+ * be based upon the following
+ *
+ *  conf-<boardname>[<boardid>][-<fitconfig>][#<overlay1][#overlay2][...]
+ */
+int extension_board_scan(struct list_head *extension_list)
+{
+	char *fitconfig;
+	struct extension *extension;
+	int nextension = 0;
+
+	fitconfig = env_get("fitconfig");
+
+	/* boardid extension */
+	extension = calloc(1, sizeof(struct extension));
+	snprintf(extension->owner, sizeof(extension->owner), "Chargepoint");
+	snprintf(extension->version, sizeof(extension->version), "0.1");
+	switch (get_boardid()) {
+	case UCB_BOARDID1:
+		snprintf(extension->name, sizeof(extension->name),
+			 "UCB_BOARDID1");
+		snprintf(extension->overlay, sizeof(extension->overlay),
+			 "boardid1.dtbo");
+		if (fitconfig == NULL) {
+			snprintf(extension->other, sizeof(extension->other),
+				 "conf-ucb1");
+		} else {
+			snprintf(extension->other, sizeof(extension->other),
+				 "conf-ucb1-%s", fitconfig);
+		}
+		break;
+	default:
+	case UCB_BOARDID2:
+		snprintf(extension->name, sizeof(extension->name),
+			 "UCB_BOARDID2");
+		snprintf(extension->overlay, sizeof(extension->overlay),
+			 "boardid2.dtbo");
+		if (fitconfig == NULL) {
+			snprintf(extension->other, sizeof(extension->other),
+				 "conf-ucb2");
+		} else {
+			snprintf(extension->other, sizeof(extension->other),
+				 "conf-ucb2-%s", fitconfig);
+		}
+		break;
+	}
+	list_add_tail(&extension->list, extension_list);
+	nextension++;
+
+#if CONFIG_IS_ENABLED(FEC_MXC)
+	/* phy vendor extension */
+	extension = calloc(1, sizeof(struct extension));
+	snprintf(extension->owner, sizeof(extension->owner), "Chargepoint");
+	snprintf(extension->version, sizeof(extension->version), "0.1");
+	switch (phy_vendor) {
+	default:
+		snprintf(extension->name, sizeof(extension->name),
+			 "PHY_VENDOR_UNKNOWN");
+		break;
+	case PHY_VENDOR_QUALCOMM:
+		snprintf(extension->name, sizeof(extension->name),
+			 "PHY_VENDOR_QUALCOMM");
+		snprintf(extension->overlay, sizeof(extension->overlay),
+			 "phy-qualcomm.dtbo");
+		snprintf(extension->other, sizeof(extension->other),
+			 "phy-qualcomm");
+		break;
+	case PHY_VENDOR_REALTEK:
+		snprintf(extension->name, sizeof(extension->name),
+			 "PHY_VENDOR_REALTEK");
+		snprintf(extension->overlay, sizeof(extension->overlay),
+			 "phy-realtek.dtbo");
+		snprintf(extension->other, sizeof(extension->other),
+			 "phy-realtek");
+		break;
+	}
+	list_add_tail(&extension->list, extension_list);
+	nextension++;
+#endif
+
+	return nextension;
 }
 #endif
