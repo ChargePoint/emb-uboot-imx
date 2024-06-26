@@ -1,6 +1,7 @@
 config CHARGEPOINT_MFG
-	bool "Build image to use fit-mfg key instead of default fit-prod key."
+	bool "chargepoint-mfg"
 	default n
 	help
-	  If set, builds the image to look for a fit-mfg key rather than the
-	  default fit-prod key. 
+	  If set, builds the image to look for mfg keys rather than the
+	  default fit keys. This changes the verification for the images
+	  so that only mfg images should be boot with this configuration.
