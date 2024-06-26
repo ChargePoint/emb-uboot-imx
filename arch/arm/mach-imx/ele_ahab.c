@@ -469,11 +469,12 @@ static int confirm_close(void)
 static int do_ahab_close(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
+	int confirmed = argc >= 2 && !strcmp(argv[1], "-y");
 	int err;
 	u32 resp;
 	u32 lc;
 
-	if (!confirm_close())
+	if (!confirmed && !confirm_close())
 		return -EACCES;
 
 	lc = readl(FSB_BASE_ADDR + 0x41c);
