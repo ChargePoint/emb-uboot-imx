@@ -443,45 +443,62 @@ static void set_audio_codec(void *blob)
 /* update device tree to support realtek specific parameters */
 #define ETHPHY0_PATH "/bus@5b000000/ethernet@5b040000"
 #define ETHPHY1_PATH "/bus@5b000000/ethernet@5b050000"
-#define MDIO_ETH_PATH "/mdio/ethernet-phy@/"
-#define ETHPHY0_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@0/"
-#define ETHPHY1_MDIO_PATH "/bus@5b000000/ethernet@5b040000/mdio/ethernet-phy@1/"
+#define ETHPHY0_MDIO_PATH ETHPHY0_PATH "/mdio/ethernet-phy@0/"
+#define ETHPHY1_MDIO_PATH ETHPHY0_PATH "/mdio/ethernet-phy@1/"
 
 static void realtek_phy_supp(void *blob)
 {
 	int offs;
 
-	offs = fdt_path_offset(blob,ETHPHY0_PATH);
-	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
+	offs = fdt_path_offset(blob, ETHPHY0_PATH);
+	if (fdt_setprop_string(blob, offs, "phy-mode", "rgmii-id") < 0) {
 		printf("fdt eth0 phy-mode FDT_ERR_NOTFOUND\n");
 	}
 	if (fdt_delprop(blob, offs, "rx-internal-delay-ps") < 0) {
 		printf("fdt eth0 rx-internal-delay-ps FDT_ERR_NOTFOUND\n");
 	}
-	if (fdt_delprop(blob, offs, "fsl,ar8031-phy-fixup") < 0) {
-		printf("fdt eth0 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
+	if (fdt_setprop(blob, offs, "chpt,rtl8211", NULL, 0) < 0) {
+		printf("fdt eth0 chpt,rtl8211 FDT_ERR_NOTFOUND\n");
 	}
 
-	offs = fdt_path_offset(blob,ETHPHY1_PATH);
-	if (fdt_setprop_string(blob, offs, "phy-mode","rgmii-id") < 0) {
+	offs = fdt_path_offset(blob, ETHPHY1_PATH);
+	if (fdt_setprop_string(blob, offs, "phy-mode", "rgmii-id") < 0) {
 		printf("fdt eth1 phy-mode FDT_ERR_NOTFOUND\n");
 	}
 	if (fdt_delprop(blob, offs, "rx-internal-delay-ps") < 0) {
 		printf("fdt eth1 rx-internal-delay-ps FDT_ERR_NOTFOUND\n");
 	}
-	if (fdt_delprop(blob, offs, "fsl,ar8031-phy-fixup") < 0) {
-		printf("fdt eth1 ar8031-phy-fixup FDT_ERR_NOTFOUND\n");
+	if (fdt_setprop(blob, offs, "chpt,rtl8211", NULL, 0) < 0) {
+		printf("fdt eth0 chpt,rtl8211 FDT_ERR_NOTFOUND\n");
 	}
 
-	offs = fdt_path_offset(blob,ETHPHY0_MDIO_PATH);
-	if (fdt_setprop_u32(blob, offs, "reg",1) < 0) {
+	/* fix PHY_ADDR */
+	offs = fdt_path_offset(blob, ETHPHY0_MDIO_PATH);
+	if (fdt_setprop_u32(blob, offs, "reg", 1) < 0) {
 		printf("fdt eth0 reg FDT_ERR_NOTFOUND\n");
 	}
 
-	offs = fdt_path_offset(blob,ETHPHY1_MDIO_PATH);
-	if (fdt_setprop_u32(blob, offs, "reg",2) < 0) {
+	offs = fdt_path_offset(blob, ETHPHY1_MDIO_PATH);
+	if (fdt_setprop_u32(blob, offs, "reg", 2) < 0) {
 		printf("fdt eth0 reg FDT_ERR_NOTFOUND\n");
 	}
+	return;
+}
+
+static void qualcomm_phy_supp(void *blob)
+{
+	int offs;
+
+	offs = fdt_path_offset(blob, ETHPHY0_PATH);
+	if (fdt_setprop(blob, offs, "chpt,ar8031", NULL, 0) < 0) {
+		printf("fdt eth0 chpt,ar8031 FDT_ERR_NOTFOUND\n");
+	}
+
+	offs = fdt_path_offset(blob, ETHPHY1_PATH);
+	if (fdt_setprop(blob, offs, "chpt,ar8031", NULL, 0) < 0) {
+		printf("fdt eth0 chpt,ar8031 FDT_ERR_NOTFOUND\n");
+	}
+
 	return;
 }
 
@@ -537,8 +554,16 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	set_audio_codec(blob);
 
 	printf("Phy vendor: %d\n", phyType);
-	if (phyType != PHY_VENDOR_QUALCOMM) {
+	switch (phyType) {
+	case PHY_VENDOR_QUALCOMM:
+		qualcomm_phy_supp(blob);
+		break;
+	case PHY_VENDOR_REALTEK:
 		realtek_phy_supp(blob);
+		break;
+	default:
+		printf("error: unknown PHY\n");
+		break;
 	}
 
 	/*
