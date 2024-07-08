@@ -150,10 +150,65 @@ static int do_extension_apply(struct cmd_tbl *cmdtp, int flag,
 	return ret;
 }
 
+#if defined(CONFIG_FIT)
+/*
+ * FIT images are handled in the bootm operations and the apply command
+ * for the extension can not see the FDT before the bootm processes it.
+ *
+ * So, to support the FIT use cases create a command that will generate
+ * an argument that can be passed to the bootm command.
+ */
+static int do_extension_fitconfig(struct cmd_tbl *cmdtp, int flag,
+				  int argc, char *const argv[])
+{
+	size_t sz;
+	char *fitconfig;
+	char *sp, *ep;
+	struct extension *extension;
+
+	if (list_empty(&extension_list)) {
+		printf("No extension registered - Please run \"extension scan\"\n");
+		return CMD_RET_SUCCESS;
+	}
+
+	sz = 0;
+	list_for_each_entry(extension, &extension_list, list) {
+		/* '#' + fit-conf-name */
+		sz += 1 + strlen(extension->other);
+	}
+	/* nil terminator */
+	sz += 1;
+	fitconfig = malloc(sz);
+	if (fitconfig == NULL) {
+		return CMD_RET_FAILURE;
+	}
+	memset(fitconfig, 0, sz);
+
+	sp = fitconfig;
+	ep = &sp[sz];
+	list_for_each_entry(extension, &extension_list, list) {
+		if (strlen(extension->other) == 0)
+			continue;
+		sp += snprintf(sp, ep - sp, "#%s", extension->other);
+		if (sp > ep)
+			sp = ep;
+	}
+
+	/* now export the string to the environment */
+	env_set("extension_fitconfig", fitconfig);
+	free(fitconfig);
+
+	return CMD_RET_SUCCESS;
+}
+#endif
+
 static struct cmd_tbl cmd_extension[] = {
 	U_BOOT_CMD_MKENT(scan, 1, 1, do_extension_scan, "", ""),
 	U_BOOT_CMD_MKENT(list, 1, 0, do_extension_list, "", ""),
 	U_BOOT_CMD_MKENT(apply, 2, 0, do_extension_apply, "", ""),
+#if defined(CONFIG_FIT)
+	U_BOOT_CMD_MKENT(fitconfig, 1, 0, do_extension_fitconfig, "", ""),
+#endif
 };
 
 static int do_extensionops(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -177,6 +232,9 @@ U_BOOT_CMD(extension, 3, 1, do_extensionops,
 	"scan - scan plugged extension(s) board(s)\n"
 	"extension list - lists available extension(s) board(s)\n"
 	"extension apply <extension number|all> - applies DT overlays corresponding to extension boards\n"
+#if defined(CONFIG_FIT)
+	"extension fitconfig - generate environment variable for boot arg\n"
+#endif
 );
 
 static int extension_bootdev_hunt(struct bootdev_hunter *info, bool show)
