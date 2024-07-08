@@ -7,7 +7,9 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <errno.h>
+#include <extension_board.h>
 #include <init.h>
+#include <malloc.h>
 #include <linux/libfdt.h>
 #include <fsl_esdhc_imx.h>
 #include <fdt_support.h>
@@ -36,14 +38,22 @@ int overwrite_console(void)
 	return 1;
 }
 
-#define ENET_INPUT_PAD_CTRL	((SC_PAD_CONFIG_OD_IN << PADRING_CONFIG_SHIFT) | (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) \
-						| (SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
+#define ENET_INPUT_PAD_CTRL \
+		((SC_PAD_CONFIG_OD_IN << PADRING_CONFIG_SHIFT) | \
+		 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+		 (SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | \
+		 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
 
-#define ENET_NORMAL_PAD_CTRL	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) \
-						| (SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
+#define ENET_NORMAL_PAD_CTRL \
+		((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
+		 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+		 (SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | \
+		 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
 
-#define GPMI_NAND_PAD_CTRL	 ((SC_PAD_CONFIG_OUT_IN << PADRING_CONFIG_SHIFT) | (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) \
-				  | (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
+#define GPMI_NAND_PAD_CTRL \
+		 ((SC_PAD_CONFIG_OUT_IN << PADRING_CONFIG_SHIFT) | \
+		  (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
+		  (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
 
 #define GPIO_PAD_CTRL	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
 			 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
@@ -236,5 +246,43 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	}
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_CMD_EXTENSION
+/*
+ * Order of the list matters - the head of the list needs to be the
+ * base configuration followed by the overlays. The interface should
+ * be based upon the following
+ *
+ *  conf-<boardname>[<boardid>][-<fitconfig>][#<overlay1][#overlay2][...]
+ */
+int extension_board_scan(struct list_head *extension_list)
+{
+	char *fitconfig;
+	struct extension *extension;
+	int nextension = 0;
+
+	fitconfig = env_get("fitconfig");
+
+	/* boardid extension */
+	extension = calloc(1, sizeof(struct extension));
+	snprintf(extension->owner, sizeof(extension->owner), "Chargepoint");
+	snprintf(extension->version, sizeof(extension->version), "0.1");
+	snprintf(extension->name, sizeof(extension->name),
+		 "PMC_BOARDID");
+	snprintf(extension->overlay, sizeof(extension->overlay),
+		 "boardid.dtbo");
+	if (fitconfig == NULL) {
+		snprintf(extension->other, sizeof(extension->other),
+			 "conf-pmc");
+	} else {
+		snprintf(extension->other, sizeof(extension->other),
+			 "conf-pmc-%s", fitconfig);
+	}
+	list_add_tail(&extension->list, extension_list);
+	nextension++;
+
+	return nextension;
 }
 #endif

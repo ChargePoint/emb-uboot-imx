@@ -191,9 +191,10 @@ config TARGET_CHARGEPOINT_IMX8DXL_KCB
 	select IMX8DXL
 
 config TARGET_CHARGEPOINT_IMX8DXL_PMC
-        bool "Support i.MX8DXL board(evk)"
-        select BOARD_LATE_INIT
-        select IMX8DXL
+	bool "Support i.MX8DXL chargepoint pmc"
+	select SUPPORT_EXTENSION_SCAN
+	select BOARD_LATE_INIT
+	select IMX8DXL
 
 config TARGET_IMX8DXL_PHANTOM_MEK
 	bool "Support i.MX8DXL PHANTOM MEK board"
