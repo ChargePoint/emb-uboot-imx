@@ -5,7 +5,10 @@
 
 #include <common.h>
 #include <env.h>
+#include <errno.h>
+#include <extension_board.h>
 #include <init.h>
+#include <malloc.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/global_data.h>
@@ -345,3 +348,41 @@ int is_recovery_key_pressing(void)
 }
 #endif /*CONFIG_ANDROID_RECOVERY*/
 #endif /*CONFIG_FSL_FASTBOOT*/
+
+#ifdef CONFIG_CMD_EXTENSION
+/*
+ * Order of the list matters - the head of the list needs to be the
+ * base configuration followed by the overlays. The interface should
+ * be based upon the following
+ *
+ *  conf-<boardname>[<boardid>][-<fitconfig>][#<overlay1][#overlay2][...]
+ */
+int extension_board_scan(struct list_head *extension_list)
+{
+	char *fitconfig;
+	struct extension *extension;
+	int nextension = 0;
+
+	fitconfig = env_get("fitconfig");
+
+	/* boardid extension */
+	extension = calloc(1, sizeof(struct extension));
+	snprintf(extension->owner, sizeof(extension->owner), "Chargepoint");
+	snprintf(extension->version, sizeof(extension->version), "0.1");
+	snprintf(extension->name, sizeof(extension->name),
+		 "CPCM_BOARDID");
+	snprintf(extension->overlay, sizeof(extension->overlay),
+		 "boardid.dtbo");
+	if (fitconfig == NULL) {
+		snprintf(extension->other, sizeof(extension->other),
+			 "conf-cpcm");
+	} else {
+		snprintf(extension->other, sizeof(extension->other),
+			 "conf-cpcm-%s", fitconfig);
+	}
+	list_add_tail(&extension->list, extension_list);
+	nextension++;
+
+	return nextension;
+}
+#endif
