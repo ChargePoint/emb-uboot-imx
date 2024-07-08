@@ -70,10 +70,11 @@ choice
 	optional
 
 config TARGET_CHARGEPOINT_IMX8MM_MCB
-	bool "ChargePoint imx8mm MCB"
+	bool "Support i.MX8MM chargepoint mcb"
 	select IMX8MM
-	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	select SUPPORT_SPL
+	select SUPPORT_EXTENSION_SCAN
 
 config TARGET_IMX8MQ_CM
 	bool "Ronetix iMX8MQ-CM SoM"

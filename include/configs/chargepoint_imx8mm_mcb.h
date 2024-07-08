@@ -95,9 +95,12 @@
 	"\0" \
 	"mmcboot=setenv -f _bootpart ${bootparta}; " \
 		"run importbootenv; " \
+		"extension scan; " \
+		"extension fitconfig; " \
 		"setenv -f bootmarg ${loadaddr}; " \
-		"if test -n ${fitconfig}; then " \
-			"setenv -f bootmarg ${loadaddr}#${fitconfig}; " \
+		"if test -n ${extension_fitconfig}; then " \
+			"setenv -f bootmarg " \
+				"${loadaddr}${extension_fitconfig}; " \
 		"fi; " \
 		"run mmctryboot; " \
 		"if test -n ${bootpart} && test ${bootpart} != none; then " \
