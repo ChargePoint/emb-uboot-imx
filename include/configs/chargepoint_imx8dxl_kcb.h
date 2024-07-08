@@ -3,8 +3,8 @@
  * Copyright 2020 NXP
  */
 
-#ifndef __IMX8DXL_CHPT_H
-#define __IMX8DXL_CHPT_H
+#ifndef __IMX8DXL_KCB_H
+#define __IMX8DXL_KCB_H
 
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
@@ -110,14 +110,12 @@
 	"\0" \
 	"mmcboot=setenv -f _bootpart ${bootparta}; " \
 		"run importbootenv; " \
-		"if test ${boardid_name} = \"KCB_BOARDID2\"; then " \
-			"setenv -f fitconfig \"kcb_boardid2\"; " \
-		"elif test ${boardid_name} = \"KCB_BOARDID3\"; then " \
-			"setenv -f fitconfig \"kcb_boardid3\"; " \
-		"fi; " \
-		"setenv -f bootmarg ${loadaddr}; "  \
-		"if test -n ${fitconfig}; then " \
-			"setenv -f bootmarg ${loadaddr}#${fitconfig}; " \
+		"extension scan; " \
+		"extension fitconfig; " \
+		"setenv -f bootmarg ${loadaddr}; " \
+		"if test -n ${extension_fitconfig}; then " \
+			"setenv -f bootmarg " \
+				"${loadaddr}${extension_fitconfig}; " \
 		"fi; " \
 		"run mmctryboot; " \
 		"if test -n ${bootpart} && test ${bootpart} != none; then " \
@@ -148,4 +146,4 @@
 	"\0"
 
 
-#endif /* __IMX8DXL_CHPT_H */
+#endif /* __IMX8DXL_KCB_H */

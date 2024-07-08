@@ -7,7 +7,9 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <errno.h>
+#include <extension_board.h>
 #include <init.h>
+#include <malloc.h>
 #include <linux/libfdt.h>
 #include <fsl_esdhc_imx.h>
 #include <fdt_support.h>
@@ -198,18 +200,6 @@ int board_late_init(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	env_set("board_name", "KCB");
 	env_set("board_rev", "iMX8DXL");
-
-	switch (get_boardid()) {
-	case KESTREL_BOARDID0:
-	case KESTREL_BOARDID1:
-	case KESTREL_BOARDID2:
-		env_set("boardid_name", "KCB_BOARDID2");
-		break;
-	default:
-	case KESTREL_BOARDID3:
-		env_set("boardid_name", "KCB_BOARDID3");
-		break;
-	}
 #endif
 
 #ifdef CONFIG_AHAB_BOOT
@@ -264,5 +254,63 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	}
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_CMD_EXTENSION
+/*
+ * Order of the list matters - the head of the list needs to be the
+ * base configuration followed by the overlays. The interface should
+ * be based upon the following
+ *
+ *  conf-<boardname>[<boardid>][-<fitconfig>][#<overlay1][#overlay2][...]
+ */
+int extension_board_scan(struct list_head *extension_list)
+{
+	char *fitconfig;
+	struct extension *extension;
+	int nextension = 0;
+
+	fitconfig = env_get("fitconfig");
+
+	/* boardid extension */
+	extension = calloc(1, sizeof(struct extension));
+	snprintf(extension->owner, sizeof(extension->owner), "Chargepoint");
+	snprintf(extension->version, sizeof(extension->version), "0.1");
+	switch (get_boardid()) {
+	case KESTREL_BOARDID0:
+	case KESTREL_BOARDID1:
+	case KESTREL_BOARDID2:
+		snprintf(extension->name, sizeof(extension->name),
+			 "KCB_BOARDID0");
+		snprintf(extension->overlay, sizeof(extension->overlay),
+			 "boardid0.dtbo");
+		if (fitconfig == NULL) {
+			snprintf(extension->other, sizeof(extension->other),
+				 "conf-kcb0");
+		} else {
+			snprintf(extension->other, sizeof(extension->other),
+				 "conf-kcb0-%s", fitconfig);
+		}
+		break;
+	default:
+	case KESTREL_BOARDID3:
+		snprintf(extension->name, sizeof(extension->name),
+			 "KCB_BOARDID3");
+		snprintf(extension->overlay, sizeof(extension->overlay),
+			 "boardid3.dtbo");
+		if (fitconfig == NULL) {
+			snprintf(extension->other, sizeof(extension->other),
+				 "conf-kcb3");
+		} else {
+			snprintf(extension->other, sizeof(extension->other),
+				 "conf-kcb3-%s", fitconfig);
+		}
+		break;
+	}
+	list_add_tail(&extension->list, extension_list);
+	nextension++;
+
+	return nextension;
 }
 #endif

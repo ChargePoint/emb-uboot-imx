@@ -185,7 +185,8 @@ config TARGET_IMX8X_17X17_VAL
 	select IMX8QXP
 
 config TARGET_CHARGEPOINT_IMX8DXL_KCB
-	bool "Support i.MX8DXL board(evk)"
+	bool "Support i.MX8DXL chargepoint kcb"
+	select SUPPORT_EXTENSION_SCAN
 	select BOARD_LATE_INIT
 	select IMX8DXL
 
