@@ -23,9 +23,11 @@
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include "../../freescale/common/pfuze.h"
+#include <extension_board.h>
 #include <i2c.h>
 #include <usb.h>
 #include <usb/ehci-ci.h>
+#include <malloc.h>
 #include <mmc.h>
 #include <net.h>
 #include <fsl_esdhc.h>
@@ -970,3 +972,41 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
+
+#ifdef CONFIG_CMD_EXTENSION
+/*
+ * Order of the list matters - the head of the list needs to be the
+ * base configuration followed by the overlays. The interface should
+ * be based upon the following
+ *
+ *  conf-<boardname>[<boardid>][-<fitconfig>][#<overlay1][#overlay2][...]
+ */
+int extension_board_scan(struct list_head *extension_list)
+{
+	char *fitconfig;
+	struct extension *extension;
+	int nextension = 0;
+
+	fitconfig = env_get("fitconfig");
+
+	/* boardid extension */
+	extension = calloc(1, sizeof(struct extension));
+	snprintf(extension->owner, sizeof(extension->owner), "Chargepoint");
+	snprintf(extension->version, sizeof(extension->version), "0.1");
+	snprintf(extension->name, sizeof(extension->name),
+		 "CPNK_BOARDID");
+	snprintf(extension->overlay, sizeof(extension->overlay),
+		 "boardid.dtbo");
+	if (fitconfig == NULL) {
+		snprintf(extension->other, sizeof(extension->other),
+			 "conf-cpnk");
+	} else {
+		snprintf(extension->other, sizeof(extension->other),
+			 "conf-cpnk-%s", fitconfig);
+	}
+	list_add_tail(&extension->list, extension_list);
+	nextension++;
+
+	return nextension;
+}
+#endif
