@@ -612,6 +612,7 @@ config TARGET_ZC5601
 
 config TARGET_IMX6CPNK
 	bool "imx6cpnk"
+	select SUPPORT_EXTENSION_SCAN
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL
@@ -623,6 +624,7 @@ config TARGET_IMX6CPNK
 
 config TARGET_IMX6PBC
 	bool "imx6pbc"
+	select SUPPORT_EXTENSION_SCAN
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL

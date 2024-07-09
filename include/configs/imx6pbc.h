@@ -237,11 +237,18 @@
 				"${_trybootpart} ...; " \
 			"ext4load mmc ${_trybootpart} ${loadaddr} " \
 				"${bootfile} && " \
-					"bootm ${loadaddr}; " \
+					"bootm ${bootmarg}; " \
 		"fi; " \
 	"\0" \
 	"mmcboot=setenv -f _bootpart ${bootparta}; " \
 		"run importbootenv; " \
+		"extension scan; " \
+		"extension fitconfig; " \
+		"setenv -f bootmarg ${loadaddr}; " \
+		"if test -n ${extension_fitconfig}; then " \
+			"setenv -f bootmarg " \
+				"${loadaddr}${extension_fitconfig}; " \
+		"fi; " \
 		"run mmctryboot; " \
 		"if test -n ${bootpart} && test ${bootpart} != none; then " \
 			"setenv -f _bootpart ${bootpart}; " \
@@ -253,7 +260,7 @@
 			"root=PARTUUID=${bootuuid} rootwait rw " \
 			"${bootargs_append}; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
-			"bootm ${loadaddr}; " \
+			"bootm ${bootmarg}; " \
 		"if test ${_bootpart} = ${bootparta}; then " \
 			"setenv -f _bootpart ${bootpartb}; " \
 		"else " \
@@ -267,7 +274,7 @@
 			"systemd.unit=rescue.target " \
 			"${bootargs_append}; " \
 		"ext4load mmc ${_bootpart} ${loadaddr} ${bootfile} && " \
-			"bootm ${loadaddr}; " \
+			"bootm ${bootmarg}; " \
 	"\0"
 
 #define CONFIG_BOOTCOMMAND \
