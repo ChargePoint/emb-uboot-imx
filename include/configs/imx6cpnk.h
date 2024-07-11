@@ -272,11 +272,7 @@
 		"run importbootenv; " \
 		"extension scan; " \
 		"extension fitconfig; " \
-		"setenv -f bootmarg ${loadaddr}; " \
-		"if test -n ${extension_fitconfig}; then " \
-			"setenv -f bootmarg " \
-				"${loadaddr}${extension_fitconfig}; " \
-		"fi; " \
+		"setenv -f bootmarg ${loadaddr}${extension_fitconfig}; " \
 		"run mmctryboot; " \
 		"if test -n ${bootpart} && test ${bootpart} != none; then " \
 			"setenv -f _bootpart ${bootpart}; " \
