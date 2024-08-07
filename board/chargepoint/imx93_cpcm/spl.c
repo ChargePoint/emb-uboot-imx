@@ -168,6 +168,7 @@ void board_init_f(ulong dummy)
 	soc_power_init();
 
 	/* Setup TRDC for DDR access */
+	printf("Setting up the TRDC\n");
 	trdc_init();
 
 	/* DDR initialization */
