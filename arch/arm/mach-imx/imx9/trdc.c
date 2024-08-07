@@ -389,8 +389,10 @@ void trdc_early_init(void)
 
 void trdc_init(void)
 {
+	printf("trdc_init()\n");
 	/* TRDC mega */
 	if (trdc_mrc_enabled(0x49010000)) {
+		printf("trdc_init() -- actually setting the regions");
 		/* DDR */
 		trdc_mrc_set_control(0x49010000, 0, 0, 0x7777);
 
