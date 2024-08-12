@@ -373,7 +373,9 @@ int board_phy_config(struct phy_device *phydev)
 
 	dm_set_gpio("gpio1_4", "ethphy0_reset", 1);
 	dm_set_gpio("gpio1_5", "ethphy1_reset", 1);
-	mdelay(10);
+	mdelay(50);
+	dm_set_gpio("gpio1_4", "ethphy0_reset", 0);
+	dm_set_gpio("gpio1_5", "ethphy1_reset", 0);
 
 	return 0;
 }
