@@ -26,10 +26,9 @@
 #include "imx6q.dtsi"
 #include "imx6qp.dtsi"
 
-#if defined(CONFIG_NOT_UUU_BUILD)
+/* include pubic keys for fit verification */
 #include "chargepoint-pubkey.dtsi"
 #include "cpnk-pubkey.dtsi"
-#endif
 
 / {
 	model = "ChargePoint i.MX6QP CPNK Board";
