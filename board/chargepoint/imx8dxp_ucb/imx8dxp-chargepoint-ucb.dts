@@ -17,10 +17,9 @@
 /* Refer to fsl-imx8qxp-mek.dts and imx6qp-cpnk.dts */
 #include "fsl-imx8qxp.dtsi"
 
-#if !defined(CONFIG_FASTBOOT_UUU_SUPPORT)
+/* include pubic keys for fit verification */
 #include "chargepoint-pubkey.dtsi"
 #include "ucb-pubkey.dtsi"
-#endif
 
 / {
 	model = "ChargePoint i.MX8DXP UCB";

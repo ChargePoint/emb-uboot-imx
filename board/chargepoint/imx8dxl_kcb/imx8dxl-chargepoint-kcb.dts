@@ -7,10 +7,9 @@
 
 #include "fsl-imx8dxl.dtsi"
 
-#if !defined(CONFIG_FASTBOOT_UUU_SUPPORT)
+/* include pubic keys for fit verification */
 #include "chargepoint-pubkey.dtsi"
 #include "kcb-pubkey.dtsi"
-#endif
 
 / {
 	model = "NXP i.MX8DXL Chargepoint KCB Board";

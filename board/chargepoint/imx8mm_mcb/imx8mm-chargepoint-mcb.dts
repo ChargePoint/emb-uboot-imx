@@ -8,10 +8,9 @@
 #include <dt-bindings/usb/pd.h>
 #include "imx8mm-chargepoint-mcb.dtsi"
 
-#if !defined(CONFIG_FASTBOOT)
+/* include pubic keys for fit verification */
 #include "chargepoint-pubkey.dtsi"
 #include "mcb-pubkey.dtsi"
-#endif
 
 / {
 	model = "NXP i.MX8MM ChargePoint MCB board";
