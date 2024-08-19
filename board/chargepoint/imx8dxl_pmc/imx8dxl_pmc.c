@@ -24,6 +24,8 @@
 #include <usb.h>
 #include <asm/setup.h>
 #include <asm/bootm.h>
+
+#include "../common/bootreason.h"
 #include "../common/fitimage_keys.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -189,16 +191,27 @@ int board_late_init(void)
 
 	build_info();
 
-#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	env_set("board_name", "PMC");
-	env_set("board_rev", "iMX8DXL");
-#endif
+	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)) {
+		env_set("board_name", "PMC");
+		env_set("board_rev", "iMX8DXL");
+	}
 
 #ifdef CONFIG_AHAB_BOOT
 	env_set("sec_boot", "yes");
 #else
 	env_set("sec_boot", "no");
 #endif
+
+	/*
+	 * Set the reason the system was reset by reading the watchdog
+	 * reset reason.
+	 */
+	int appendcnt = 0;
+	char appendargs[512] = {0};
+	appendcnt += scnprintf(&appendargs[appendcnt],
+			       sizeof(appendargs) - appendcnt,
+			       " resetreason=%s", get_wdog_reset_reason());
+	env_set("bootargs_append", appendargs);
 
 	/* Determine the security state of the chip (OEM closed) */
 	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);

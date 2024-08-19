@@ -237,10 +237,10 @@ int board_late_init(void)
 
 	build_info();
 
-#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	env_set("board_name", "UCB");
-	env_set("board_rev", "iMX8DXP");
-#endif
+	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)) {
+		env_set("board_name", "UCB");
+		env_set("board_rev", "iMX8DXP");
+	}
 
 #ifdef CONFIG_AHAB_BOOT
 	env_set("sec_boot", "yes");

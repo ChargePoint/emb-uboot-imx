@@ -22,6 +22,8 @@
 #include <i2c.h>
 #include <asm/io.h>
 #include <usb.h>
+
+#include "../common/bootreason.h"
 #include "../common/fitimage_keys.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -96,21 +98,26 @@ int board_init(void)
 
 int board_late_init(void)
 {
-#ifdef CONFIG_ENV_IS_IN_MMC
-	board_late_mmc_env_init();
-#endif
-
 	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)) {
 		env_set("board_name", "MCB");
 		env_set("board_rev", "iMX8MM");
 	}
 
-#if !defined(CONFIG_FASTBOOT)
+	/*
+	 * Set the reason the system was reset by reading the watchdog
+	 * reset reason.
+	 */
+	int appendcnt = 0;
+	char appendargs[512] = {0};
+	appendcnt += scnprintf(&appendargs[appendcnt],
+			       sizeof(appendargs) - appendcnt,
+			       " resetreason=%s", get_wdog_reset_reason());
+	env_set("bootargs_append", appendargs);
+
 	/* set an environment that this is a secure boot */
 	if (imx_hab_is_enabled()) {
 		env_set("bootargs_secureboot", "uboot-secureboot");
 	}
-#endif
 
 	return 0;
 }
